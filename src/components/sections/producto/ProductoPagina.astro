@@ -35,7 +35,9 @@ const pageTitle = `${referencia.name} | ${SITE.title}`;
 const metaDescription =
   referencia.description && referencia.description.length >= 40
     ? referencia.description
-    : `${referencia.name}: referencia de ${referencia.group.toLowerCase()} de ${SITE.legalName}. Consulte especificaciones y usos, y cotice en línea o por WhatsApp.`;
+    : // Sin punto tras la razón social: ya termina en uno («S.A.S.») y se veían
+      // dos seguidos en la metadescripción de las 115 fichas.
+      `${referencia.name}: referencia de ${referencia.group.toLowerCase()} de ${SITE.legalName} Consulte especificaciones y usos, y cotice en línea o por WhatsApp.`;
 
 /*
  * Product SIN `offers`. Este sitio no publica precios —se cotizan según

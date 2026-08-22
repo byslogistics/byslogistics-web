@@ -1,0 +1,282 @@
+---
+/**
+ * Política de privacidad del sitio web.
+ *
+ * Complementa —no repite— la Política de Tratamiento de Datos Personales
+ * (POGE01), que es el documento corporativo y cubre a clientes, proveedores,
+ * empleados y visitantes de las instalaciones. Esta página baja al detalle de
+ * lo único que aquella no puede cubrir: qué pasa exactamente cuando alguien
+ * usa *esta* página web.
+ *
+ * REGLA AL EDITARLA: cada afirmación de aquí describe algo que el código hace
+ * de verdad, y se puede comprobar en el repositorio. Las referencias, por si
+ * hay que revisarlas cuando el sitio cambie:
+ *
+ *   - Formularios de contacto y suscripción → Netlify Forms
+ *     (`data-netlify` en ContactSection.astro y FooterSection.astro;
+ *      nombres en FORMS, constants.ts).
+ *   - Cotizador → `localStorage` con la clave `bys-cotizacion`
+ *     (src/assets/scripts/quoteCart.js). No se envía a ningún servidor.
+ *   - Tema claro/oscuro → `localStorage` con la clave `hs_theme`
+ *     (MainLayout.astro y Navbar.astro).
+ *   - Mapa de la página de contacto → iframe de Google Maps
+ *     (CONTACT.mapEmbed; la CSP lo permite explícitamente en netlify.toml).
+ *   - Asistente → /api/chat (netlify/functions/chat.mts), que reenvía el
+ *     mensaje a un proveedor de modelos de lenguaje. No guarda las
+ *     conversaciones; el contador de uso vive en memoria y se pierde al
+ *     reiniciar la función.
+ *   - No hay analítica ni píxeles: la CSP de netlify.toml no permite conexiones
+ *     ni scripts de terceros, así que si alguien los añadiera, dejarían de
+ *     funcionar antes de llegar a producción.
+ *
+ * Si mañana se añade analítica, un chat de terceros o un píxel de publicidad,
+ * hay que actualizar esta página EN EL MISMO cambio. Publicar «no usamos
+ * analítica» cuando sí se usa es una declaración falsa, no un descuido.
+ */
+import LegalPage from '@components/sections/legal/LegalPage.astro';
+import { CONTACT, LEGAL, SITE } from '@data/constants';
+
+const { entidad } = LEGAL;
+const dominio = SITE.url.replace(/^https:\/\//, '');
+---
+
+<LegalPage
+  url="/politica-de-privacidad"
+  title="Política de privacidad"
+  description="Qué datos recoge este sitio web, para qué se usan, con quién se comparten y cómo ejercer sus derechos como titular de la información."
+>
+  <p>
+    Esta política explica qué ocurre con su información cuando navega por{' '}
+    <strong>{dominio}</strong>, escribe por el formulario de contacto, se
+    suscribe a las novedades, arma una cotización o le pregunta algo al
+    asistente del sitio.
+  </p>
+  <p>
+    Es el complemento de la{' '}
+    <a href="/politica-de-datos">Política de Tratamiento de Datos Personales</a
+    >, que es el documento corporativo aprobado por la Gerencia y el que fija
+    sus derechos y los deberes de la empresa. Si algo de esta página pareciera
+    contradecir aquel documento, prevalece aquel documento.
+  </p>
+
+  <h2 id="responsable">1. Quién responde por sus datos</h2>
+  <p>
+    El responsable del tratamiento es <strong>{entidad.razonSocial}</strong>,
+    NIT {entidad.nit}, con domicilio en {entidad.domicilio} y dirección
+    {' '}{entidad.direccion}. Para cualquier asunto relacionado con sus datos
+    personales, incluido el ejercicio de sus derechos, el canal es{' '}
+    <a href={`mailto:${entidad.email}`}>{entidad.email}</a>.
+  </p>
+
+  <h2 id="que-recogemos">2. Qué información recogemos</h2>
+  <p>
+    Solo la que usted escribe. El sitio no le pide registrarse, no crea perfiles
+    y no le sigue el rastro entre visitas.
+  </p>
+
+  <h3>Formulario de contacto</h3>
+  <p>
+    Nombre, correo electrónico, teléfono, empresa y el mensaje que redacte.
+    Todos los campos los diligencia usted; para enviarlo hay que marcar de forma
+    expresa la casilla de autorización de tratamiento de datos.
+  </p>
+
+  <h3>Suscripción a novedades</h3>
+  <p>
+    Únicamente el correo electrónico. Puede pedir la baja en cualquier momento
+    escribiendo a <a href={`mailto:${entidad.email}`}>{entidad.email}</a>.
+  </p>
+
+  <h3>Cotizador</h3>
+  <p>
+    Las referencias y cantidades que añade al cotizador se guardan en su propio
+    navegador y <strong>no se envían a ningún servidor</strong> mientras no decida
+    enviarlas: al pulsar el botón se abre WhatsApp con la lista ya redactada, y es
+    ahí donde usted decide si la manda.
+  </p>
+
+  <h3>Asistente del sitio</h3>
+  <p>
+    Lo que escribe en la ventana del asistente. Vea el numeral{' '}
+    <a href="#asistente">6</a>.
+  </p>
+
+  <h3>Datos técnicos del servidor</h3>
+  <p>
+    Como cualquier sitio web, el servidor que lo aloja registra las peticiones
+    que recibe (dirección IP, fecha y hora, página solicitada, navegador). Son
+    registros técnicos de seguridad y funcionamiento; no se cruzan con los
+    formularios ni se usan con fines comerciales.
+  </p>
+  <p>
+    <strong>No recolectamos datos sensibles</strong> en los términos del artículo
+    5 de la Ley 1581 de 2012, ni datos de menores de edad, ni información financiera
+    o de tarjetas de pago. Este sitio no vende en línea y nunca le pedirá un dato
+    de pago.
+  </p>
+
+  <h2 id="finalidades">3. Para qué la usamos</h2>
+  <ul>
+    <li>Responder su consulta y prepararle una cotización.</li>
+    <li>
+      Gestionar la relación comercial: pedidos, despachos, facturación y
+      servicio posventa.
+    </li>
+    <li>
+      Enviarle novedades sobre nuestros productos, únicamente si se suscribió.
+    </li>
+    <li>Cumplir las obligaciones legales, contables y tributarias.</li>
+  </ul>
+  <p>
+    <strong>
+      No vendemos, arrendamos ni cedemos sus datos personales a terceros con
+      fines comerciales
+    </strong>, ni los usamos para publicidad segmentada.
+  </p>
+
+  <h2 id="cookies">4. Cookies y almacenamiento en su navegador</h2>
+  <p>
+    <strong>
+      Este sitio no instala cookies de analítica, de publicidad ni de
+      seguimiento
+    </strong>, y no comparte su navegación con redes publicitarias. Por eso no
+    verá un aviso de cookies pidiéndole permiso: no hay nada que consentir.
+  </p>
+  <p>
+    Sí guardamos dos cosas en el almacenamiento local de su navegador, que nunca
+    salen de su equipo y que usted puede borrar cuando quiera desde los ajustes
+    del navegador:
+  </p>
+  <ul>
+    <li>
+      <strong><code>bys-cotizacion</code></strong> — las referencias que añadió al
+      cotizador, para que no se pierdan al cambiar de página.
+    </li>
+    <li>
+      <strong><code>hs_theme</code></strong> — si eligió el modo claro u oscuro.
+    </li>
+  </ul>
+
+  <h2 id="terceros">5. Terceros que intervienen</h2>
+  <p>
+    El sitio se apoya en unos pocos proveedores de infraestructura. Ninguno
+    recibe sus datos para usarlos por su cuenta: los procesan por encargo
+    nuestro y para prestar el servicio.
+  </p>
+  <ul>
+    <li>
+      <strong>Netlify</strong> — aloja el sitio y recibe los envíos de los formularios
+      de contacto y de suscripción, que quedan en su panel para que el equipo comercial
+      los atienda.
+    </li>
+    <li>
+      <strong>Google Maps</strong> — la página de contacto incrusta el mapa de nuestra
+      ubicación. Al cargarlo, Google puede recibir su dirección IP y aplicar sus propias
+      políticas. Si prefiere evitarlo, la dirección también está escrita en texto
+      en esa misma página.
+    </li>
+    <li>
+      <strong>Proveedores de modelos de lenguaje</strong> — solo intervienen si usted
+      usa el asistente. Vea el numeral siguiente.
+    </li>
+    <li>
+      <strong>WhatsApp</strong> — si decide escribirnos por ese botón, la conversación
+      se rige por las condiciones de WhatsApp.
+    </li>
+  </ul>
+  <p>
+    Algunos de estos proveedores operan servidores fuera de Colombia, de modo
+    que el uso del sitio implica una transferencia internacional de los datos
+    estrictamente necesarios para prestar el servicio.
+  </p>
+
+  <h2 id="asistente">6. El asistente del sitio</h2>
+  <p>
+    El asistente responde preguntas sobre el catálogo. Para redactar la
+    respuesta, su mensaje se envía a un proveedor de modelos de lenguaje junto
+    con la información pública del sitio. Conviene saber tres cosas:
+  </p>
+  <ul>
+    <li>
+      <strong>No guardamos las conversaciones.</strong> El historial vive en la pestaña
+      que tiene abierta y desaparece al cerrarla.
+    </li>
+    <li>
+      <strong>No escriba datos personales ni confidenciales</strong> en el asistente.
+      Para eso está el formulario de contacto, que es el canal previsto y el que lleva
+      la autorización de tratamiento.
+    </li>
+    <li>
+      <strong>El asistente no da precios</strong> ni cierra negocios; deriva al equipo
+      comercial. Sus respuestas son orientativas y no obligan a la empresa.
+    </li>
+  </ul>
+
+  <h2 id="conservacion">7. Cuánto tiempo la conservamos</h2>
+  <p>
+    Los datos se conservan mientras se mantenga la relación comercial y,
+    después, durante el término necesario para cumplir las obligaciones legales
+    aplicables, conforme al numeral 11 de la{' '}
+    <a href="/politica-de-datos#vigencia-bases"
+      >Política de Tratamiento de Datos Personales</a
+    >. Cuando desaparece la finalidad y no queda ningún deber legal de
+    conservarlos, se eliminan o se anonimizan.
+  </p>
+
+  <h2 id="seguridad">8. Cómo la protegemos</h2>
+  <p>
+    El sitio se sirve siempre por conexión cifrada (HTTPS) y declara cabeceras
+    de seguridad que impiden cargar scripts o conexiones de terceros no
+    previstos. El acceso a los envíos de los formularios está restringido al
+    personal que debe atenderlos.
+  </p>
+  <p>
+    Ninguna medida es infalible. Si detecta un problema de seguridad en el
+    sitio, le agradecemos que nos escriba a{' '}
+    <a href={`mailto:${entidad.email}`}>{entidad.email}</a> antes de hacerlo público.
+  </p>
+
+  <h2 id="derechos">9. Sus derechos y cómo ejercerlos</h2>
+  <p>
+    Como titular puede conocer, actualizar y rectificar sus datos, pedir prueba
+    de la autorización, saber qué uso se les ha dado, revocar la autorización,
+    solicitar su supresión cuando proceda, acceder a ellos gratuitamente y
+    presentar quejas ante la Superintendencia de Industria y Comercio.
+  </p>
+  <p>
+    Para ejercerlos escriba a{' '}
+    <a href={`mailto:${entidad.email}`}>{entidad.email}</a> con su nombre completo,
+    su número de identificación, los datos de contacto donde quiere recibir respuesta
+    y una descripción clara de la solicitud. El procedimiento completo y los plazos
+    están en el numeral 9 de la{' '}
+    <a href="/politica-de-datos#consultas-y-reclamos"
+      >Política de Tratamiento de Datos Personales</a
+    >.
+  </p>
+
+  <h2 id="menores">10. Menores de edad</h2>
+  <p>
+    Este sitio se dirige a empresas y a personas mayores de edad. No recogemos
+    de forma consciente datos de menores. Si cree que un menor nos dejó sus
+    datos, escríbanos y los suprimimos.
+  </p>
+
+  <h2 id="enlaces">11. Enlaces a otros sitios</h2>
+  <p>
+    Cuando salga de {dominio} —a WhatsApp, a nuestras redes sociales o a cualquier
+    otro enlace— rigen las políticas de esos sitios, sobre las que no tenemos control.
+  </p>
+
+  <h2 id="cambios">12. Cambios en esta política</h2>
+  <p>
+    Podemos actualizar esta página cuando cambien la legislación aplicable, los
+    proveedores del sitio o su funcionamiento. La fecha de la última
+    actualización aparece al comienzo del documento; cualquier cambio sustancial
+    se anunciará en este mismo sitio.
+  </p>
+  <p>
+    Para dudas sobre esta política, escríbanos a{' '}
+    <a href={`mailto:${entidad.email}`}>{entidad.email}</a> o llámenos al{' '}
+    <a href={CONTACT.pbx[0].href}>{CONTACT.pbx[0].label}</a>.
+  </p>
+</LegalPage>

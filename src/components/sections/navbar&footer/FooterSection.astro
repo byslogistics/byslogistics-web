@@ -1,11 +1,29 @@
 ---
-// Import the necessary dependencies
+/**
+ * Pie del sitio.
+ *
+ * Tres piezas, de arriba abajo:
+ *
+ *   1. La rejilla: marca y datos de la empresa, las columnas de enlaces
+ *      (Productos, Empresa, Legal) y la suscripción.
+ *   2. La barra inferior: identidad legal —razón social y NIT— y redes.
+ *
+ * La columna «Legal» no se escribe aquí: sale de `strings.legalLinks`, que a
+ * su vez sale de `LEGAL.documentos` en constants.ts. Es la misma lista de la
+ * que nacen las tres páginas legales, así que ninguna puede quedar publicada
+ * sin enlace en el footer.
+ *
+ * SOBRE LA RAZÓN SOCIAL de la barra inferior: usa `LEGAL.entidad.razonSocial`
+ * («BYS LOGISTICS S.A.S.»), no `SITE.legalName`. Es la línea de identidad
+ * legal del sitio, y tiene que decir lo mismo que los documentos que enlaza
+ * justo encima. Ver la nota de `LEGAL` en constants.ts.
+ */
 import FooterSocialLink from '@components/ui/links/FooterSocialLink.astro';
 import EmailFooterInput from '@components/ui/forms/input/EmailFooterInput.astro';
 import strings from '@utils/navigation.ts';
 import Icon from '@components/ui/icons/Icon.astro';
 import BrandLogo from '@components/BrandLogo.astro';
-import { CONTACT, FORMS, SITE } from '@data/constants';
+import { CONTACT, FORMS, LEGAL, SITE } from '@data/constants';
 
 const sectionThreeTitle: string = 'Manténgase al día';
 const sectionThreeContent: string =
@@ -22,31 +40,68 @@ const socialIcons = [
 const activeSocials = socialIcons.filter(
   ({ key }) => (strings.socialLinks as Record<string, string>)[key]
 );
+
+// Clase común de los enlaces de las columnas. El alto mínimo de 11 (44 px) en
+// pantalla pequeña es el área táctil que pide la WCAG; a partir de `md` se
+// suelta, porque con puntero la lista compacta se lee mejor.
+const linkClass =
+  'inline-flex min-h-11 items-center gap-x-2 rounded-lg py-1 text-neutral-600 ring-zinc-500 outline-hidden transition duration-300 hover:text-neutral-800 focus-visible:ring-3 md:min-h-0 md:py-0 dark:text-neutral-400 dark:ring-zinc-200 dark:hover:text-neutral-200 dark:focus:outline-hidden';
 ---
 
 <footer class="w-full bg-neutral-300 dark:bg-neutral-900">
   <div
     class="mx-auto w-full max-w-[85rem] px-10 py-14 sm:px-14 lg:px-20 lg:pt-20"
   >
-    <div class="grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-5">
-      <div class="col-span-full lg:col-span-1">
+    {
+      /*
+      La rejilla crece de 2 columnas a 6 y a 7: en `lg` son marca (2), las tres
+      columnas de enlaces (1 cada una) y la suscripción (2).
+    */
+    }
+    <div
+      class="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-6 lg:grid-cols-7"
+    >
+      <div class="col-span-2 md:col-span-6 lg:col-span-2">
         {/* Brand Logo */}
         <BrandLogo class="h-auto w-32" />
+
+        <p class="mt-5 max-w-sm text-sm text-neutral-600 dark:text-neutral-400">
+          {SITE.description_short}
+        </p>
+
+        {
+          /*
+          Los datos de la empresa en el footer no son decorativos: en un sitio
+          B2B son lo que un comprador busca para verificar con quién trata
+          antes de escribir. `<address>` es el elemento que les corresponde;
+          va sin cursiva porque el navegador la pone de fábrica.
+        */
+        }
+        <address
+          class="mt-5 grid gap-y-1 text-sm text-neutral-600 not-italic dark:text-neutral-400"
+        >
+          <span>{CONTACT.address}</span>
+          <span>{CONTACT.city}</span>
+          <a href={CONTACT.pbx[0].href} class={linkClass}>
+            {CONTACT.pbx[0].label}
+          </a>
+          <a href={`mailto:${CONTACT.email}`} class={linkClass}>
+            {CONTACT.email}
+          </a>
+        </address>
       </div>
+
       {/* An array of links for Product and Company sections */}
       {
         strings.footerLinks.map(section => (
-          <div class="col-span-1">
+          <div class="col-span-1 md:col-span-2 lg:col-span-1">
             <h3 class="font-bold text-neutral-800 dark:text-neutral-200">
               {section.section}
             </h3>
             <ul class="mt-3 grid space-y-3">
               {section.links.map(link => (
                 <li>
-                  <a
-                    href={link.url}
-                    class="inline-flex min-h-11 items-center gap-x-2 rounded-lg py-1 text-neutral-600 ring-zinc-500 outline-hidden transition duration-300 hover:text-neutral-800 focus-visible:ring-3 md:min-h-0 md:py-0 dark:text-neutral-400 dark:ring-zinc-200 dark:hover:text-neutral-200 dark:hover:text-neutral-300 dark:focus:outline-hidden"
-                  >
+                  <a href={link.url} class={linkClass}>
                     {link.name}
                   </a>
                 </li>
@@ -56,7 +111,23 @@ const activeSocials = socialIcons.filter(
         ))
       }
 
-      <div class="col-span-2">
+      {/* Documentos legales: términos, privacidad y tratamiento de datos. */}
+      <div class="col-span-1 md:col-span-2 lg:col-span-1">
+        <h3 class="font-bold text-neutral-800 dark:text-neutral-200">Legal</h3>
+        <ul class="mt-3 grid space-y-3">
+          {
+            strings.legalLinks.map(link => (
+              <li>
+                <a href={link.url} class={linkClass}>
+                  {link.name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="col-span-2 md:col-span-6 lg:col-span-2">
         <h3 class="font-bold text-neutral-800 dark:text-neutral-200">
           {sectionThreeTitle}
         </h3>
@@ -94,18 +165,32 @@ const activeSocials = socialIcons.filter(
       </div>
     </div>
 
+    {
+      /*
+      Barra inferior. Lleva la identidad legal completa —razón social y NIT—
+      porque es el dato con el que se comprueba una empresa colombiana, y
+      porque acompaña a los documentos que la rejilla acaba de enlazar.
+    */
+    }
     <div
-      class="mt-9 grid gap-y-2 sm:mt-12 sm:flex sm:items-center sm:justify-between sm:gap-y-0"
+      class="mt-12 flex flex-col gap-y-4 border-t border-neutral-400/60 pt-8 sm:flex-row sm:items-center sm:justify-between sm:gap-y-0 dark:border-neutral-700"
     >
-      <div class="flex items-center justify-between">
-        <p class="text-sm text-neutral-600 dark:text-neutral-400">
+      <div class="text-sm text-neutral-600 dark:text-neutral-400">
+        <p>
+          {
+            /*
+            Sin punto después de la razón social: ya termina en uno («S.A.S.»)
+            y se veían dos seguidos.
+          */
+          }
           © <span id="current-year"></span>{` `}
-          {SITE.legalName} Todos los derechos reservados.
+          {LEGAL.entidad.razonSocial} Todos los derechos reservados.
         </p>
+        <p class="mt-1">NIT {LEGAL.entidad.nit}</p>
       </div>
 
       {/* Social Brands */}
-      <div>
+      <div class="-ml-2 flex items-center sm:ml-0">
         {
           activeSocials.map(social => (
             <FooterSocialLink

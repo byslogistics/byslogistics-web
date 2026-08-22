@@ -1,0 +1,291 @@
+---
+/**
+ * Plantilla común de las tres páginas legales del sitio: términos y
+ * condiciones, política de privacidad y política de tratamiento de datos.
+ *
+ * Existe para que los tres documentos se vean como lo que son —un cuerpo
+ * documental, no tres páginas sueltas escritas en momentos distintos—: mismo
+ * encabezado, misma tipografía de lectura, mismo índice y, al final, los
+ * enlaces cruzados a los otros dos.
+ *
+ * El índice NO se declara a mano. Se saca del propio contenido renderizando
+ * el slot y leyendo sus `<h2 id="…">`. Es la única forma de que no se
+ * desincronice: en un documento legal las secciones se renumeran y se parten
+ * cada vez que cambia la ley, y un índice escrito aparte se queda viejo a la
+ * primera. La contrapartida es que **cada `<h2>` debe llevar `id`**; el que no
+ * lo lleve simplemente no aparece en el índice, sin romper la página.
+ */
+import MainLayout from '@/layouts/MainLayout.astro';
+import Breadcrumb from '@components/ui/blocks/Breadcrumb.astro';
+import { CONTACT, LEGAL, SITE } from '@data/constants';
+
+interface Props {
+  /** Ruta del documento; debe existir en `LEGAL.documentos`. */
+  url: string;
+  /** Titular de la página. */
+  title: string;
+  /** Meta descripción y subtítulo bajo el titular. */
+  description: string;
+}
+
+const { url, title, description } = Astro.props;
+
+const doc = LEGAL.documentos.find(d => d.url === url);
+if (!doc) {
+  throw new Error(
+    `LegalPage: «${url}» no está en LEGAL.documentos (constants.ts). ` +
+      'Agrégalo ahí para que aparezca en el footer y en los enlaces cruzados.'
+  );
+}
+
+const otros = LEGAL.documentos.filter(d => d.url !== url);
+
+/*
+ * El índice, sacado del contenido ya renderizado. `[\s\S]` en vez de `.` para
+ * que un titular partido en dos líneas por el formateador siga contando.
+ */
+const contenido = await Astro.slots.render('default');
+const indice = [
+  ...contenido.matchAll(/<h2\b[^>]*\bid="([^"]+)"[^>]*>([\s\S]*?)<\/h2>/g),
+].map(([, id, interior]) => ({
+  id,
+  // El titular puede traer marcado dentro (una sigla en <abbr>, por ejemplo)
+  // y entidades que Astro escapó al renderizar; el índice las quiere en texto
+  // plano.
+  titulo: interior
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;|&#38;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;|&#34;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim(),
+}));
+
+const pageTitle = `${title} | ${SITE.title}`;
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${SITE.url}${url}`,
+  url: `${SITE.url}${url}`,
+  name: title,
+  description,
+  inLanguage: 'es-CO',
+  dateModified: doc.actualizadoISO,
+  publisher: {
+    '@type': 'Organization',
+    name: LEGAL.entidad.razonSocial,
+    url: SITE.url,
+  },
+};
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={description}
+  customOgTitle={title}
+  structuredData={structuredData}
+>
+  <article class="mx-auto max-w-[85rem] px-10 py-12 sm:px-14 lg:px-20 lg:py-16">
+    <Breadcrumb items={[{ name: 'Inicio', url: '/' }, { name: doc.nombre }]} />
+
+    <header
+      class="mt-6 border-b border-neutral-300 pb-8 dark:border-neutral-700"
+    >
+      <p
+        class="text-brand-700 dark:text-brand-400 text-sm font-semibold tracking-wide uppercase"
+      >
+        Información legal
+      </p>
+      <h1
+        class="mt-2 max-w-4xl text-3xl font-extrabold tracking-tight text-balance text-neutral-800 md:text-4xl lg:text-5xl dark:text-neutral-200"
+      >
+        {title}
+      </h1>
+      <p
+        class="mt-4 max-w-prose text-lg text-pretty text-neutral-600 dark:text-neutral-400"
+      >
+        {description}
+      </p>
+
+      {/* Ficha del documento: fecha y, si lo tiene, código y versión. */}
+      <dl
+        class="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-sm text-neutral-600 dark:text-neutral-400"
+      >
+        <div>
+          <dt class="font-semibold text-neutral-800 dark:text-neutral-200">
+            Última actualización
+          </dt>
+          <dd>
+            <time datetime={doc.actualizadoISO}>{doc.actualizado}</time>
+          </dd>
+        </div>
+        {
+          'codigo' in doc && (
+            <div>
+              <dt class="font-semibold text-neutral-800 dark:text-neutral-200">
+                Documento
+              </dt>
+              <dd>
+                {doc.codigo} — versión {doc.version}
+              </dd>
+            </div>
+          )
+        }
+        <div>
+          <dt class="font-semibold text-neutral-800 dark:text-neutral-200">
+            Responsable
+          </dt>
+          <dd>{LEGAL.entidad.razonSocial} — NIT {LEGAL.entidad.nit}</dd>
+        </div>
+      </dl>
+    </header>
+
+    <div class="mt-10 gap-x-12 lg:flex lg:items-start">
+      {
+        /*
+        El índice. En pantalla grande va a un lado y se queda fijo al bajar;
+        en pantalla pequeña se pliega, porque doce enlaces por delante del
+        texto obligarían a hacer scroll antes de empezar a leer.
+
+        Es un <details> y no dos maquetaciones distintas porque plegarse es
+        justo lo que hace un <details>: el navegador se encarga del estado, del
+        teclado y de anunciarlo, sin script que mantener. Lo único que decide
+        el ancho de pantalla es si nace abierto — y eso sí necesita una línea
+        de JavaScript, porque `open` es un atributo y no hay media query que lo
+        ponga. Sin JavaScript la caja queda cerrada pero se abre al pulsarla,
+        que es un buen sitio donde caerse.
+      */
+      }
+      {
+        indice.length > 1 && (
+          <nav
+            aria-label="Contenido del documento"
+            class="mb-10 lg:sticky lg:top-24 lg:order-2 lg:mb-0 lg:w-72 lg:shrink-0"
+          >
+            <details
+              class="group rounded-xl border border-neutral-300 bg-neutral-100 p-5 dark:border-neutral-700 dark:bg-neutral-900"
+              data-legal-toc
+            >
+              <summary class="ring-brand-500 flex cursor-pointer items-center justify-between gap-x-2 rounded-lg font-bold text-neutral-800 outline-hidden focus-visible:ring-3 dark:text-neutral-200">
+                Contenido
+                <svg
+                  class="size-4 shrink-0 transition group-open:rotate-180"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"
+                  />
+                </svg>
+              </summary>
+              <ol class="mt-4 grid gap-y-1 text-sm">
+                {indice.map(item => (
+                  <li>
+                    <a
+                      href={`#${item.id}`}
+                      class="ring-brand-500 block rounded-lg py-1.5 text-neutral-600 outline-hidden transition duration-300 hover:text-neutral-900 focus-visible:ring-3 dark:text-neutral-400 dark:hover:text-neutral-200"
+                    >
+                      {item.titulo}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </details>
+          </nav>
+        )
+      }
+      {
+        /*
+        El script va aquí y no dentro del bloque de arriba porque aquello es
+        una expresión de Astro, y dentro de una expresión la llave de una
+        función flecha se lee como el principio de otra expresión. Aquí es
+        marcado normal y el contenido del script se deja en paz.
+
+        Lo más cerca posible del <details> a propósito: es una línea, corre
+        mientras el navegador sigue leyendo el documento y así el índice ya
+        nace con el estado que le toca en vez de vérsele abrir.
+      */
+      }
+      <script is:inline>
+        // El índice nace abierto solo donde va al lado del texto. Si el
+        // visitante gira el teléfono o cambia el tamaño de la ventana, se
+        // recoloca. Sin JavaScript la caja queda cerrada, pero se abre al
+        // pulsarla.
+        (() => {
+          const caja = document.querySelector('[data-legal-toc]');
+          if (!caja) return;
+          const ancha = window.matchMedia('(min-width: 1024px)');
+          const aplicar = () => {
+            caja.open = ancha.matches;
+          };
+          aplicar();
+          ancha.addEventListener('change', aplicar);
+        })();
+      </script>
+
+      <div class="min-w-0 lg:order-1 lg:flex-1">
+        {
+          /*
+          `scroll-mt-28` en los titulares es lo que evita que un salto desde
+          el índice deje la sección tapada por la barra flotante.
+        */
+        }
+        <div
+          class="prose prose-neutral dark:prose-invert prose-headings:font-bold prose-headings:scroll-mt-28 prose-h2:text-xl prose-h2:mt-12 md:prose-h2:text-2xl prose-h3:text-lg prose-a:text-brand-700 dark:prose-a:text-brand-400 prose-a:underline-offset-2 max-w-prose"
+        >
+          <Fragment set:html={contenido} />
+        </div>
+
+        {/* Cierre común: a quién se escribe y dónde están los otros dos. */}
+        <aside
+          class="mt-14 rounded-xl border border-neutral-300 bg-neutral-100 p-6 sm:p-8 dark:border-neutral-700 dark:bg-neutral-900"
+        >
+          <h2 class="text-lg font-bold text-neutral-800 dark:text-neutral-200">
+            ¿Dudas sobre este documento?
+          </h2>
+          <p class="mt-2 text-neutral-600 dark:text-neutral-400">
+            Escríbanos a{' '}
+            <a
+              href={`mailto:${LEGAL.entidad.email}`}
+              class="text-brand-700 dark:text-brand-400 underline underline-offset-2"
+              >{LEGAL.entidad.email}</a
+            >{' '}
+            o a la dirección {LEGAL.entidad.direccion}, {CONTACT.city}. También
+            puede llamarnos al{' '}
+            <a
+              href={CONTACT.pbx[0].href}
+              class="text-brand-700 dark:text-brand-400 underline underline-offset-2"
+              >{CONTACT.pbx[0].label}</a
+            >.
+          </p>
+
+          <h3
+            class="mt-6 text-sm font-semibold tracking-wide text-neutral-800 uppercase dark:text-neutral-200"
+          >
+            Otros documentos
+          </h3>
+          <ul class="mt-3 grid gap-y-2">
+            {
+              otros.map(otro => (
+                <li>
+                  <a
+                    href={otro.url}
+                    class="text-brand-700 dark:text-brand-400 ring-brand-500 inline-flex min-h-11 items-center rounded-lg underline underline-offset-2 outline-hidden focus-visible:ring-3 md:min-h-0"
+                  >
+                    {otro.nombreLargo}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </article>
+</MainLayout>

@@ -15,9 +15,6 @@ export const SITE = {
 /**
  * Datos de contacto de la empresa: única fuente de verdad para el footer,
  * la página de contacto, el cotizador y los datos estructurados.
- *
- * TODO(pendiente): falta la dirección de la oficina; aún no está en el
- * material recibido.
  */
 export const CONTACT = {
   pbx: [
@@ -33,6 +30,9 @@ export const CONTACT = {
   email: 'ventas@precintosdeseguridad.co',
   whatsapp: 'https://wa.me/573209514930',
   city: 'Bogotá, Colombia',
+  // Dirección de la oficina, tomada de la Política de Tratamiento de Datos
+  // Personales POGE01 v02 (ver LEGAL, más abajo).
+  address: 'Carrera 86B No. 53-22 Sur, Bloque 13, Oficina 152',
   // Mapa incrustado de Google. La ficha corresponde a
   // "Precintos de Seguridad Business & Supplies Logistics".
   mapEmbed:
@@ -40,6 +40,77 @@ export const CONTACT = {
   mapLink:
     'https://www.google.com/maps/search/?api=1&query=Precintos+de+Seguridad+Business+%26+Supplies+Logistics',
 };
+
+/**
+ * Identidad legal de la empresa y metadatos de los documentos publicados en
+ * las páginas legales (`/politica-de-datos`, `/politica-de-privacidad`,
+ * `/terminos-y-condiciones`).
+ *
+ * Los datos de `entidad` NO son de redacción propia: están copiados del
+ * numeral 4 de la Política de Tratamiento de Datos Personales POGE01 v02,
+ * aprobada por la Gerencia el 09/06/2026. Es el documento que la empresa
+ * firma, así que manda sobre cualquier otra fuente. Si algún día cambia,
+ * se actualiza aquí y las tres páginas lo heredan.
+ *
+ * OJO CON LA RAZÓN SOCIAL: el documento registra el cambio a
+ * «BYS LOGISTICS S.A.S.», mientras que `SITE.legalName` sigue diciendo
+ * «Business & Supplies Logistics S.A.S.». Las páginas legales usan la del
+ * documento, porque son las que tienen valor jurídico. El resto del sitio
+ * (datos estructurados, fichas de producto, asistente) sigue con la anterior
+ * a la espera de que la empresa confirme el cambio de marca; cuando lo haga,
+ * el cambio es en `SITE.legalName` y se propaga solo.
+ *
+ * El correo de datos personales tampoco es el comercial: la política designa
+ * `gerencia@byslogistics.com.co` para consultas y reclamos de habeas data,
+ * y ese es el que debe aparecer en los documentos legales.
+ */
+export const LEGAL = {
+  entidad: {
+    razonSocial: 'BYS LOGISTICS S.A.S.',
+    nit: '900.437.215-8',
+    domicilio: 'Bogotá D.C., Colombia',
+    direccion: CONTACT.address,
+    email: 'gerencia@byslogistics.com.co',
+    telefonos: ['601 469 9575', '320 951 4930'],
+    web: 'https://www.byslogistics.com.co',
+  },
+  /**
+   * Los tres documentos, en el orden en que se listan en el footer.
+   *
+   * `actualizado` es la fecha que se muestra al pie del título. La de la
+   * política de datos es la de aprobación por Gerencia que trae el documento;
+   * las otras dos son la de su publicación en el sitio. `actualizadoISO`
+   * alimenta el atributo `datetime` y los datos estructurados.
+   */
+  documentos: [
+    {
+      url: '/terminos-y-condiciones',
+      nombre: 'Términos y condiciones',
+      nombreLargo: 'Términos y condiciones de uso',
+      actualizado: '22 de agosto de 2026',
+      actualizadoISO: '2026-08-22',
+    },
+    {
+      url: '/politica-de-privacidad',
+      nombre: 'Política de privacidad',
+      nombreLargo: 'Política de privacidad del sitio web',
+      actualizado: '22 de agosto de 2026',
+      actualizadoISO: '2026-08-22',
+    },
+    {
+      url: '/politica-de-datos',
+      nombre: 'Tratamiento de datos',
+      nombreLargo: 'Política de Tratamiento de Datos Personales',
+      actualizado: '9 de junio de 2026',
+      actualizadoISO: '2026-06-09',
+      // Identificación del documento interno dentro del sistema de gestión de
+      // la empresa. Se muestra en la página porque es lo que permite cotejar
+      // lo publicado con el original firmado.
+      codigo: 'POGE01',
+      version: '02',
+    },
+  ],
+} as const;
 
 /**
  * Nombres de los formularios en Netlify Forms.

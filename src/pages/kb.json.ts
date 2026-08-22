@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 
-import { SITE, CONTACT } from '@data/constants';
+import { SITE, CONTACT, LEGAL } from '@data/constants';
 import { FUNDACION, RESENA, SECTORES } from '@data/empresa';
 import { CONOCIMIENTO } from '@data/conocimiento';
 import faqsData from '@data/faqs.json';
@@ -511,10 +511,33 @@ export const GET: APIRoute = async () => {
       'politica de datos',
       'tratamiento de datos personales',
       'habeas data',
+      'proteccion de datos',
+      'quiero que borren mis datos',
+      'ley 1581',
     ],
     text:
       'Los datos que nos deja en el formulario se usan únicamente para responder su solicitud y preparar su ' +
-      'cotización. La política de tratamiento de datos personales está publicada en el sitio.',
+      'cotización. La política de tratamiento de datos personales está publicada en el sitio, en ' +
+      '/politica-de-datos. Para conocer, actualizar, corregir o pedir que se supriman sus datos, o para ' +
+      `cualquier reclamo sobre el tema, el canal es ${LEGAL.entidad.email}.`,
+  });
+
+  add({
+    id: 'paginas-legales',
+    topic: 'sitio',
+    q: [
+      'terminos y condiciones',
+      'politica de privacidad',
+      'condiciones de uso',
+      'usan cookies',
+      'guardan mi conversacion',
+      'aviso legal',
+    ],
+    text:
+      'En el pie de página están los tres documentos legales del sitio: términos y condiciones de uso ' +
+      '(/terminos-y-condiciones), política de privacidad (/politica-de-privacidad) y política de ' +
+      'tratamiento de datos personales (/politica-de-datos). El sitio no instala cookies de analítica ni ' +
+      'de publicidad, y las conversaciones con este asistente no se guardan.',
   });
 
   return new Response(

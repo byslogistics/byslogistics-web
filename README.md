@@ -70,20 +70,22 @@ netlify/functions/
 
 ### Páginas
 
-| Ruta                     | Contenido                                       |
-| ------------------------ | ----------------------------------------------- |
-| `/`                      | Portada: propuesta, soluciones, testimonio, CTA |
-| `/catalogo`              | Las 115 referencias con filtros y buscador      |
-| `/precintos`             | Índice de las 11 categorías de precintos        |
-| `/precintos/<categoría>` | Referencias de una categoría                    |
-| `/productos`             | Índice de las 6 familias                        |
-| `/productos/<familia>`   | Familia con sus referencias agrupadas           |
-| `/usos`                  | Guías por aplicación y sectores atendidos       |
-| `/usos/<guía>`           | Guía de una aplicación concreta                 |
-| `/nosotros`              | Historia de la empresa                          |
-| `/faq`                   | Preguntas frecuentes                            |
-| `/contacto`              | Formulario, teléfonos y mapa                    |
-| `/politica-de-datos`     | Tratamiento de datos personales                 |
+| Ruta                      | Contenido                                       |
+| ------------------------- | ----------------------------------------------- |
+| `/`                       | Portada: propuesta, soluciones, testimonio, CTA |
+| `/catalogo`               | Las 115 referencias con filtros y buscador      |
+| `/precintos`              | Índice de las 11 categorías de precintos        |
+| `/precintos/<categoría>`  | Referencias de una categoría                    |
+| `/productos`              | Índice de las 6 familias                        |
+| `/productos/<familia>`    | Familia con sus referencias agrupadas           |
+| `/usos`                   | Guías por aplicación y sectores atendidos       |
+| `/usos/<guía>`            | Guía de una aplicación concreta                 |
+| `/nosotros`               | Historia de la empresa                          |
+| `/faq`                    | Preguntas frecuentes                            |
+| `/contacto`               | Formulario, teléfonos y mapa                    |
+| `/terminos-y-condiciones` | Condiciones de uso del sitio                    |
+| `/politica-de-privacidad` | Privacidad del sitio web                        |
+| `/politica-de-datos`      | Tratamiento de datos personales (POGE01)        |
 
 ---
 

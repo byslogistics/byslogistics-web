@@ -70,6 +70,8 @@ const RUTAS_ESPERADAS = [
   '/faq/',
   '/nosotros/',
   '/contacto/',
+  '/terminos-y-condiciones/',
+  '/politica-de-privacidad/',
   '/politica-de-datos/',
 ];
 
@@ -338,16 +340,21 @@ describe('enlaces', () => {
   // Astro se come el salto de línea que separa una frase del enlace que sigue,
   // y el texto queda pegado: «conforme a laPolítica de Tratamiento…». Se
   // arregla escribiendo {' '} antes del <a>. Este test vigila que no vuelva.
-  test('ninguna frase queda pegada al enlace que la sigue', () => {
+  //
+  // Le pasa igual a cualquier etiqueta en línea, no solo al enlace: el
+  // primer texto legal que se publicó traía un «realizadas porBYS LOGISTICS
+  // S.A.S.» por un <strong> al principio de la línea siguiente. Por eso la
+  // lista incluye las demás etiquetas en línea que usa el sitio.
+  test('ninguna frase queda pegada a la etiqueta que la sigue', () => {
     const pegados = [];
     for (const p of pages()) {
-      for (const [, antes, texto] of p.html.matchAll(
-        /([a-záéíóúüñ,;:)])<a\s[^>]*>([^<]{0,40})/gi
+      for (const [, antes, etiqueta, texto] of p.html.matchAll(
+        /([a-záéíóúüñ,;:)])<(a|strong|em|code|abbr)[\s>][^>]*>([^<]{0,40})/gi
       )) {
-        pegados.push(`${p.route}: «…${antes}${texto}…»`);
+        pegados.push(`${p.route}: «…${antes}${texto}…» (<${etiqueta}>)`);
       }
     }
-    assert.deepEqual(pegados, [], "falta un {' '} antes del enlace");
+    assert.deepEqual(pegados, [], "falta un {' '} antes de la etiqueta");
   });
 });
 
@@ -386,6 +393,140 @@ describe('formularios', () => {
         p.html.includes(`for="${id}"`),
         `el campo ${id} no tiene <label for>`
       );
+    }
+  });
+});
+
+/*
+ * Las tres páginas legales.
+ *
+ * Lo que se vigila aquí no es la redacción —eso lo revisa un abogado— sino lo
+ * que un despliegue puede romper sin que nadie se dé cuenta: que sigan
+ * enlazadas desde el footer, que el índice apunte a secciones que existen y
+ * que la política de datos siga diciendo lo que dice el documento firmado.
+ */
+describe('páginas legales', () => {
+  const LEGALES = [
+    '/terminos-y-condiciones/',
+    '/politica-de-privacidad/',
+    '/politica-de-datos/',
+  ];
+
+  const legal = ruta => {
+    const p = pages().find(x => x.route === ruta);
+    assert.ok(p, `no se generó ${ruta}`);
+    return p.html;
+  };
+
+  test('el footer las enlaza desde todas las páginas', () => {
+    // Publicar una política y dejarla sin enlazar es el fallo clásico: la
+    // página existe, nadie la encuentra y para efectos prácticos no está
+    // publicada.
+    for (const p of pages()) {
+      // La 404 va sin footer a propósito (`hideFooter`): es una pantalla de
+      // rescate, no una página del sitio.
+      if (p.route.endsWith('404.html')) continue;
+      for (const ruta of LEGALES) {
+        const href = ruta.slice(0, -1);
+        assert.ok(
+          p.html.includes(`href="${href}"`),
+          `${p.route} no enlaza ${href}`
+        );
+      }
+    }
+  });
+
+  test('cada documento trae índice y fecha de actualización', () => {
+    for (const ruta of LEGALES) {
+      const html = legal(ruta);
+      assert.match(
+        html,
+        /aria-label="Contenido del documento"/,
+        `${ruta} se quedó sin índice`
+      );
+      assert.match(
+        html,
+        /<time datetime="\d{4}-\d{2}-\d{2}">/,
+        `${ruta} no publica la fecha de actualización`
+      );
+    }
+  });
+
+  test('ningún enlace del índice apunta a una sección que no existe', () => {
+    // El índice se genera leyendo los <h2 id> del contenido, así que esto
+    // comprueba de paso que la generación no se desvíe.
+    const rotos = [];
+    for (const ruta of LEGALES) {
+      const html = legal(ruta);
+      const ids = new Set(
+        [...html.matchAll(/<h2[^>]*\sid="([^"]+)"/g)].map(([, id]) => id)
+      );
+      const indice = html.match(
+        /<nav aria-label="Contenido del documento"[\s\S]*?<\/nav>/
+      )[0];
+      for (const [, destino] of indice.matchAll(/href="#([^"]+)"/g)) {
+        if (!ids.has(destino)) rotos.push(`${ruta} → #${destino}`);
+      }
+      assert.ok(ids.size >= 10, `${ruta} solo tiene ${ids.size} secciones`);
+    }
+    assert.deepEqual(rotos, [], 'el índice apunta a secciones inexistentes');
+  });
+
+  test('los enlaces con ancla entre documentos apuntan a algo real', () => {
+    // El test general de enlaces internos descarta los href con «#», así que
+    // estos solo los cubre este.
+    const rotos = [];
+    const htmlPorRuta = new Map(pages().map(p => [p.route, p.html]));
+    for (const ruta of LEGALES) {
+      for (const [, destino, ancla] of legal(ruta).matchAll(
+        /href="(\/[^"#]+)#([^"]+)"/g
+      )) {
+        const html = htmlPorRuta.get(`${destino}/`) ?? htmlPorRuta.get(destino);
+        if (!html) {
+          rotos.push(`${ruta} → ${destino} (la página no existe)`);
+        } else if (!html.includes(`id="${ancla}"`)) {
+          rotos.push(`${ruta} → ${destino}#${ancla} (no existe la sección)`);
+        }
+      }
+    }
+    assert.deepEqual(rotos, [], 'hay anclas rotas entre documentos legales');
+  });
+
+  test('la política de datos publica los datos del documento firmado', () => {
+    // Copiados del numeral 4 de POGE01 v02. Si alguien los cambia en el sitio
+    // sin cambiarlos en el documento, el sitio deja de decir la verdad.
+    const html = legal('/politica-de-datos/');
+    for (const dato of [
+      'BYS LOGISTICS S.A.S.',
+      '900.437.215-8',
+      'gerencia@byslogistics.com.co',
+      'Carrera 86B No. 53-22 Sur, Bloque 13, Oficina 152',
+      'POGE01',
+    ]) {
+      assert.ok(html.includes(dato), `la política ya no dice «${dato}»`);
+    }
+  });
+
+  test('la razón social no deja dos puntos seguidos', () => {
+    // «BYS LOGISTICS S.A.S.» ya termina en punto, así que escribir otro
+    // detrás produce «S.A.S..». Es el tropiezo típico al interpolar la razón
+    // social al final de una frase, y sale en las tres páginas y en el footer.
+    const feos = [];
+    for (const p of pages()) {
+      if (p.html.includes('S.A.S..')) feos.push(p.route);
+    }
+    assert.deepEqual(feos, [], 'sobra el punto tras «S.A.S.»');
+  });
+
+  test('no queda texto de borrador en ninguna de las tres', () => {
+    for (const ruta of LEGALES) {
+      const html = legal(ruta);
+      for (const resto of ['TODO', 'por definir', 'Lorem ipsum', 'XXXX']) {
+        assert.ok(
+          !html.includes(resto),
+          `${ruta} todavía tiene «${resto}» a la vista`
+        );
+      }
     }
   });
 });
