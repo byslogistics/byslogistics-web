@@ -1,0 +1,252 @@
+---
+/**
+ * Términos y condiciones de uso del sitio web.
+ *
+ * Alcance deliberadamente acotado: este documento regula el USO DEL SITIO, no
+ * la compraventa. El sitio no vende en línea, no publica precios y no cierra
+ * pedidos; la relación comercial nace de una cotización formal que firma el
+ * área comercial y que trae sus propias condiciones. Meter aquí garantías,
+ * plazos de entrega o devoluciones sería inventar condiciones comerciales que
+ * la empresa no ha fijado, así que el documento se limita a decir dónde
+ * termina el sitio y dónde empieza la cotización.
+ *
+ * Las tres cláusulas que sí importan de verdad para este negocio, y por qué:
+ *
+ *   - Numeral 4: el catálogo es informativo y no es oferta mercantil. Sin esto,
+ *     publicar una ficha podría leerse como una oferta vinculante del artículo
+ *     845 del Código de Comercio.
+ *   - Numeral 5: la cotización manda sobre lo que diga el sitio.
+ *   - Numeral 8: la información técnica es orientativa. Vendemos elementos de
+ *     seguridad preventiva; su eficacia depende del procedimiento de sellado
+ *     de cada cliente, y eso no lo controla ni lo garantiza el sitio.
+ *
+ * OJO: este texto es un borrador redactado desde el funcionamiento real del
+ * sitio y de la actividad de la empresa. NO sustituye la revisión de un
+ * abogado, y su fecha en `LEGAL.documentos` es la de publicación, no la de
+ * una aprobación por Gerencia como sí ocurre con POGE01.
+ */
+import LegalPage from '@components/sections/legal/LegalPage.astro';
+import { CONTACT, LEGAL, SITE } from '@data/constants';
+
+const { entidad } = LEGAL;
+const dominio = SITE.url.replace(/^https:\/\//, '');
+---
+
+<LegalPage
+  url="/terminos-y-condiciones"
+  title="Términos y condiciones de uso"
+  description="Condiciones que rigen el uso del sitio web de B&S Logistics: alcance del catálogo, valor de las cotizaciones, propiedad intelectual y ley aplicable."
+>
+  <h2 id="objeto">1. Objeto y aceptación</h2>
+  <p>
+    Estos términos regulan el acceso y el uso del sitio web{' '}
+    <strong>{dominio}</strong>, propiedad de {entidad.razonSocial} Al navegar por
+    él, usted acepta estas condiciones en su totalidad. Si no está de acuerdo con
+    alguna, le pedimos que no lo utilice.
+  </p>
+  <p>
+    Este documento regula el <strong>uso del sitio</strong>. No regula la
+    compraventa de productos: esa relación nace de una cotización aceptada y se
+    rige por las condiciones comerciales pactadas en ella (numeral{' '}
+    <a href="#cotizaciones">5</a>).
+  </p>
+
+  <h2 id="titular">2. Titular del sitio</h2>
+  <ul>
+    <li><strong>Razón social:</strong> {entidad.razonSocial}</li>
+    <li><strong>NIT:</strong> {entidad.nit}</li>
+    <li><strong>Domicilio:</strong> {entidad.domicilio}</li>
+    <li><strong>Dirección:</strong> {entidad.direccion}</li>
+    <li>
+      <strong>Correo electrónico:</strong>{' '}
+      <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
+    </li>
+    <li>
+      <strong>Teléfonos:</strong>{' '}
+      {CONTACT.pbx.map(l => l.label).join(' — ')}
+    </li>
+  </ul>
+
+  <h2 id="uso">3. Uso permitido</h2>
+  <p>
+    El sitio es de acceso libre y gratuito, y está pensado para que empresas y
+    personas conozcan nuestros productos y se pongan en contacto con nosotros.
+    No requiere registro ni crear una cuenta.
+  </p>
+  <p>Al usarlo, usted se compromete a no:</p>
+  <ul>
+    <li>
+      Utilizarlo con fines ilícitos o contrarios a la buena fe, ni de forma que
+      dañe, sobrecargue o deteriore su funcionamiento.
+    </li>
+    <li>
+      Extraer el contenido de manera automatizada y masiva para reproducirlo o
+      explotarlo comercialmente.
+    </li>
+    <li>
+      Suplantar a otra persona o empresa al diligenciar los formularios, ni
+      enviar datos falsos.
+    </li>
+    <li>
+      Intentar acceder a áreas, sistemas o datos no destinados al público, ni
+      vulnerar las medidas de seguridad del sitio.
+    </li>
+  </ul>
+
+  <h2 id="catalogo">4. El catálogo es informativo, no una oferta</h2>
+  <p>
+    Las referencias, fichas técnicas, medidas, materiales, colores y fotografías
+    publicadas tienen carácter <strong>informativo y referencial</strong>. Su
+    publicación <strong>no constituye una oferta mercantil</strong> en los términos
+    del artículo 845 del Código de Comercio ni obliga a la empresa a contratar.
+  </p>
+  <ul>
+    <li>
+      <strong>El sitio no publica precios</strong> y no permite comprar en línea.
+      Cualquier valor lo entrega el equipo comercial en una cotización.
+    </li>
+    <li>
+      <strong>La disponibilidad no está garantizada.</strong> El catálogo refleja
+      las referencias que manejamos, no existencias en inventario, y puede haber referencias
+      sujetas a cantidad mínima de pedido o a tiempos de importación.
+    </li>
+    <li>
+      <strong>Las fotografías son ilustrativas.</strong> El color y el acabado pueden
+      variar respecto de lo que se ve en pantalla, y las referencias pueden cambiar
+      por decisión del fabricante.
+    </li>
+  </ul>
+
+  <h2 id="cotizaciones">5. Cotizaciones y pedidos</h2>
+  <p>
+    Las solicitudes enviadas por el formulario, por WhatsApp o por el cotizador
+    del sitio son <strong>solicitudes de cotización</strong>: no son pedidos, no
+    reservan mercancía y no obligan a ninguna de las dos partes.
+  </p>
+  <p>
+    La relación comercial se perfecciona cuando el área comercial emite una
+    cotización formal y usted la acepta. Esa cotización es el documento que
+    manda: precio, vigencia, cantidad mínima, plazo de entrega, condiciones de
+    pago, personalización y garantía se fijan allí y prevalecen sobre cualquier
+    información publicada en el sitio.
+  </p>
+
+  <h2 id="cotizador">6. El cotizador del sitio</h2>
+  <p>
+    El cotizador es una herramienta para armar una lista de referencias y
+    enviárnosla ya redactada. <strong>No es un carrito de compra</strong>: no
+    calcula importes, no procesa pagos y no genera un pedido. La lista se guarda
+    en su propio navegador y solo llega a nosotros cuando usted decide enviarla.
+  </p>
+
+  <h2 id="asistente">7. El asistente del sitio</h2>
+  <p>
+    El asistente responde con información publicada en este sitio y sirve para
+    orientar. Sus respuestas <strong>no obligan a la empresa</strong>, no
+    constituyen asesoría técnica ni comercial y{' '}
+    <strong>nunca incluyen precios</strong>. Ante cualquier diferencia entre lo
+    que diga el asistente y lo que diga una cotización o una comunicación del
+    equipo comercial, prevalecen estas últimas.
+  </p>
+  <p>
+    Le pedimos no escribir datos personales ni información confidencial en el
+    asistente; para eso está el{' '}
+    <a href="/contacto">formulario de contacto</a>.
+  </p>
+
+  <h2 id="informacion-tecnica">
+    8. Información técnica y uso de los productos
+  </h2>
+  <p>
+    Las normas, especificaciones y recomendaciones de uso publicadas —incluidas
+    las referencias a normas como la ISO/PAS 17712— se ofrecen como orientación
+    general. La elección de la referencia adecuada, su instalación y el
+    procedimiento de sellado, registro y verificación son responsabilidad de
+    quien los usa.
+  </p>
+  <p>
+    Un elemento de seguridad preventiva es una herramienta de control y de
+    evidencia: reduce el riesgo y deja rastro de una manipulación, pero no
+    sustituye los procedimientos de custodia, supervisión y trazabilidad de cada
+    operación. Si tiene dudas sobre qué referencia le sirve, escríbanos antes de
+    comprar: para eso está el equipo comercial.
+  </p>
+
+  <h2 id="propiedad">9. Propiedad intelectual</h2>
+  <p>
+    El contenido del sitio —textos, fotografías, fichas, ilustraciones, código y
+    diseño— y los signos distintivos de la empresa, incluidos su nombre
+    comercial y su logotipo, están protegidos por la legislación colombiana de
+    propiedad intelectual y son de titularidad de {entidad.razonSocial} o de sus respectivos
+    titulares, que han autorizado su uso.
+  </p>
+  <p>
+    Puede consultarlo, imprimirlo y compartirlo para su uso personal o interno
+    en su empresa, citando la fuente. Cualquier reproducción, distribución,
+    comunicación pública o transformación con fines comerciales requiere
+    autorización previa y escrita. Las marcas de terceros que aparezcan en el
+    sitio pertenecen a sus titulares.
+  </p>
+
+  <h2 id="enlaces">10. Enlaces a otros sitios</h2>
+  <p>
+    El sitio enlaza a servicios de terceros —WhatsApp, Google Maps y nuestras
+    redes sociales— por comodidad del visitante. No controlamos su contenido ni
+    sus políticas, y no respondemos por ellos.
+  </p>
+
+  <h2 id="disponibilidad">11. Disponibilidad del sitio</h2>
+  <p>
+    Procuramos que el sitio esté disponible de forma continua, pero no lo
+    garantizamos: puede haber interrupciones por mantenimiento, fallas técnicas
+    o causas ajenas a nosotros. Tampoco garantizamos que el asistente esté
+    siempre operativo; cuando no lo esté, los canales de contacto habituales
+    siguen funcionando.
+  </p>
+  <p>
+    Podemos modificar, suspender o retirar cualquier contenido o funcionalidad
+    del sitio en cualquier momento y sin aviso previo.
+  </p>
+
+  <h2 id="responsabilidad">12. Limitación de responsabilidad</h2>
+  <p>
+    Ponemos cuidado en que la información publicada sea correcta y esté al día,
+    pero puede contener errores tipográficos, datos desactualizados u omisiones.
+    En la medida en que lo permita la ley, {entidad.razonSocial} no responde por los
+    daños derivados del uso del sitio, de la imposibilidad de usarlo o de decisiones
+    tomadas únicamente con base en la información aquí publicada sin confirmarla con
+    el equipo comercial.
+  </p>
+  <p>
+    Nada de lo anterior limita las responsabilidades que la ley colombiana no
+    permite excluir, en particular las derivadas de la relación de consumo y de
+    las garantías legales sobre los productos vendidos.
+  </p>
+
+  <h2 id="datos">13. Datos personales</h2>
+  <p>
+    El tratamiento de los datos que nos deja a través del sitio se rige por la{
+      ' '
+    }
+    <a href="/politica-de-privacidad">Política de privacidad</a> y por la{' '}
+    <a href="/politica-de-datos">Política de Tratamiento de Datos Personales</a
+    >, que forman parte integral de estos términos.
+  </p>
+
+  <h2 id="modificaciones">14. Modificaciones</h2>
+  <p>
+    Podemos actualizar estos términos cuando cambie la legislación aplicable, el
+    funcionamiento del sitio o nuestra actividad. La versión vigente es siempre
+    la publicada en esta página, con la fecha de actualización al comienzo del
+    documento.
+  </p>
+
+  <h2 id="ley">15. Ley aplicable y jurisdicción</h2>
+  <p>
+    Estos términos se rigen por la ley colombiana. Cualquier controversia
+    derivada de su interpretación o aplicación se someterá a los jueces de la
+    República de Colombia, sin perjuicio de que primero intentemos resolverla de
+    forma directa: escríbanos a{' '}
+    <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a> y lo hablamos.
+  </p>
+</LegalPage>

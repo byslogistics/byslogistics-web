@@ -1,3 +1,5 @@
+import { LEGAL } from '@data/constants';
+
 // Menú principal, replicando la estructura del sitio actual.
 // En el sitio original "Precintos", "Productos" y "Usos" son desplegables;
 // aquí cada uno tiene su página de listado, desde la que se accede a las
@@ -38,10 +40,24 @@ const footerLinks = [
       { name: 'Usos y sectores', url: '/usos' },
       { name: 'Preguntas frecuentes', url: '/faq' },
       { name: 'Contacto', url: '/contacto' },
-      { name: 'Tratamiento de datos', url: '/politica-de-datos' },
     ],
   },
 ];
+
+/**
+ * Columna «Legal» del footer.
+ *
+ * Se deriva de `LEGAL.documentos` en lugar de escribirse aquí: los tres
+ * documentos ya están declarados en constants.ts con su nombre, su ruta y su
+ * fecha, y de ahí los toman también las propias páginas y sus enlaces
+ * cruzados. Publicar una página legal y olvidar enlazarla desde el footer es
+ * el fallo clásico de estos sitios; naciendo de la misma lista, no puede
+ * pasar: agregar un documento a `LEGAL.documentos` lo pone en el footer.
+ */
+const legalLinks = LEGAL.documentos.map(doc => ({
+  name: doc.nombre,
+  url: doc.url,
+}));
 // Redes sociales. Deja vacío lo que no aplique: el footer solo renderiza los
 // iconos que tienen URL configurada.
 const socialLinks: Record<string, string> = {
@@ -54,5 +70,6 @@ const socialLinks: Record<string, string> = {
 export default {
   navBarLinks,
   footerLinks,
+  legalLinks,
   socialLinks,
 };

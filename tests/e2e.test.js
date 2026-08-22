@@ -635,6 +635,8 @@ describe('accesibilidad (axe)', { skip: skip() }, () => {
     '/faq/',
     '/nosotros/',
     '/contacto/',
+    '/terminos-y-condiciones/',
+    '/politica-de-privacidad/',
     '/politica-de-datos/',
     '/404.html',
   ];

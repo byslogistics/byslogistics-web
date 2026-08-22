@@ -1,206 +1,399 @@
 ---
-import MainLayout from '@/layouts/MainLayout.astro';
-import { CONTACT, SITE } from '@data/constants';
-
 /**
- * Política de Tratamiento de Datos Personales (Ley 1581 de 2012 y
- * Decreto 1377 de 2013).
+ * Política de Tratamiento de Datos Personales.
  *
- * IMPORTANTE: este es un borrador redactado a partir de los requisitos de la
- * ley y de los datos de la empresa. NO reemplaza la revisión de un abogado.
- * Antes de publicar hay que completar los datos marcados como pendientes
- * (dirección física y fecha de entrada en vigencia) y verificar si la empresa
- * debe inscribir sus bases de datos en el Registro Nacional de Bases de Datos
- * de la Superintendencia de Industria y Comercio.
+ * ESTE TEXTO NO ES DE REDACCIÓN PROPIA. Es la transcripción del documento
+ * POGE01, versión 02, aprobado por la Gerencia el 09/06/2026, que la empresa
+ * entregó en PDF. Se publica tal cual: los numerales, su orden y su redacción
+ * son los del original, incluida la tabla de control de cambios del final.
+ *
+ * Regla para quien lo edite: aquí no se «mejora» la redacción. Si algo debe
+ * cambiar, cambia primero en el documento de la empresa y después se copia,
+ * subiendo la versión en `LEGAL.documentos` (constants.ts). Un sitio que
+ * publica una política distinta de la que la empresa firmó es peor que uno
+ * que no la publica.
+ *
+ * Única licencia que se tomó la transcripción: en el numeral 6 del PDF,
+ * «Visitantes» quedó como una viñeta más dentro de la lista de «Empleados y
+ * aspirantes», cuando por sus dos ítems siguientes es evidente que encabeza
+ * su propio grupo. Aquí va como grupo, que es lo que dice el contenido.
  */
+import LegalPage from '@components/sections/legal/LegalPage.astro';
+import { LEGAL } from '@data/constants';
 
-const pageTitle = `Política de Tratamiento de Datos Personales | ${SITE.title}`;
-const metaDescription =
-  'Política de Tratamiento de Datos Personales de Business & Supplies Logistics, conforme a la Ley 1581 de 2012 y el Decreto 1377 de 2013.';
-
-// Fecha de aprobación de la política, en formato «15 de marzo de 2026».
-// Mientras esté vacía la línea no se publica: en un documento legal es
-// preferible no mostrar fecha a mostrar «Vigente desde: por definir».
-// TODO(pendiente): pedirle a la empresa la fecha real de aprobación.
-const vigenciaDesde = '';
+const { entidad } = LEGAL;
 ---
 
-<MainLayout
-  title={pageTitle}
-  customDescription={metaDescription}
-  customOgTitle={pageTitle}
-  structuredData={{
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    '@id': `${SITE.url}/politica-de-datos`,
-    url: `${SITE.url}/politica-de-datos`,
-    name: pageTitle,
-    description: metaDescription,
-    inLanguage: 'es-CO',
-  }}
+<LegalPage
+  url="/politica-de-datos"
+  title="Política de Tratamiento de Datos Personales"
+  description="Lineamientos de BYS LOGISTICS S.A.S. para la recolección, uso, circulación, conservación y supresión de datos personales, conforme a la Ley 1581 de 2012."
 >
-  <section class="mx-auto max-w-[85rem] px-10 py-16 sm:px-14 lg:px-20 lg:py-24">
-    <div class="mx-auto max-w-prose">
-      <h1
-        class="text-3xl font-extrabold tracking-tight text-balance text-neutral-800 md:text-4xl dark:text-neutral-200"
-      >
-        Política de Tratamiento de Datos Personales
-      </h1>
-      {
-        vigenciaDesde && (
-          <p class="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-            Vigente desde: {vigenciaDesde}
-          </p>
-        )
-      }
+  <h2 id="objetivo">1. Objetivo</h2>
+  <p>
+    Establecer los lineamientos para la recolección, almacenamiento, uso,
+    circulación, actualización, conservación, supresión y demás actividades
+    relacionadas con el tratamiento de datos personales realizadas por{' '}
+    <strong>{entidad.razonSocial}</strong>, garantizando el cumplimiento de la
+    legislación colombiana vigente en materia de protección de datos personales
+    y el respeto por los derechos de los titulares de la información.
+  </p>
+  <p>
+    La presente política busca asegurar que el tratamiento de los datos
+    personales se realice de manera responsable, transparente, segura y conforme
+    a los principios establecidos por la normativa aplicable.
+  </p>
 
-      <div
-        class="prose prose-neutral dark:prose-invert prose-headings:font-bold prose-a:text-brand-700 dark:prose-a:text-brand-400 mt-8 max-w-none"
-      >
-        <p>
-          En cumplimiento de la Ley 1581 de 2012, el Decreto 1377 de 2013 y
-          demás normas que los modifiquen o reglamenten, <strong
-            >{SITE.legalName}</strong
-          > adopta la presente política para el tratamiento de los datos personales
-          que recolecta a través de este sitio web y de sus canales de atención.
-        </p>
+  <h2 id="alcance">2. Alcance</h2>
+  <p>
+    La presente política aplica a todos los datos personales tratados por
+    {entidad.razonSocial}, independientemente del medio físico o electrónico en
+    el cual se encuentren almacenados.
+  </p>
+  <p>Comprende la información de:</p>
+  <ul>
+    <li>Clientes.</li>
+    <li>Clientes potenciales.</li>
+    <li>Proveedores.</li>
+    <li>Contratistas.</li>
+    <li>Empleados.</li>
+    <li>Aspirantes a procesos de selección.</li>
+    <li>Socios.</li>
+    <li>Visitantes.</li>
+  </ul>
+  <p>
+    Cualquier persona natural cuyos datos personales sean tratados por la
+    empresa en desarrollo de su actividad comercial.
+  </p>
+  {
+    /*
+    Sin punto tras la razón social: ya termina en uno («S.A.S.») y hace de
+    punto final. Vale para los tres documentos; hay un test que lo vigila.
+  */
+  }
+  <p>
+    Esta política aplica a todos los colaboradores, contratistas y terceros que,
+    por razón de sus funciones, tengan acceso a datos personales administrados
+    por {entidad.razonSocial}
+  </p>
 
-        <h2>1. Responsable del tratamiento</h2>
-        <ul>
-          <li><strong>Razón social:</strong> {SITE.legalName}</li>
-          <li>
-            <strong>Correo electrónico:</strong>
-            <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
-          </li>
-          <li>
-            <strong>Teléfonos:</strong>
-            {CONTACT.pbx.map(line => line.label).join(' — ')}
-          </li>
-          <li><strong>Ciudad:</strong> {CONTACT.city}</li>
-        </ul>
+  <h2 id="marco-normativo">3. Marco normativo</h2>
+  <p>
+    La presente política se fundamenta en las siguientes disposiciones legales:
+  </p>
+  <ul>
+    <li>Constitución Política de Colombia, artículo 15.</li>
+    <li>Ley 1266 de 2008, cuando resulte aplicable.</li>
+    <li>Ley 1581 de 2012.</li>
+    <li>Decreto Único Reglamentario 1074 de 2015.</li>
+    <li>
+      Circulares, guías e instrucciones expedidas por la Superintendencia de
+      Industria y Comercio.
+    </li>
+    <li>
+      Las demás normas que modifiquen, adicionen o sustituyan las anteriores.
+    </li>
+  </ul>
 
-        <h2>2. Datos que recolectamos</h2>
-        <p>
-          A través del formulario de contacto, del formulario de suscripción y
-          del cotizador recolectamos únicamente los datos que usted nos
-          suministra de forma voluntaria:
-        </p>
-        <ul>
-          <li>Nombre</li>
-          <li>Correo electrónico</li>
-          <li>Número de teléfono</li>
-          <li>Nombre de la empresa</li>
-          <li>El contenido del mensaje o de la solicitud de cotización</li>
-        </ul>
-        <p>
-          No recolectamos datos sensibles en los términos del artículo 5 de la
-          Ley 1581 de 2012, ni datos de menores de edad. Tampoco solicitamos
-          información financiera ni datos de tarjetas de pago a través de este
-          sitio.
-        </p>
+  <h2 id="responsable">
+    4. Responsable del tratamiento de los datos personales
+  </h2>
+  <ul>
+    <li><strong>Razón social:</strong> {entidad.razonSocial}</li>
+    <li><strong>NIT:</strong> {entidad.nit}</li>
+    <li><strong>Domicilio:</strong> {entidad.domicilio}</li>
+    <li><strong>Dirección:</strong> {entidad.direccion}</li>
+    <li>
+      <strong>
+        Correo electrónico para la atención de consultas y reclamos sobre
+        protección de datos personales:
+      </strong>{' '}
+      <a href={`mailto:${entidad.email}`}>{entidad.email}</a>
+    </li>
+    <li><strong>Teléfono:</strong> {entidad.telefonos.join(' – ')}</li>
+    <li>
+      <strong>Página web:</strong>{' '}
+      <a href={entidad.web}>{entidad.web.replace(/^https:\/\//, '')}</a>
+    </li>
+  </ul>
+  <p>
+    {entidad.razonSocial}, en calidad de Responsable del Tratamiento de los
+    Datos Personales, garantiza que el tratamiento de la información se
+    realizará conforme a los principios y disposiciones establecidos en la
+    legislación colombiana vigente sobre protección de datos personales,
+    adoptando las medidas administrativas, técnicas y organizacionales
+    razonables para proteger la información contra pérdida, uso indebido, acceso
+    no autorizado, alteración o divulgación.
+  </p>
 
-        <h2>3. Finalidades del tratamiento</h2>
-        <p>Los datos recolectados se utilizan para:</p>
-        <ul>
-          <li>Responder sus consultas y solicitudes de información.</li>
-          <li>Elaborar y enviar cotizaciones de nuestros productos.</li>
-          <li>
-            Gestionar la relación comercial: pedidos, despachos, facturación y
-            servicio posventa.
-          </li>
-          <li>
-            Enviar información sobre nuestros productos y novedades, cuando
-            usted se haya suscrito voluntariamente. Puede darse de baja en
-            cualquier momento.
-          </li>
-          <li>
-            Cumplir las obligaciones legales y contables que nos apliquen.
-          </li>
-        </ul>
-        <p>
-          No vendemos, arrendamos ni cedemos sus datos personales a terceros con
-          fines comerciales.
-        </p>
+  <h2 id="principios">5. Principios para el tratamiento de datos personales</h2>
+  <p>
+    {entidad.razonSocial} realizará el tratamiento de los datos personales respetando
+    los principios establecidos en la Ley 1581 de 2012 y demás normas que la reglamentan,
+    garantizando en todo momento la protección de los derechos de los titulares.
+  </p>
+  <p>Los datos personales serán tratados bajo los siguientes principios:</p>
 
-        <h2>4. Derechos del titular</h2>
-        <p>
-          De acuerdo con el artículo 8 de la Ley 1581 de 2012, como titular de
-          sus datos personales usted tiene derecho a:
-        </p>
-        <ul>
-          <li>
-            Conocer, actualizar y rectificar sus datos personales frente a
-            nosotros.
-          </li>
-          <li>
-            Solicitar prueba de la autorización que otorgó para su tratamiento.
-          </li>
-          <li>Ser informado sobre el uso que se ha dado a sus datos.</li>
-          <li>
-            Presentar quejas ante la Superintendencia de Industria y Comercio
-            por infracciones a la ley.
-          </li>
-          <li>
-            Revocar la autorización o solicitar la supresión de sus datos,
-            cuando no exista un deber legal o contractual que lo impida.
-          </li>
-          <li>Acceder de forma gratuita a sus datos personales.</li>
-        </ul>
+  <h3>5.1 Principio de legalidad</h3>
+  <p>
+    El tratamiento de los datos personales se realizará conforme a las
+    disposiciones legales vigentes.
+  </p>
 
-        <h2>5. Cómo ejercer sus derechos</h2>
-        <p>
-          Escríbanos a <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a> indicando
-          su nombre, los datos de contacto donde desea recibir respuesta y una descripción
-          clara de su solicitud. Los plazos de respuesta son los que fija la ley:
-        </p>
-        <ul>
-          <li>
-            <strong>Consultas:</strong> se atienden en un máximo de diez (10) días
-            hábiles. Si no es posible atenderlas en ese plazo, se lo informaremos
-            y podremos prorrogarlo hasta por cinco (5) días hábiles más.
-          </li>
-          <li>
-            <strong>Reclamos:</strong> se atienden en un máximo de quince (15) días
-            hábiles. Si no es posible atenderlos en ese plazo, se lo informaremos
-            y podremos prorrogarlo hasta por ocho (8) días hábiles más.
-          </li>
-        </ul>
-        <p>
-          Si el reclamo está incompleto, le pediremos que lo corrija dentro de
-          los cinco (5) días siguientes al recibo. Si transcurridos dos (2)
-          meses no ha aportado la información solicitada, se entenderá que ha
-          desistido del reclamo.
-        </p>
+  <h3>5.2 Principio de finalidad</h3>
+  <p>
+    Los datos personales serán recolectados para fines legítimos, específicos e
+    informados previamente al titular.
+  </p>
 
-        <h2>6. Autorización</h2>
-        <p>
-          Al enviar cualquiera de los formularios de este sitio usted declara
-          que ha leído esta política y autoriza de manera previa, expresa e
-          informada el tratamiento de sus datos personales para las finalidades
-          aquí descritas. La autorización queda registrada junto con el envío.
-        </p>
+  <h3>5.3 Principio de libertad</h3>
+  <p>
+    El tratamiento de los datos personales solo se efectuará con la autorización
+    previa, expresa e informada del titular, salvo las excepciones previstas en
+    la ley.
+  </p>
 
-        <h2>7. Seguridad de la información</h2>
-        <p>
-          Adoptamos medidas razonables de orden técnico y administrativo para
-          proteger los datos que nos confía y evitar su adulteración, pérdida,
-          consulta o uso no autorizado. El sitio se sirve por conexión cifrada
-          (HTTPS).
-        </p>
+  <h3>5.4 Principio de veracidad</h3>
+  <p>
+    La información tratada deberá ser veraz, completa, exacta, actualizada y
+    comprobable.
+  </p>
 
-        <h2>8. Vigencia</h2>
-        <p>
-          Esta política rige desde su publicación. Los datos personales se
-          conservarán mientras se mantenga la relación comercial y, después,
-          durante el término necesario para cumplir las obligaciones legales
-          aplicables, salvo que usted solicite antes su supresión y no exista un
-          deber que lo impida.
-        </p>
-        <p>
-          Cualquier cambio sustancial en esta política será comunicado a través
-          de este mismo sitio.
-        </p>
-      </div>
-    </div>
-  </section>
-</MainLayout>
+  <h3>5.5 Principio de transparencia</h3>
+  <p>
+    El titular podrá conocer en cualquier momento la información que repose
+    sobre él en las bases de datos de la empresa.
+  </p>
+
+  <h3>5.6 Principio de acceso y circulación restringida</h3>
+  <p>
+    Los datos personales únicamente serán utilizados por las personas
+    autorizadas para el desarrollo de las actividades propias de la empresa y no
+    serán divulgados sin autorización o sin fundamento legal.
+  </p>
+
+  <h3>5.7 Principio de seguridad</h3>
+  <p>
+    {entidad.razonSocial} implementará medidas administrativas, técnicas y organizacionales
+    razonables para proteger los datos personales contra pérdida, alteración, acceso
+    no autorizado o uso fraudulento.
+  </p>
+
+  <h3>5.8 Principio de confidencialidad</h3>
+  <p>
+    Toda persona que intervenga en el tratamiento de datos personales estará
+    obligada a mantener la reserva de la información, incluso después de
+    finalizada su relación con la empresa.
+  </p>
+
+  <h2 id="finalidades">
+    6. Finalidades del tratamiento de los datos personales
+  </h2>
+  <p>
+    {entidad.razonSocial} podrá recolectar, almacenar, consultar, actualizar, utilizar,
+    transmitir y suprimir datos personales para las siguientes finalidades:
+  </p>
+
+  <h3>Clientes</h3>
+  <ul>
+    <li>Elaborar cotizaciones.</li>
+    <li>Registrar pedidos.</li>
+    <li>Gestionar la venta y entrega de productos.</li>
+    <li>Emitir facturas y demás documentos comerciales.</li>
+    <li>Realizar seguimiento a pedidos y servicio posventa.</li>
+    <li>Atender consultas, quejas, reclamos o solicitudes.</li>
+    <li>
+      Enviar información comercial, técnica o promocional relacionada con los
+      productos y servicios ofrecidos por la empresa.
+    </li>
+    <li>Cumplir obligaciones legales, contractuales y tributarias.</li>
+  </ul>
+
+  <h3>Proveedores y contratistas</h3>
+  <ul>
+    <li>Evaluar y seleccionar proveedores.</li>
+    <li>Gestionar procesos de compra.</li>
+    <li>Elaborar órdenes de compra y contratos.</li>
+    <li>Verificar información comercial y tributaria.</li>
+    <li>Gestionar pagos.</li>
+    <li>Cumplir obligaciones legales y fiscales.</li>
+  </ul>
+
+  <h3>Empleados y aspirantes</h3>
+  <ul>
+    <li>Adelantar procesos de selección.</li>
+    <li>Formalizar la relación laboral.</li>
+    <li>Administrar nómina, seguridad social y prestaciones sociales.</li>
+    <li>Dar cumplimiento a obligaciones laborales.</li>
+    <li>
+      Gestionar procesos disciplinarios, capacitaciones y bienestar laboral.
+    </li>
+  </ul>
+
+  <h3>Visitantes</h3>
+  <ul>
+    <li>Controlar el ingreso a las instalaciones cuando aplique.</li>
+    <li>Garantizar la seguridad de las personas y de la información.</li>
+  </ul>
+
+  <h3>En general</h3>
+  <p>
+    La empresa podrá tratar los datos personales para cumplir obligaciones
+    legales, contractuales, administrativas, contables, tributarias y
+    comerciales, así como para mejorar continuamente la prestación de sus
+    productos y servicios.
+  </p>
+
+  <h2 id="derechos">7. Derechos de los titulares</h2>
+  <p>Los titulares de los datos personales tendrán derecho a:</p>
+  <ul>
+    <li>Conocer, actualizar y rectificar sus datos personales.</li>
+    <li>
+      Solicitar prueba de la autorización otorgada para el tratamiento de sus
+      datos cuando sea procedente.
+    </li>
+    <li>Ser informados sobre el uso dado a sus datos personales.</li>
+    <li>
+      Presentar consultas, solicitudes, quejas o reclamos relacionados con el
+      tratamiento de sus datos.
+    </li>
+    <li>
+      Solicitar la actualización, corrección o supresión de la información
+      cuando proceda.
+    </li>
+    <li>Revocar la autorización otorgada cuando sea legalmente posible.</li>
+    <li>Acceder gratuitamente a los datos personales objeto de tratamiento.</li>
+  </ul>
+  <p>
+    El ejercicio de estos derechos podrá estar sujeto a las excepciones
+    previstas en la legislación vigente.
+  </p>
+
+  <h2 id="deberes">8. Deberes de {entidad.razonSocial}</h2>
+  <p>
+    Como responsable del tratamiento de los datos personales,
+    {entidad.razonSocial} se compromete a:
+  </p>
+  <ul>
+    <li>Garantizar el pleno ejercicio de los derechos de los titulares.</li>
+    <li>Solicitar la autorización cuando sea requerida por la ley.</li>
+    <li>Conservar la información bajo condiciones razonables de seguridad.</li>
+    <li>Actualizar la información cuando sea necesario.</li>
+    <li>Rectificar la información cuando sea incorrecta.</li>
+    <li>Tramitar oportunamente las consultas y reclamos.</li>
+    <li>
+      Informar a los encargados del tratamiento sobre cualquier novedad
+      relacionada con los datos.
+    </li>
+    <li>
+      Cumplir las instrucciones impartidas por la Superintendencia de Industria
+      y Comercio.
+    </li>
+  </ul>
+
+  <h2 id="consultas-y-reclamos">
+    9. Procedimiento para la atención de consultas y reclamos
+  </h2>
+  <p>
+    Los titulares podrán ejercer sus derechos mediante comunicación escrita
+    enviada al correo electrónico{' '}
+    <a href={`mailto:${entidad.email}`}>{entidad.email}</a> o mediante comunicación
+    física dirigida a la dirección de la empresa.
+  </p>
+  <p>La solicitud deberá contener como mínimo:</p>
+  <ul>
+    <li>Nombre completo del titular.</li>
+    <li>Número de identificación.</li>
+    <li>Datos de contacto.</li>
+    <li>Descripción clara de la solicitud.</li>
+    <li>Documentos o soportes cuando sean necesarios.</li>
+  </ul>
+  <p>
+    Las consultas serán atendidas dentro de los términos establecidos por la
+    legislación vigente.
+  </p>
+  <p>
+    Cuando la solicitud se encuentre incompleta, la empresa podrá requerir
+    información adicional para continuar con el trámite.
+  </p>
+  <p>
+    Los reclamos serán atendidos conforme a los términos previstos en la Ley
+    1581 de 2012, el Decreto Único Reglamentario 1074 de 2015 y las demás normas
+    que los modifiquen o sustituyan.
+  </p>
+
+  <h2 id="seguridad">10. Medidas de seguridad de la información</h2>
+  <p>
+    {entidad.razonSocial} adoptará medidas administrativas, físicas y tecnológicas
+    razonables para proteger los datos personales bajo su responsabilidad, buscando
+    prevenir su pérdida, adulteración, acceso no autorizado, uso indebido, divulgación
+    o destrucción.
+  </p>
+  <p>
+    El acceso a la información estará restringido únicamente al personal que,
+    por razón de sus funciones, requiera conocerla para el desarrollo de las
+    actividades propias de la empresa.
+  </p>
+  <p>
+    Cuando se utilicen proveedores externos para el tratamiento de datos
+    personales, estos deberán cumplir las obligaciones legales aplicables en
+    materia de protección de datos.
+  </p>
+
+  <h2 id="vigencia-bases">11. Vigencia de las bases de datos</h2>
+  <p>
+    Los datos personales serán conservados durante el tiempo necesario para
+    cumplir las finalidades para las cuales fueron recolectados, las
+    obligaciones legales o contractuales aplicables y los períodos de
+    conservación establecidos por la legislación colombiana.
+  </p>
+  <p>
+    Una vez desaparezca la finalidad del tratamiento y no exista obligación
+    legal de conservar la información, los datos podrán ser eliminados o
+    anonimizados de manera segura.
+  </p>
+
+  <h2 id="vigencia-politica">12. Vigencia de la política</h2>
+  <p>
+    La presente Política de Tratamiento de Datos Personales entra en vigencia a
+    partir de la fecha de su aprobación por la Gerencia de
+    {' '}{entidad.razonSocial} y permanecerá vigente hasta que sea modificada, actualizada
+    o derogada.
+  </p>
+  <p>
+    La empresa podrá actualizar esta política cuando se presenten cambios en la
+    legislación aplicable, en sus procesos internos o en las finalidades del
+    tratamiento de los datos personales. Cualquier modificación será publicada a
+    través de los medios de comunicación que la empresa considere pertinentes.
+  </p>
+
+  <h2 id="control-de-cambios">Control de cambios</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Versión</th>
+        <th>Fecha</th>
+        <th>Descripción del cambio</th>
+        <th>Responsable</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>01</td>
+        <td>30/06/2014</td>
+        <td>Emisión inicial del procedimiento.</td>
+        <td>Gerencia</td>
+      </tr>
+      <tr>
+        <td>02</td>
+        <td>09/06/2026</td>
+        <td>
+          Actualización integral de la política, cambio de razón social a
+          {' '}{entidad.razonSocial}, actualización normativa, actualización de
+          datos de contacto y adecuación a la legislación vigente.
+        </td>
+        <td>Gerencia</td>
+      </tr>
+    </tbody>
+  </table>
+</LegalPage>
