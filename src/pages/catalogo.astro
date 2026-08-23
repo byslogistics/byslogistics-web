@@ -7,6 +7,7 @@ import AddToQuoteBtn from '@components/ui/buttons/AddToQuoteBtn.astro';
 import ImagePlaceholder from '@components/ui/blocks/ImagePlaceholder.astro';
 import { getCatalog, getFacets } from '@utils/catalog';
 import { SITE } from '@data/constants';
+import { eventoDeListado } from '@utils/analytics';
 
 /**
  * Catálogo completo con filtros. Todas las referencias se imprimen en el HTML
@@ -47,6 +48,7 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
     description: metaDescription,
     inLanguage: 'es-CO',
   }}
+  analytics={eventoDeListado('Catálogo')}
 >
   <MainSection
     title="Catálogo"

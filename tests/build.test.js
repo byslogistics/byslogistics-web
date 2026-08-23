@@ -531,6 +531,72 @@ describe('páginas legales', () => {
   });
 });
 
+describe('medición', () => {
+  test('el píxel y la etiqueta de Google salen en todas las páginas', () => {
+    /*
+     * Van en MainLayout, así que la forma de que una página se quede sin medir
+     * es que deje de usar el layout. Ha pasado antes con otras cosas del
+     * `<head>`, y en una página sin medir el fallo no se ve: se ve un informe
+     * con menos visitas de las que hubo.
+     */
+    for (const p of pages()) {
+      assert.match(
+        p.html,
+        /connect\.facebook\.net/,
+        `${p.route} se quedó sin el píxel de Meta`
+      );
+      assert.match(
+        p.html,
+        /googletagmanager\.com\/gtag\/js/,
+        `${p.route} se quedó sin la etiqueta de Google`
+      );
+    }
+  });
+
+  test('la medición arranca antes que el resto del documento', () => {
+    // Si el visitante se va a los dos segundos, esa visita solo se cuenta si
+    // el píxel ya salió. Por eso va inline y arriba, no como módulo diferido.
+    const inicio = pages()
+      .find(x => x.route === '/')
+      .html.slice(0, 4000);
+    assert.match(
+      inicio,
+      /const BYS=/,
+      'la medición bajó del principio del head'
+    );
+  });
+
+  test('el respaldo sin JavaScript no rompe el head', () => {
+    /*
+     * Dentro de `<head>`, un `<noscript>` solo admite link, style y meta: el
+     * `<img>` del píxel cerraría el head antes de tiempo y empujaría al body
+     * todo lo que viniera detrás. Por eso va al principio del `<body>`.
+     */
+    const html = pages().find(x => x.route === '/').html;
+    const noscript = html.indexOf('facebook.com/tr?id=');
+    assert.ok(noscript > -1, 'falta el píxel de respaldo sin JavaScript');
+    assert.ok(
+      noscript > html.indexOf('<body'),
+      'el píxel de respaldo quedó dentro del <head>'
+    );
+  });
+
+  test('la ficha de un producto declara su propio evento', () => {
+    const p = pages().find(
+      x =>
+        x.route ===
+        '/productos/tulas-y-bolsas-de-seguridad/tula-de-seguridad-30-x-40-cms/'
+    );
+    assert.match(p.html, /"?tipo"?:"producto"/);
+    assert.match(p.html, /Tula de Seguridad 30 x 40/i);
+  });
+
+  test('el catálogo declara un evento de listado', () => {
+    const p = pages().find(x => x.route === '/catalogo/');
+    assert.match(p.html, /"?tipo"?:"listado"/);
+  });
+});
+
 describe('catálogo', () => {
   test('publica las 115 referencias del listado', () => {
     const p = pages().find(x => x.route === '/catalogo/');

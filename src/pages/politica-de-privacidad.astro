@@ -25,13 +25,16 @@
  *     mensaje a un proveedor de modelos de lenguaje. No guarda las
  *     conversaciones; el contador de uso vive en memoria y se pierde al
  *     reiniciar la función.
- *   - No hay analítica ni píxeles: la CSP de netlify.toml no permite conexiones
- *     ni scripts de terceros, así que si alguien los añadiera, dejarían de
- *     funcionar antes de llegar a producción.
+ *   - Medición → píxel de Meta y etiqueta de Google (GA4), en el `<head>` de
+ *     todas las páginas (src/components/Analytics.astro, con los
+ *     identificadores en ANALYTICS, constants.ts). Los dominios permitidos
+ *     están enumerados uno a uno en la CSP de netlify.toml: lo que no esté
+ *     ahí, el navegador no lo carga.
  *
- * Si mañana se añade analítica, un chat de terceros o un píxel de publicidad,
- * hay que actualizar esta página EN EL MISMO cambio. Publicar «no usamos
- * analítica» cuando sí se usa es una declaración falsa, no un descuido.
+ * Si mañana se añade otra herramienta —un chat de terceros, un mapa de calor,
+ * otra red publicitaria—, hay que actualizar esta página EN EL MISMO cambio.
+ * Describir mal lo que el sitio hace con los datos de quien lo visita es una
+ * declaración falsa, no un descuido.
  */
 import LegalPage from '@components/sections/legal/LegalPage.astro';
 import { CONTACT, LEGAL, SITE } from '@data/constants';
@@ -130,22 +133,58 @@ const dominio = SITE.url.replace(/^https:\/\//, '');
   <p>
     <strong>
       No vendemos, arrendamos ni cedemos sus datos personales a terceros con
-      fines comerciales
-    </strong>, ni los usamos para publicidad segmentada.
+      fines comerciales.
+    </strong> Lo que usted escribe en el formulario, en la suscripción o en el cotizador
+    no se entrega a ninguna red publicitaria. Cosa distinta es su navegación por el
+    sitio, que sí alimenta nuestras herramientas de medición y de publicidad en la
+    medida que explica el numeral siguiente.
   </p>
 
-  <h2 id="cookies">4. Cookies y almacenamiento en su navegador</h2>
+  <h2 id="cookies">4. Cookies, medición y publicidad</h2>
   <p>
-    <strong>
-      Este sitio no instala cookies de analítica, de publicidad ni de
-      seguimiento
-    </strong>, y no comparte su navegación con redes publicitarias. Por eso no
-    verá un aviso de cookies pidiéndole permiso: no hay nada que consentir.
+    El sitio mide cómo se usa, y esa medición sí instala cookies en su
+    navegador. Preferimos decirlo con nombre propio antes que con un aviso
+    genérico:
+  </p>
+  <ul>
+    <li>
+      <strong>Google Analytics (GA4)</strong> — cuenta visitas, qué páginas se ven
+      y desde dónde llega la gente, en cifras agregadas. Instala cookies propias (<code
+        >_ga</code
+      > y <code>_ga_&lt;identificador&gt;</code>) que distinguen una visita de
+      otra sin saber quién es usted. No usamos sus informes para identificar a
+      nadie.
+    </li>
+    <li>
+      <strong>Píxel de Meta (Facebook e Instagram)</strong> — mide qué anuncios nuestros
+      terminan en una solicitud de cotización y permite volver a mostrarle anuncios
+      de la empresa en las plataformas de Meta si visitó este sitio. Instala cookies
+      (<code>_fbp</code>) y comunica a Meta las páginas que vio y acciones como
+      añadir una referencia al cotizador o enviarnos una consulta. <strong>
+        Nunca le enviamos su nombre, su correo ni su teléfono
+      </strong>: los eventos van sin datos de contacto.
+    </li>
+  </ul>
+  <p>
+    Puede desactivarlas. Los navegadores permiten bloquear o borrar cookies de
+    terceros desde sus ajustes; los bloqueadores de publicidad cortan las dos
+    herramientas por completo, y el sitio sigue funcionando igual —ni el
+    cotizador ni los formularios dependen de ellas—. Además, en{' '}
+    <a
+      href="https://www.facebook.com/adpreferences/ad_settings"
+      rel="noopener noreferrer"
+      target="_blank">las preferencias de anuncios de Meta</a
+    > y en{' '}
+    <a
+      href="https://tools.google.com/dlpage/gaoptout"
+      rel="noopener noreferrer"
+      target="_blank">el complemento de inhabilitación de Google Analytics</a
+    > puede limitarlas desde el origen.
   </p>
   <p>
-    Sí guardamos dos cosas en el almacenamiento local de su navegador, que nunca
-    salen de su equipo y que usted puede borrar cuando quiera desde los ajustes
-    del navegador:
+    Aparte de eso guardamos dos cosas en el almacenamiento local de su
+    navegador, que nunca salen de su equipo y que puede borrar cuando quiera
+    desde los ajustes del navegador:
   </p>
   <ul>
     <li>
@@ -170,10 +209,17 @@ const dominio = SITE.url.replace(/^https:\/\//, '');
       los atienda.
     </li>
     <li>
-      <strong>Google Maps</strong> — la página de contacto incrusta el mapa de nuestra
-      ubicación. Al cargarlo, Google puede recibir su dirección IP y aplicar sus propias
-      políticas. Si prefiere evitarlo, la dirección también está escrita en texto
-      en esa misma página.
+      <strong>Google</strong> — la página de contacto incrusta el mapa de nuestra
+      ubicación (Google Maps) y todas las páginas llevan la etiqueta de medición de
+      Google Analytics. En ambos casos Google puede recibir su dirección IP y aplicar
+      sus propias políticas. Si prefiere evitar el mapa, la dirección también está
+      escrita en texto en esa misma página.
+    </li>
+    <li>
+      <strong>Meta Platforms</strong> — recibe, a través del píxel, las páginas que
+      usted ve en este sitio y las acciones descritas en el numeral 4. A diferencia
+      de los demás proveedores de esta lista, Meta no actúa solo por encargo nuestro:
+      usa esa información también para sus propios fines, conforme a sus condiciones.
     </li>
     <li>
       <strong>Proveedores de modelos de lenguaje</strong> — solo intervienen si usted

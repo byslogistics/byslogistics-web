@@ -157,6 +157,43 @@ describe('ficha de producto', { skip: skip() }, () => {
   });
 });
 
+describe('medición', { skip: skip() }, () => {
+  test('en local no sale ni un solo golpe a Meta ni a Google', async () => {
+    /*
+     * Estas pruebas navegan por medio sitio con un navegador de verdad. Si el
+     * píxel arrancara aquí, cada `pnpm test` metería visitas y conversiones
+     * falsas en la cuenta de producción y ensuciaría los públicos de
+     * remarketing —y nadie se enteraría hasta ver el informe—.
+     *
+     * Se comprueba pidiendo la página y pulsando los botones que sí miden.
+     */
+    const page = await browser.newPage();
+    const terceros = [];
+    page.on('request', peticion => {
+      const url = peticion.url();
+      if (/facebook|googletagmanager|google-analytics/.test(url)) {
+        terceros.push(url);
+      }
+    });
+
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.locator('[data-quote-add]').first().click();
+    await abrirCotizacion(page);
+    await page.waitForTimeout(300);
+
+    assert.deepEqual(terceros, [], 'la medición arrancó contra localhost');
+
+    // Y aun así el sitio funciona: los scripts llaman a `bysTrack` sin
+    // comprobar nada, así que si no existiera, el cotizador se caería.
+    assert.equal(
+      await page.getAttribute('[data-quote-panel]', 'data-open'),
+      'true'
+    );
+    assert.equal(await page.evaluate(() => typeof window.bysTrack), 'function');
+    await page.close();
+  });
+});
+
 describe('catálogo con filtros', { skip: skip() }, () => {
   test('filtra por línea de producto y acota las categorías', async () => {
     const page = await browser.newPage();

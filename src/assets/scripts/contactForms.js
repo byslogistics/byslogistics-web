@@ -81,6 +81,7 @@ function initForms() {
       }
 
       const data = new FormData(form);
+      const formulario = form.getAttribute('name') ?? 'formulario';
 
       // Trampa antispam: los robots rellenan el campo oculto, las personas no.
       if ((data.get('botcheck') ?? '').toString().trim() !== '') return;
@@ -95,6 +96,13 @@ function initForms() {
 
       try {
         await sendToNetlify(form, data);
+        // El envío que Netlify aceptó es la conversión; el intento, no. Por eso
+        // se mide aquí dentro y no al pulsar el botón. `?.` porque en local no
+        // hay medición y un bloqueador puede quitarla.
+        window.bysTrack?.(
+          formulario === 'suscripcion' ? 'suscripcion' : 'enviar_formulario',
+          { formulario }
+        );
         setStatus(
           form,
           form.dataset.formSuccess ??
@@ -109,6 +117,9 @@ function initForms() {
         // en lugar de dejar al visitante sin salida.
         const whatsapp = form.dataset.formWhatsapp ?? '';
         if (whatsapp) {
+          // El formulario no llegó, pero la consulta sí: sale por WhatsApp con
+          // el texto ya compuesto, y eso cuenta como contacto.
+          window.bysTrack?.('contacto_directo', { canal: 'whatsapp' });
           const url = `${whatsapp}?text=${encodeURIComponent(
             buildWhatsappMessage(form, data)
           )}`;

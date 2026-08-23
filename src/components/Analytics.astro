@@ -1,0 +1,51 @@
+---
+/**
+ * Píxel de Meta y etiqueta de Google (GA4), en el `<head>` de todas las
+ * páginas. Lo incluye MainLayout; los identificadores viven en `ANALYTICS`
+ * (constants.ts) y vaciar uno apaga esa medición por completo.
+ *
+ * POR QUÉ VA INLINE Y NO COMO LOS DEMÁS SCRIPTS DEL SITIO. Los de
+ * `src/assets/scripts/` los empaqueta Astro y los sirve como módulos, es
+ * decir, diferidos hasta después de analizar el documento. La medición tiene
+ * que salir antes: si el visitante se va a los dos segundos, esa visita solo
+ * se cuenta si el píxel ya arrancó.
+ *
+ * El código no está aquí sino en [analytics.js](../assets/scripts/analytics.js),
+ * y se lee con `?raw` para escribirlo dentro del `<script>`. Así el `<head>`
+ * lo recibe en la primera línea del documento y el código sigue viviendo en un
+ * `.js` de verdad, con Prettier y con historial propio.
+ *
+ * `BYS` —los dos identificadores, los hosts donde no se mide y el evento de
+ * esta página— se declara delante del código, en la misma etiqueta. No se usa
+ * `define:vars` porque Astro no lo combina con `set:html`: puestos los dos, el
+ * `<script>` sale vacío. En esos datos, todo signo `<` se escribe como `\u003c`:
+ * hoy no hay ninguno, pero el día que un valor traiga un `</script>` cerraría
+ * la etiqueta antes de tiempo y volcaría el resto del código en la página.
+ */
+import { ANALYTICS } from '@data/constants';
+import type { EventoDePagina } from '@utils/analytics';
+import codigo from '@scripts/analytics.js?raw';
+
+const { evento } = Astro.props as Props;
+
+interface Props {
+  /** El evento que dispara la página por el hecho de abrirse, si lo tiene. */
+  evento?: EventoDePagina;
+}
+
+const BYS = {
+  pixel: ANALYTICS.metaPixelId,
+  google: ANALYTICS.googleTagId,
+  hostsSinMedicion: ANALYTICS.hostsSinMedicion,
+  evento: evento ?? null,
+};
+
+const midiendo = Boolean(BYS.pixel || BYS.google);
+
+const contenido = `const BYS = ${JSON.stringify(BYS).replace(
+  /</g,
+  '\\u003c'
+)};\n${codigo}`;
+---
+
+{midiendo && <script is:inline set:html={contenido} />}
