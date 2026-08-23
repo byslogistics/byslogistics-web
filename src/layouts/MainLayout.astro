@@ -1,11 +1,14 @@
 ---
 // Importing necessary components
 import Meta from '@components/Meta.astro';
+import Analytics from '@components/Analytics.astro';
+import AnalyticsNoScript from '@components/AnalyticsNoScript.astro';
 import Navbar from '@components/sections/navbar&footer/Navbar.astro';
 import FooterSection from '@components/sections/navbar&footer/FooterSection.astro';
 import QuoteCart from '@components/QuoteCart.astro';
 import ChatWidget from '@components/ChatWidget.astro';
 import { SITE } from '@data/constants';
+import type { EventoDePagina } from '@utils/analytics';
 import '@styles/global.css';
 
 // Setting expected props
@@ -18,6 +21,7 @@ const {
   customOgTitle = null,
   hideFooter = false,
   heroASangre = false,
+  analytics,
 } = Astro.props;
 
 // Interface to type-check the properties
@@ -36,6 +40,12 @@ interface Props {
    * se encarga él mismo de que su contenido no quede tapado.
    */
   heroASangre?: boolean;
+  /**
+   * El evento de medición que dispara la página por el hecho de abrirse: la
+   * ficha de una referencia, el catálogo, la página de una categoría. Las
+   * páginas que no lo declaran solo cuentan la visita. Ver `@utils/analytics`.
+   */
+  analytics?: EventoDePagina;
 }
 ---
 
@@ -64,6 +74,8 @@ interface Props {
       customDescription={customDescription}
       customOgTitle={customOgTitle}
     />
+    {/* Píxel de Meta y etiqueta de Google. Cuanto más arriba, mejor mide. */}
+    <Analytics evento={analytics} />
     {/* Define the title of the page */}
     <title>{title}</title>
     <script is:inline>
@@ -90,6 +102,7 @@ interface Props {
   <body
     class="selection:bg-brand-400 flex min-h-screen flex-col bg-neutral-200 selection:text-neutral-700 dark:bg-neutral-800"
   >
+    <AnalyticsNoScript />
     <a
       href="#main-content"
       class="focus:bg-brand-400 sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:rounded-lg focus:px-4 focus:py-2 focus:text-neutral-800"

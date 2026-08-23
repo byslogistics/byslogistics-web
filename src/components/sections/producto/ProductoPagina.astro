@@ -4,6 +4,7 @@ import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import ProductoFicha from '@components/sections/producto/ProductoFicha.astro';
 import { SITE } from '@data/constants';
 import type { Referencia } from '@utils/catalog';
+import { eventoDeProducto } from '@utils/analytics';
 
 /**
  * La página completa de una referencia: metadatos, datos estructurados y la
@@ -101,6 +102,7 @@ const structuredData = {
   customDescription={metaDescription}
   customOgTitle={pageTitle}
   structuredData={structuredData}
+  analytics={eventoDeProducto(referencia)}
 >
   <ProductoFicha referencia={referencia} relacionados={relacionados} />
 

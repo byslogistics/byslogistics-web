@@ -105,7 +105,11 @@ export interface Referencia {
   image?: ImageMetadata;
   imageAlt?: string;
   ficha: Ficha;
-  /** Nombre y descripción normalizados (sin tildes, en minúscula) para buscar */
+  /**
+   * Todo lo que el buscador del catálogo puede encontrar de esta referencia
+   * —nombre, código, descripción, categoría y familia—, sin tildes y en
+   * minúscula.
+   */
   search: string;
 }
 
@@ -292,7 +296,19 @@ export async function getReferencias(): Promise<Referencia[]> {
       slug,
       url: `${datos.groupUrl}/${slug}`,
       ficha: resolverFicha(producto, defectos, datos.familyId),
-      search: normalize(`${datos.name} ${datos.description ?? ''}`),
+      /*
+       * Lo que el buscador del catálogo mira. Van también el código, la
+       * categoría y la familia, no solo el nombre: quien escribe "guaya"
+       * espera las ocho referencias de esa categoría, y varias de ellas no
+       * llevan la palabra en su nombre. Sin esto, buscar por el nombre de la
+       * categoría —que es como pregunta casi todo el mundo— devolvía menos
+       * referencias que pulsar el filtro de esa misma categoría.
+       */
+      search: normalize(
+        [datos.name, datos.code, datos.description, datos.group, datos.family]
+          .filter(Boolean)
+          .join(' ')
+      ),
     });
   };
 

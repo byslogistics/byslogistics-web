@@ -6,6 +6,7 @@ import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import ProductCard from '@components/ui/cards/ProductCard.astro';
 import backdrop from '@images/backgrounds/logistica-claro.jpg';
 import { SITE } from '@data/constants';
+import { eventoDeListado } from '@utils/analytics';
 
 const soluciones = (await getCollection('soluciones')).sort(
   (a, b) => a.data.order - b.data.order
@@ -29,6 +30,7 @@ const metaDescription =
     description: metaDescription,
     inLanguage: 'es-CO',
   }}
+  analytics={eventoDeListado('Nuestras Soluciones')}
 >
   <MainSection
     title="Nuestras Soluciones"

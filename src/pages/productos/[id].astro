@@ -9,6 +9,7 @@ import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import Icon from '@components/ui/icons/Icon.astro';
 import { CONTACT, SITE } from '@data/constants';
 import { getReferencias } from '@utils/catalog';
+import { eventoDeListado } from '@utils/analytics';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const soluciones = await getCollection('soluciones');
@@ -62,6 +63,7 @@ const referenceCount = solucion.data.groups.reduce(
     description: solucion.data.description,
     inLanguage: 'es-CO',
   }}
+  analytics={eventoDeListado(solucion.data.title)}
 >
   <section class="mx-auto max-w-[85rem] px-10 pt-10 sm:px-14 lg:px-20">
     <Breadcrumb

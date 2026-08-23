@@ -27,13 +27,25 @@
 
 # Cabeceras de seguridad. Equivalen a las que traía vercel.json.
 #
-# frame-src permite google.com porque la página de contacto incrusta el mapa
-# de Google Maps. Los formularios envían al propio sitio ('self'), que es como
-# funciona Netlify Forms.
+# La CSP es una lista blanca: lo que no esté aquí, el navegador no lo carga. Por
+# eso cada permiso de terceros dice a qué corresponde, y por eso añadir una
+# herramienta al sitio pasa SIEMPRE por tocar esta línea. Hoy hay tres:
+#
+#   - Google Maps (frame-src) — el mapa incrustado de la página de contacto.
+#   - Píxel de Meta — el script sale de connect.facebook.net, manda los eventos
+#     a www.facebook.com y, sin JavaScript, pide la imagen de un píxel al mismo
+#     dominio (de ahí que esté en script-src, connect-src e img-src).
+#   - Etiqueta de Google / GA4 — el script sale de www.googletagmanager.com y
+#     los golpes van a *.google-analytics.com y *.analytics.google.com. Los
+#     comodines son necesarios: GA4 usa subdominios por región
+#     (region1.google-analytics.com y compañía).
+#
+# Los formularios siguen enviando al propio sitio ('self'), que es como funciona
+# Netlify Forms.
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; base-uri 'self'; form-action 'self'; frame-src 'self' https://www.google.com; frame-ancestors 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; upgrade-insecure-requests"
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; form-action 'self'; frame-src 'self' https://www.google.com; frame-ancestors 'self'; script-src 'self' 'unsafe-inline' https://connect.facebook.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.facebook.com https://www.googletagmanager.com https://*.google-analytics.com; connect-src 'self' https://www.facebook.com https://connect.facebook.net https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; object-src 'none'; upgrade-insecure-requests"
     Permissions-Policy = "interest-cohort=()"
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Content-Type-Options = "nosniff"

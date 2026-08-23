@@ -8,6 +8,11 @@
  *
  * La interacción con el DOM va por atributos data-*, para que el marcado lo
  * defina QuoteCart.astro y este archivo solo se ocupe de la lógica.
+ *
+ * Los tres momentos del cotizador se miden —añadir, abrir el panel y enviar—
+ * llamando a `window.bysTrack`, que define analytics.js. Se llama con `?.`
+ * porque puede no existir: en local no arranca y un bloqueador de anuncios lo
+ * deja fuera. El cotizador tiene que seguir funcionando igual.
  */
 
 const STORAGE_KEY = 'bys-cotizacion';
@@ -140,6 +145,13 @@ function add(id, name, group) {
   if (lines.some(line => line.id === id)) return;
   lines.push({ id, name, group, qty: DEFAULT_QTY });
   save();
+  // Solo cuando entra de verdad: pulsar dos veces el mismo botón no es una
+  // segunda intención de compra, y contarla inflaría el evento.
+  window.bysTrack?.('anadir_a_cotizacion', {
+    id,
+    nombre: name,
+    categoria: group,
+  });
 }
 
 function remove(id) {
@@ -171,6 +183,22 @@ let lastFocused = null;
 function openPanel(open) {
   const panel = document.querySelector('[data-quote-panel]');
   if (!panel) return;
+
+  // Abrir el panel con algo dentro es el equivalente aquí a entrar a la caja:
+  // se pasa de mirar el catálogo a revisar cantidades y dejar los datos.
+  if (open && lines.length > 0) {
+    window.bysTrack?.('abrir_cotizacion', {
+      ids: lines.map(line => line.id),
+      referencias: lines.length,
+      items: lines.map(line => ({
+        item_id: line.id,
+        item_name: line.name,
+        item_category: line.group,
+        quantity: line.qty,
+      })),
+    });
+  }
+
   panel.dataset.open = open ? 'true' : 'false';
   // El cajón lleva su propio data-open porque la variante `data-[open=true]:`
   // de Tailwind mira el atributo del elemento donde está la clase.
@@ -274,6 +302,12 @@ function init() {
 
     if (event.target.closest('[data-quote-send]')) {
       if (lines.length === 0) return;
+      // La conversión del sitio: aquí es donde una visita se convierte en una
+      // solicitud que el equipo comercial recibe.
+      window.bysTrack?.('enviar_cotizacion', {
+        ids: lines.map(line => line.id),
+        referencias: lines.length,
+      });
       const url = `${whatsappBase}?text=${encodeURIComponent(buildMessage())}`;
       window.open(url, '_blank', 'noopener');
     }

@@ -7,6 +7,7 @@ import AddToQuoteBtn from '@components/ui/buttons/AddToQuoteBtn.astro';
 import ImagePlaceholder from '@components/ui/blocks/ImagePlaceholder.astro';
 import { getCatalog, getFacets } from '@utils/catalog';
 import { SITE } from '@data/constants';
+import { eventoDeListado } from '@utils/analytics';
 
 /**
  * Catálogo completo con filtros. Todas las referencias se imprimen en el HTML
@@ -26,6 +27,12 @@ import { SITE } from '@data/constants';
  * (`familia:` o `grupo:`): línea y categoría no son dos filtros que se
  * combinen —elegir una categoría ya implica su línea—, y tratarlos como dos
  * obligaba a sincronizarlos a mano en cada cambio.
+ *
+ * EL ESTADO VIVE EN LA URL (`?q=` y `?f=`). Lo que se está viendo se puede
+ * copiar, mandar por WhatsApp y guardar en favoritos: el equipo comercial
+ * manda «esto es toda nuestra línea de guaya» con un enlace en vez de con
+ * instrucciones. Se escribe con `replaceState`, no con `pushState`: escribir
+ * en el buscador no debe llenar el historial de pasos atrás.
  */
 const items = await getCatalog();
 const { families, groups } = getFacets(items);
@@ -47,6 +54,7 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
     description: metaDescription,
     inLanguage: 'es-CO',
   }}
+  analytics={eventoDeListado('Catálogo')}
 >
   <MainSection
     title="Catálogo"
@@ -59,22 +67,78 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
       {/* Filtros */}
       <aside class="lg:col-span-1">
         <div class="lg:sticky lg:top-28">
-          <label class="grid gap-1">
-            <span
-              class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
-              >Buscar referencia</span
-            >
+          <label
+            for="catalog-search"
+            class="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+          >
+            Buscar referencia
+          </label>
+          {
+            /*
+              El botón de borrar no es un adorno: en el móvil, vaciar el campo
+              a base de retrocesos es lo que hace que la gente abandone la
+              búsqueda en vez de probar otra palabra. Va dentro del campo, y el
+              aspa que pinta Chrome por su cuenta se oculta en el `<style>`
+              para no enseñar dos.
+            */
+          }
+          <div class="relative mt-1">
             <input
               type="search"
               id="catalog-search"
               placeholder="precinto, guaya, holograma…"
-              class="focus:border-brand-500 focus:ring-brand-500 rounded-lg border border-neutral-300 bg-neutral-50 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200"
+              autocomplete="off"
+              autocorrect="off"
+              spellcheck="false"
+              enterkeyhint="search"
+              class="focus:border-brand-500 focus:ring-brand-500 w-full rounded-lg border border-neutral-300 bg-neutral-50 px-3 py-2 pr-10 text-sm text-neutral-800 placeholder:text-neutral-500 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200 dark:placeholder:text-neutral-400"
             />
-          </label>
+            <button
+              type="button"
+              id="catalog-search-clear"
+              hidden
+              aria-label="Borrar la búsqueda"
+              class="absolute top-1/2 right-1 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-neutral-500 outline-hidden transition hover:bg-neutral-200 hover:text-neutral-800 focus-visible:ring-3 dark:hover:bg-neutral-700 dark:hover:text-neutral-100"
+            >
+              <svg
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path d="M18 6 6 18M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
 
-          <div class="filtros mt-6">
+          {
+            /*
+              En el móvil la columna de filtros va delante de los resultados y
+              ocupa la primera pantalla entera: había que pasar por encima de
+              seis líneas de producto para llegar a la primera referencia. Este
+              botón la pliega, y el script la deja plegada solo por debajo de
+              `lg`. Sin JavaScript no aparece y el panel se ve entero, que es
+              el comportamiento correcto cuando no hay quien lo despliegue.
+            */
+          }
+          <button
+            type="button"
+            id="catalog-filters-toggle"
+            hidden
+            aria-expanded="true"
+            aria-controls="catalog-filters"
+            class="mt-5 flex min-h-11 w-full items-center justify-between rounded-lg border border-neutral-300 px-3 text-sm font-semibold text-neutral-700 outline-hidden transition hover:bg-neutral-100 focus-visible:ring-3 lg:hidden dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-800"
+          >
+            <span>Filtrar por línea</span>
+            <span class="filtros-chevron" aria-hidden="true"></span>
+          </button>
+
+          <div class="filtros mt-6" id="catalog-filters">
             <p
-              class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+              class="hidden text-sm font-medium text-neutral-700 lg:block dark:text-neutral-300"
             >
               Línea de producto
             </p>
@@ -160,41 +224,110 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
 
       {/* Resultados */}
       <div class="mt-10 lg:col-span-3 lg:mt-0">
-        <p
-          class="text-sm text-neutral-600 dark:text-neutral-400"
-          aria-live="polite"
+        {
+          /*
+            Lo que se está filtrando, en fichas que se quitan de una en una.
+            Es la única parte del panel que se ve sin desplegar nada: en el
+            móvil los filtros van plegados, y en el escritorio la línea elegida
+            puede quedar dentro de un desplegable cerrado.
+          */
+        }
+        <div
+          id="catalog-active"
+          hidden
+          class="mb-5 flex flex-wrap items-center gap-2"
         >
+          <span class="text-sm text-neutral-600 dark:text-neutral-400">
+            Filtrando por:
+          </span>
+          <button
+            type="button"
+            class="catalog-chip"
+            data-quitar="filtro"
+            hidden
+          >
+            <span data-chip-texto></span>
+            <span class="catalog-chip-aspa" aria-hidden="true">×</span>
+          </button>
+          <button
+            type="button"
+            class="catalog-chip"
+            data-quitar="busqueda"
+            hidden
+          >
+            <span data-chip-texto></span>
+            <span class="catalog-chip-aspa" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <p class="text-sm text-neutral-600 dark:text-neutral-400">
           Mostrando <span id="catalog-count">{items.length}</span> de {
             items.length
           } referencias
         </p>
 
+        {
+          /*
+            Cuando lo escrito no es el nombre que usa el catálogo, se dice cuál
+            es. Quien escribe «sello» no conoce la palabra «precinto», y es la
+            que va a necesitar para hablar con el asesor comercial.
+          */
+        }
+        <p
+          id="catalog-sinonimo"
+          hidden
+          class="text-brand-700 dark:text-brand-400 mt-1 text-sm"
+        >
+        </p>
+
+        {
+          /*
+            El recuento de arriba cambia con cada tecla, y anunciarlo tal cual
+            deja al lector de pantalla leyendo cifras sin parar mientras se
+            escribe. Este renglón dice lo mismo en una frase y con retardo:
+            cuando quien busca deja de teclear, se anuncia una sola vez.
+          */
+        }
+        <p id="catalog-status" role="status" aria-live="polite" class="sr-only">
+        </p>
+
+        {
+          /*
+            En el móvil la tarjeta va acostada —foto a la izquierda, texto a la
+            derecha— y no de pie. De pie, con la foto ocupando el ancho de la
+            pantalla, cada referencia medía media pantalla de alto: recorrer
+            las ciento quince era un scroll interminable. Acostada caben tres o
+            cuatro a la vez, que es lo que hace falta para comparar las medidas
+            de un mismo producto.
+          */
+        }
         <div
           id="catalog-grid"
-          class="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3"
+          class="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3"
         >
           {
             items.map(item => (
               <article
-                class="group flex flex-col overflow-hidden rounded-xl border border-neutral-300 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900"
+                class="group focus-within:ring-brand-500 relative flex overflow-hidden rounded-xl border border-neutral-300 bg-neutral-100 transition focus-within:ring-2 hover:border-neutral-400 sm:flex-col dark:border-neutral-700 dark:bg-neutral-900 dark:hover:border-neutral-500"
                 data-catalog-item
                 data-family={item.familyId}
                 data-group={item.groupId}
                 data-search={item.search}
               >
-                {/* La foto enlaza a la ficha de la categoría, igual que el
-                    epígrafe: es el mismo destino, y así el objetivo táctil no
-                    es solo un renglón de texto pequeño. */}
-                <a
-                  href={item.url}
-                  tabindex="-1"
-                  aria-hidden="true"
-                  class="block aspect-[4/3] overflow-hidden bg-white"
-                >
+                {/* La foto no es un enlace aparte: el enlace del nombre se
+                    estira sobre toda la tarjeta (ver `.catalog-enlace` en el
+                    <style>), así que la foto, el epígrafe y el hueco entre
+                    ellos llevan al mismo sitio con un solo objetivo táctil. */}
+                <div class="aspect-square w-2/5 shrink-0 self-start overflow-hidden bg-white sm:aspect-[4/3] sm:w-full sm:self-auto">
+                  {/* `alt` vacío a propósito: la foto va pegada al nombre, que
+                      dice lo mismo. Con texto, un lector de pantalla leería
+                      dos veces cada una de las ciento quince referencias. La
+                      descripción de la foto vive en la ficha del producto, que
+                      es donde sí es la protagonista. */}
                   {item.image ? (
                     <Image
                       src={item.image}
-                      alt={item.imageAlt ?? item.name}
+                      alt=""
                       class="h-full w-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
                       widths={[240, 480]}
                       sizes="(min-width: 1280px) 16rem, (min-width: 640px) 40vw, 80vw"
@@ -204,20 +337,23 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
                   ) : (
                     <ImagePlaceholder />
                   )}
-                </a>
+                </div>
 
-                <div class="flex grow flex-col p-5">
-                  <a
-                    href={item.url}
-                    class="text-brand-700 dark:text-brand-400 text-xs font-bold tracking-wide uppercase"
-                  >
+                <div class="flex min-w-0 grow flex-col p-4 sm:p-5">
+                  <p class="text-brand-700 dark:text-brand-400 text-xs font-bold tracking-wide uppercase">
                     {item.group}
-                  </a>
+                  </p>
+                  {/* El nombre es el enlace, y no el epígrafe de encima: con
+                      ciento quince tarjetas, un lector de pantalla leía ciento
+                      quince enlaces llamados «precintos de correa dentada» que
+                      llevaban cada uno a un sitio distinto. */}
                   <h2 class="mt-2 font-bold text-neutral-800 dark:text-neutral-200">
-                    {item.name}
+                    <a href={item.url} class="catalog-enlace">
+                      {item.name}
+                    </a>
                   </h2>
                   {item.description && (
-                    <p class="mt-1 grow text-sm text-neutral-600 dark:text-neutral-400">
+                    <p class="mt-1 line-clamp-2 grow text-sm text-neutral-600 sm:line-clamp-3 dark:text-neutral-400">
                       {item.description}
                     </p>
                   )}
@@ -233,14 +369,27 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
           }
         </div>
 
-        <p
-          id="catalog-empty"
-          hidden
-          class="mt-10 text-center text-neutral-600 dark:text-neutral-400"
-        >
-          No encontramos referencias con esos filtros. Prueba con otro término o
-          escríbenos y te asesoramos.
-        </p>
+        <div id="catalog-empty" hidden class="mt-10 text-center">
+          <p class="text-neutral-600 dark:text-neutral-400">
+            No encontramos referencias con esos filtros. Pruebe con otra
+            palabra, o escríbanos y le decimos qué referencia corresponde.
+          </p>
+          <div class="mt-4 flex flex-wrap justify-center gap-3">
+            <button
+              type="button"
+              data-catalog-limpiar
+              class="bg-brand-600 hover:bg-brand-700 inline-flex min-h-11 items-center rounded-full px-5 text-sm font-bold text-neutral-50 outline-hidden transition focus-visible:ring-3"
+            >
+              Ver todas las referencias
+            </button>
+            <a
+              href="/contacto"
+              class="inline-flex min-h-11 items-center rounded-full border border-neutral-400 px-5 text-sm font-bold text-neutral-700 outline-hidden transition hover:bg-neutral-200 focus-visible:ring-3 dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            >
+              Pedir asesoría
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -322,7 +471,8 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
     transition: transform 0.25s ease;
   }
 
-  details[open] > .familia-cabecera > .filtros-chevron {
+  details[open] > .familia-cabecera > .filtros-chevron,
+  #catalog-filters-toggle[aria-expanded='true'] .filtros-chevron {
     transform: rotate(-135deg) translate(-2px, -2px);
   }
 
@@ -365,6 +515,75 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
     background: var(--color-neutral-800);
   }
 
+  /* El aspa que Chrome pinta dentro de los campos de búsqueda. Se quita
+     porque el sitio pone la suya, que existe también en Firefox y en Safari
+     y que tiene el tamaño mínimo que se puede tocar con el dedo. */
+  #catalog-search::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* Las fichas de lo que se está filtrando. */
+  .catalog-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2rem;
+    padding: 0 0.35rem 0 0.75rem;
+    border-radius: 999px;
+    background: var(--color-neutral-100);
+    border: 1px solid var(--color-neutral-300);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-neutral-700);
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .catalog-chip:hover {
+    background: var(--color-neutral-200);
+  }
+
+  :global(.dark) .catalog-chip {
+    background: var(--color-neutral-800);
+    border-color: var(--color-neutral-700);
+    color: var(--color-neutral-300);
+  }
+
+  :global(.dark) .catalog-chip:hover {
+    background: var(--color-neutral-700);
+  }
+
+  .catalog-chip-aspa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 999px;
+    background: var(--color-neutral-300);
+    font-size: 0.9rem;
+    line-height: 1;
+  }
+
+  :global(.dark) .catalog-chip-aspa {
+    background: var(--color-neutral-600);
+  }
+
+  /*
+   * El enlace del nombre, estirado sobre toda la tarjeta. Es lo que permite
+   * que la tarjeta entera se pueda pulsar sin repetir el enlace tres veces
+   * —foto, epígrafe y nombre— para el teclado y el lector de pantalla.
+   *
+   * El botón de cotizar queda por encima con su propio `position: relative`
+   * (ver AddToQuoteBtn), o el enlace se lo comería.
+   */
+  .catalog-enlace::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .filtros-chevron {
       transition: none;
@@ -373,7 +592,8 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
 </style>
 
 <script>
-  import { normalize } from '@utils/text';
+  import { traducirBusqueda } from '@utils/text';
+  import type { Sustitucion } from '@utils/text';
 
   function initCatalog() {
     const grid = document.getElementById('catalog-grid');
@@ -385,33 +605,178 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
     const search = document.getElementById(
       'catalog-search'
     ) as HTMLInputElement | null;
+    const searchClear = document.getElementById('catalog-search-clear');
     const count = document.getElementById('catalog-count');
+    const status = document.getElementById('catalog-status');
+    const sinonimo = document.getElementById('catalog-sinonimo');
     const empty = document.getElementById('catalog-empty');
     const reset = document.getElementById('catalog-reset');
+    const activos = document.getElementById('catalog-active');
+    const filtros = document.getElementById('catalog-filters');
+    const toggleFiltros = document.getElementById('catalog-filters-toggle');
     const familias = Array.from(
       document.querySelectorAll<HTMLDetailsElement>('[data-familia]')
     );
 
+    const radios = () =>
+      Array.from(
+        document.querySelectorAll<HTMLInputElement>('input[name="filtro"]')
+      );
+
+    const marcado = () => radios().find(radio => radio.checked) ?? null;
+
+    /** El nombre de la línea o categoría elegida, tal como se lee en el panel. */
+    function nombreDelFiltro(radio: HTMLInputElement | null) {
+      if (!radio || !radio.value) return '';
+      const etiqueta = radio.closest('label');
+      const familia = radio.closest<HTMLElement>('[data-familia]');
+      const texto = etiqueta?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+      // «Toda la línea (49)» no dice cuál: se completa con el nombre de la
+      // línea, que es el del desplegable donde vive esa opción.
+      if (radio.value.startsWith('familia:')) {
+        const linea =
+          familia?.querySelector('.familia-nombre')?.textContent?.trim() ?? '';
+        return linea;
+      }
+      return texto.replace(/\s*\(\d+\)\s*$/, '');
+    }
+
+    let ultimaBusquedaMedida = '';
+    let temporizador: ReturnType<typeof setTimeout> | undefined;
+
     function apply() {
-      const marcado = document.querySelector(
-        'input[name="filtro"]:checked'
-      ) as HTMLInputElement | null;
-      const valor = marcado?.value ?? '';
+      const radio = marcado();
+      const valor = radio?.value ?? '';
       const [tipo, id] = valor ? valor.split(':') : ['', ''];
-      const term = normalize(search?.value.trim() ?? '');
+      /*
+       * Lo escrito se traduce al vocabulario del catálogo antes de buscar:
+       * quien escribe «sello» o «marchamo» está buscando un precinto. Ver
+       * `traducirBusqueda` y la lista de sinonimos.ts.
+       */
+      const { termino: term, cambios } = traducirBusqueda(
+        search?.value.trim() ?? ''
+      );
+      // Cada palabra por separado y todas tienen que estar: así «precinto
+      // guaya» encuentra el precinto de guaya, que escrito de corrido no
+      // aparece en ningún nombre.
+      const palabras = term ? term.split(/\s+/) : [];
 
       let visible = 0;
       for (const card of cards) {
+        const indice = card.dataset.search ?? '';
         const coincide =
           (tipo !== 'familia' || card.dataset.family === id) &&
           (tipo !== 'grupo' || card.dataset.group === id) &&
-          (!term || (card.dataset.search ?? '').includes(term));
+          palabras.every(palabra => indice.includes(palabra));
         card.hidden = !coincide;
         if (coincide) visible++;
       }
 
       if (count) count.textContent = String(visible);
       if (empty) empty.hidden = visible > 0;
+      if (searchClear) searchClear.hidden = !search?.value;
+      pintarSinonimo(cambios);
+
+      pintarActivos(radio, search?.value.trim() ?? '');
+      escribirUrl(valor, search?.value.trim() ?? '');
+
+      // El anuncio y la medición esperan a que quien busca deje de teclear:
+      // uno para no leer una cifra por tecla, la otra para no mandar a Meta
+      // «p», «pr», «pre»… como si fueran cinco búsquedas.
+      clearTimeout(temporizador);
+      temporizador = setTimeout(() => {
+        if (status) {
+          status.textContent =
+            visible === 0
+              ? 'Ninguna referencia coincide con esos filtros.'
+              : `${visible} ${visible === 1 ? 'referencia' : 'referencias'}.`;
+        }
+        const termino = search?.value.trim() ?? '';
+        if (termino.length >= 3 && termino !== ultimaBusquedaMedida) {
+          ultimaBusquedaMedida = termino;
+          window.bysTrack?.('buscar', { termino, resultados: visible });
+        }
+      }, 600);
+    }
+
+    /**
+     * Dice con qué palabra se buscó de verdad.
+     *
+     * No es un detalle de cortesía: quien escribe «sello» no conoce la
+     * palabra «precinto», y es la que va a necesitar para hablar con el
+     * asesor comercial y para leer el resto del sitio. Enseñarla en el
+     * momento en que la búsqueda funciona es donde se aprende.
+     */
+    function pintarSinonimo(cambios: Sustitucion[]) {
+      if (!sinonimo) return;
+      sinonimo.hidden = cambios.length === 0;
+      if (cambios.length === 0) return;
+      const [primero] = cambios;
+      sinonimo.textContent = `En este catálogo, «${primero.escrito}» se llama «${primero.catalogo}».`;
+    }
+
+    /** Las fichas de lo que está filtrado, que se quitan de una en una. */
+    function pintarActivos(radio: HTMLInputElement | null, termino: string) {
+      if (!activos) return;
+      const fichas = Array.from(
+        activos.querySelectorAll<HTMLElement>('[data-quitar]')
+      );
+      const textos: Record<string, string> = {
+        filtro: nombreDelFiltro(radio),
+        busqueda: termino ? `«${termino}»` : '',
+      };
+
+      for (const ficha of fichas) {
+        const texto = textos[ficha.dataset.quitar ?? ''] ?? '';
+        ficha.hidden = !texto;
+        const hueco = ficha.querySelector('[data-chip-texto]');
+        if (hueco) hueco.textContent = texto;
+        ficha.setAttribute('aria-label', `Quitar el filtro ${texto}`);
+      }
+
+      activos.hidden = fichas.every(ficha => ficha.hidden);
+    }
+
+    /**
+     * Deja en la barra de direcciones lo que se está viendo, para que el
+     * enlace se pueda copiar y mandar. `replaceState` y no `pushState`:
+     * escribir seis letras no debe dejar seis pasos atrás en el historial.
+     */
+    function escribirUrl(filtro: string, termino: string) {
+      const url = new URL(window.location.href);
+      if (filtro) url.searchParams.set('f', filtro);
+      else url.searchParams.delete('f');
+      if (termino) url.searchParams.set('q', termino);
+      else url.searchParams.delete('q');
+      const destino = url.pathname + url.search;
+      if (destino !== window.location.pathname + window.location.search) {
+        window.history.replaceState(null, '', destino);
+      }
+    }
+
+    /** Lo contrario: la URL con la que se llega manda sobre el estado inicial. */
+    function leerUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const termino = params.get('q') ?? '';
+      const filtro = params.get('f') ?? '';
+      if (search && termino) search.value = termino;
+      if (!filtro) return;
+      const radio = radios().find(item => item.value === filtro);
+      if (!radio) return;
+      radio.checked = true;
+      // Y se abre el desplegable donde vive, o la selección no se ve.
+      const familia = radio.closest<HTMLDetailsElement>('[data-familia]');
+      if (familia) familia.open = true;
+    }
+
+    function limpiar() {
+      if (search) search.value = '';
+      const todas = radios().find(radio => radio.value === '');
+      if (todas) todas.checked = true;
+      // Al limpiar se cierran los desplegables: el panel vuelve al estado en
+      // el que se llegó a la página, con las seis líneas a la vista.
+      for (const familia of familias) familia.open = false;
+      apply();
     }
 
     document.addEventListener('change', event => {
@@ -421,16 +786,34 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
 
     search?.addEventListener('input', apply);
 
-    reset?.addEventListener('click', () => {
+    searchClear?.addEventListener('click', () => {
       if (search) search.value = '';
-      const todas = document.querySelector(
-        'input[name="filtro"][value=""]'
-      ) as HTMLInputElement | null;
-      if (todas) todas.checked = true;
-      // Al limpiar se cierran los desplegables: el panel vuelve al estado en
-      // el que se llegó a la página, con las seis líneas a la vista.
-      for (const familia of familias) familia.open = false;
+      search?.focus();
       apply();
+    });
+
+    reset?.addEventListener('click', limpiar);
+
+    for (const boton of document.querySelectorAll('[data-catalog-limpiar]')) {
+      boton.addEventListener('click', () => {
+        limpiar();
+        search?.focus();
+      });
+    }
+
+    // Quitar una ficha quita solo ese filtro, no los dos.
+    activos?.addEventListener('click', event => {
+      const ficha = (event.target as HTMLElement).closest<HTMLElement>(
+        '[data-quitar]'
+      );
+      if (!ficha) return;
+      if (ficha.dataset.quitar === 'busqueda' && search) search.value = '';
+      if (ficha.dataset.quitar === 'filtro') {
+        const todas = radios().find(radio => radio.value === '');
+        if (todas) todas.checked = true;
+      }
+      apply();
+      search?.focus();
     });
 
     // Abrir una línea no filtra por sí solo —para eso están sus radios—, pero
@@ -445,6 +828,32 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
       });
     }
 
+    /*
+     * El panel de filtros plegado en el móvil. Solo existe con JavaScript: el
+     * botón está oculto en el HTML y se enseña aquí, para que sin scripts no
+     * quede un panel que nadie puede desplegar.
+     */
+    if (toggleFiltros && filtros) {
+      const estrecho = window.matchMedia('(max-width: 1023px)');
+
+      const plegar = (plegado: boolean) => {
+        filtros.hidden = plegado;
+        toggleFiltros.setAttribute('aria-expanded', String(!plegado));
+      };
+
+      toggleFiltros.hidden = false;
+      plegar(estrecho.matches);
+
+      toggleFiltros.addEventListener('click', () => {
+        plegar(toggleFiltros.getAttribute('aria-expanded') === 'true');
+      });
+
+      // Al pasar a escritorio el panel vuelve a verse, aunque se hubiera
+      // plegado en el móvil: ahí abajo no hay botón que lo despliegue.
+      estrecho.addEventListener('change', () => plegar(estrecho.matches));
+    }
+
+    leerUrl();
     apply();
   }
 

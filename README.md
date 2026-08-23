@@ -268,6 +268,87 @@ El formulario exige marcar la autorización de tratamiento de datos, y ese
 consentimiento viaja en el envío (`autorizacion=Sí`) para dejar constancia,
 como pide la Ley 1581 de 2012.
 
+### El buscador entiende los nombres del cliente
+
+El catálogo dice «precinto». El cliente escribe **sello**, **marchamo** o
+**candado plástico** según de dónde venga, y esas búsquedas devolvían cero en
+un catálogo que sí tiene el producto.
+
+[`src/data_files/sinonimos.ts`](src/data_files/sinonimos.ts) traduce lo escrito
+al vocabulario del catálogo antes de buscar, y la página dice con qué palabra
+buscó de verdad: _«En este catálogo, "sello" se llama "precinto"»_. Ese
+renglón no es cortesía: quien escribió «sello» no conoce la palabra que va a
+necesitar para hablar con el asesor comercial.
+
+Para agregar uno, una línea en la lista. Dos reglas, con un test cada una:
+
+1. **Lo que se traduce no puede ser una palabra que el catálogo ya use.**
+   Traducir «candado» a «precinto» haría que buscar «candado» dejara de llevar
+   a los dos precintos tipo candado y devolviera los 49 precintos. Por eso
+   «candado» solo aparece dentro de la frase «candado plástico».
+2. **Aquello a lo que se traduce sí tiene que existir**, palabra por palabra.
+   Un sinónimo que apunta a un producto que no se vende cambia un cero por otro.
+
+Qué palabras agregar no hay que adivinarlo: el evento `Search` registra en
+Analytics qué se busca y cuántos resultados dio, así que las búsquedas que se
+quedan en cero salen solas en el informe.
+
+---
+
+## Medición
+
+El sitio mide con dos herramientas, las mismas que ya usaba la empresa en el
+sitio anterior, para no partir el histórico:
+
+| Herramienta              | Identificador      | Dónde se cambia               |
+| ------------------------ | ------------------ | ----------------------------- |
+| Píxel de Meta            | `1137991652734329` | `ANALYTICS` en `constants.ts` |
+| Etiqueta de Google (GA4) | `G-CPJH96HLSN`     | `ANALYTICS` en `constants.ts` |
+
+Dejar un identificador en cadena vacía apaga esa medición: no se carga su
+script ni se manda nada.
+
+El código va **inline en el `<head>`** de todas las páginas
+(`src/components/Analytics.astro`, que escribe `src/assets/scripts/analytics.js`).
+Tiene que salir antes que el resto: si el visitante se va a los dos segundos,
+esa visita solo se cuenta si el píxel ya arrancó.
+
+**No se mide en `localhost`.** Sin eso, cada `pnpm test:e2e` —que recorre medio
+sitio con un navegador real— mandaría visitas y conversiones falsas a la cuenta
+de producción. Tampoco se mide mientras el navegador pre-renderiza una página
+que nadie ha llegado a abrir.
+
+### Qué se mide
+
+Además de la visita, los momentos que dicen algo del negocio. Cada script del
+sitio llama a `window.bysTrack('nombre', datos)` y `analytics.js` traduce:
+
+| Momento                       | Meta                   | GA4              |
+| ----------------------------- | ---------------------- | ---------------- |
+| Ficha de una referencia       | `ViewContent`          | `view_item`      |
+| Catálogo, familia o categoría | `ViewCategory`         | `view_item_list` |
+| Buscar en el catálogo         | `Search`               | `search`         |
+| Añadir a la cotización        | `AddToCart`            | `add_to_cart`    |
+| Abrir el cotizador con algo   | `InitiateCheckout`     | `begin_checkout` |
+| Enviar la cotización          | `Lead`                 | `generate_lead`  |
+| Enviar el formulario          | `Lead`                 | `generate_lead`  |
+| Suscribirse                   | `CompleteRegistration` | `sign_up`        |
+| WhatsApp, teléfono o correo   | `Contact`              | `contact`        |
+
+Dos decisiones que conviene no deshacer sin pensarlo:
+
+- **Ningún evento lleva importe.** El sitio no publica precios —se cotiza según
+  referencia, cantidad y personalización—, así que un `value` inventado, o un
+  cero, daría informes de campaña con cifras que no existen.
+- **No hay evento de compra.** Aquí no se cierra una venta, se pide una
+  cotización. La conversión que hay que optimizar en el Administrador de
+  anuncios es `Lead`.
+
+Al agregar una medición nueva hay que tocar tres sitios: el identificador en
+`constants.ts`, su dominio en la CSP de `netlify.toml` (o el navegador lo
+bloquea en silencio) y el numeral 4 de la política de privacidad, que enumera
+con nombre propio lo que se instala en el navegador de quien visita.
+
 ---
 
 ## Cotizador
@@ -439,11 +520,13 @@ El repositorio está conectado a Netlify. `netlify.toml` define el comando de
 build, la carpeta publicada (`dist`), la carpeta de funciones
 (`netlify/functions`), las cabeceras de seguridad y el cacheado.
 
-La CSP permite iframes de `google.com` porque la página de contacto incrusta el
-mapa de la sede. Si se agrega otro servicio externo (analítica, otro chat), hay
-que añadir su dominio a la cabecera o quedará bloqueado en silencio. El
-asistente no necesitó tocarla: llama a `/api/chat`, que es el propio dominio, y
-el proveedor se llama desde el servidor, no desde el navegador.
+La CSP es una lista blanca y enumera uno a uno los dominios de terceros que el
+sitio usa: el iframe del mapa de la sede, el píxel de Meta y la etiqueta de
+Google. **Si se agrega otro servicio externo hay que añadir su dominio a la
+cabecera, o quedará bloqueado en silencio**: la página se ve perfecta y la
+herramienta no recibe nada. El asistente no necesitó tocarla: llama a
+`/api/chat`, que es el propio dominio, y el proveedor se llama desde el
+servidor, no desde el navegador.
 
 ---
 
@@ -462,4 +545,11 @@ el proveedor se llama desde el servidor, no desde el navegador.
   vigencia y verificar si hay que inscribir las bases de datos en el RNBD.
 - **Razón social.** El logo dice «S.A.S.» y el sitio anterior decía «Ltda.»;
   falta confirmar cuál es la vigente.
-- **Analítica.** No hay medición configurada.
+- **Verificar la medición en producción.** Con el sitio ya publicado en su
+  dominio definitivo, conviene comprobar el píxel con la extensión **Meta Pixel
+  Helper** y la etiqueta de Google en **Analytics → Administrar → Flujos de
+  datos**. Y añadir el dominio nuevo a los **dominios verificados** del
+  portafolio comercial de Meta, o los eventos de ese dominio se descartan.
+- **Conversiones en el Administrador de anuncios.** Los eventos ya llegan, pero
+  hay que decirle a Meta cuál optimizar (`Lead`) y marcar en GA4
+  `generate_lead` como conversión. Sin eso se miden pero no se optimiza nada.

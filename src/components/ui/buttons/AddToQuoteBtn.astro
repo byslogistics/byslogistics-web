@@ -2,6 +2,16 @@
 /**
  * Botón "Añadir" del cotizador. El estado (añadido o no) lo pinta
  * quoteCart.js leyendo el carrito, por eso el marcado es el mismo siempre.
+ *
+ * VA `relative`. En el catálogo, el enlace del nombre se estira sobre toda la
+ * tarjeta para que se pueda pulsar entera; sin un contexto propio de apilado,
+ * ese enlace queda por encima y se traga el botón: pulsar "Añadir" llevaría a
+ * la ficha en vez de añadir nada.
+ *
+ * En pantallas estrechas se lee solo "Añadir". "a cotización" sigue ahí para
+ * el lector de pantalla —el nombre accesible del botón no cambia—, pero en un
+ * botón de la mitad de ancho el renglón partido se leía peor que la palabra
+ * sola.
  */
 const { id, name, group } = Astro.props;
 
@@ -18,8 +28,9 @@ interface Props {
   data-quote-name={name}
   data-quote-group={group}
   data-added="false"
-  class="bg-brand-600 hover:bg-brand-700 mt-4 inline-flex w-full items-center justify-center gap-x-2 rounded-full border border-transparent px-4 py-2.5 text-sm font-bold text-neutral-50 ring-zinc-500 outline-hidden transition duration-300 focus-visible:ring-3 data-[added=true]:bg-neutral-600 data-[added=true]:hover:bg-neutral-700 dark:ring-zinc-200"
+  class="bg-brand-600 hover:bg-brand-700 relative mt-4 inline-flex w-full items-center justify-center rounded-full border border-transparent px-4 py-2.5 text-sm font-bold text-neutral-50 ring-zinc-500 outline-hidden transition duration-300 focus-visible:ring-3 data-[added=true]:bg-neutral-600 data-[added=true]:hover:bg-neutral-700 dark:ring-zinc-200"
 >
-  <span data-quote-add-label>Añadir</span>
-  a cotización
+  <span data-quote-add-label>Añadir</span><span class="sr-only sm:not-sr-only"
+    >&#160;a cotización</span
+  >
 </button>

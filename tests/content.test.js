@@ -178,6 +178,70 @@ describe('datos de la empresa', () => {
   });
 });
 
+describe('sinónimos del buscador', () => {
+  /*
+   * Se lee el fuente en vez de importarlo, como con fichas.ts: el archivo usa
+   * los alias de Astro (@data/…) y node por su cuenta no los resuelve.
+   */
+  const fuente = readFileSync(P('src/data_files/sinonimos.ts'), 'utf8');
+  const entradas = [
+    ...fuente.matchAll(/busca:\s*'([^']+)',\s*escribe:\s*\[([\s\S]*?)\]/g),
+  ].map(m => ({
+    busca: m[1],
+    escribe: [...m[2].matchAll(/'([^']+)'/g)].map(x => x[1]),
+  }));
+
+  test('la lista se pudo leer', () => {
+    assert.ok(entradas.length >= 5, `solo se leyeron ${entradas.length}`);
+    for (const entrada of entradas) {
+      assert.ok(
+        entrada.escribe.length > 0,
+        `«${entrada.busca}» no tiene sinónimos`
+      );
+    }
+  });
+
+  test('todo va sin tildes y en minúscula, o no se activa nunca', () => {
+    /*
+     * La comparación ocurre sobre el texto ya normalizado. Un sinónimo escrito
+     * «sílica» no se activaría jamás, y el fallo no se ve: la búsqueda
+     * simplemente sigue devolviendo cero, igual que antes de agregarlo.
+     */
+    for (const entrada of entradas) {
+      for (const palabra of [entrada.busca, ...entrada.escribe]) {
+        assert.match(
+          palabra,
+          /^[a-z0-9]+( [a-z0-9]+)*$/,
+          `«${palabra}» tiene tildes, mayúsculas o signos y nunca coincidiría`
+        );
+      }
+    }
+  });
+
+  test('ninguna palabra se traduce dos veces', () => {
+    const vistas = new Map();
+    for (const entrada of entradas) {
+      for (const palabra of entrada.escribe) {
+        const anterior = vistas.get(palabra);
+        assert.ok(
+          !anterior,
+          `«${palabra}» apunta a «${anterior}» y a «${entrada.busca}»`
+        );
+        vistas.set(palabra, entrada.busca);
+      }
+    }
+  });
+
+  test('un sinónimo no se traduce a sí mismo', () => {
+    for (const entrada of entradas) {
+      assert.ok(
+        !entrada.escribe.includes(entrada.busca),
+        `«${entrada.busca}» se traduce a sí mismo`
+      );
+    }
+  });
+});
+
 describe('navegación', () => {
   const nav = readFileSync(P('src/utils/navigation.ts'), 'utf8');
 
@@ -221,8 +285,72 @@ describe('configuración de despliegue', () => {
     );
   });
 
+  test('la CSP deja pasar el píxel de Meta y la etiqueta de Google', () => {
+    /*
+     * La CSP es una lista blanca. Sin estos dominios el navegador bloquea la
+     * medición en silencio: el sitio se ve perfecto y los informes salen
+     * vacíos, que es la forma más cara de enterarse.
+     */
+    const toml = readFileSync(P('netlify.toml'), 'utf8');
+    const csp = toml.match(/Content-Security-Policy\s*=\s*"([^"]+)"/)[1];
+    const directiva = nombre => csp.match(new RegExp(`${nombre} ([^;]+)`))[1];
+
+    assert.match(directiva('script-src'), /connect\.facebook\.net/);
+    assert.match(directiva('script-src'), /www\.googletagmanager\.com/);
+    assert.match(directiva('connect-src'), /www\.facebook\.com/);
+    assert.match(directiva('connect-src'), /google-analytics\.com/);
+    assert.match(
+      directiva('img-src'),
+      /www\.facebook\.com/,
+      'el píxel sin JavaScript se pide como imagen'
+    );
+  });
+
   test('ya no queda configuración de Vercel', () => {
     assert.ok(!existsSync(P('vercel.json')));
+  });
+});
+
+describe('medición', () => {
+  const constants = readFileSync(P('src/data_files/constants.ts'), 'utf8');
+  const analytics = readFileSync(P('src/assets/scripts/analytics.js'), 'utf8');
+
+  test('los identificadores son los que ya usaba la empresa', () => {
+    // El píxel viene del sitio anterior: cambiarlo partiría el histórico y
+    // dejaría sin datos a los públicos de remarketing ya creados.
+    assert.match(constants, /metaPixelId:\s*'1137991652734329'/);
+    assert.match(constants, /googleTagId:\s*'G-CPJH96HLSN'/);
+  });
+
+  test('en local no se mide', () => {
+    // Sin esto, cada `pnpm test:e2e` —que navega por medio sitio con un
+    // navegador de verdad— mandaría visitas y conversiones falsas al píxel.
+    const hosts = constants.match(/hostsSinMedicion:\s*\[([^\]]+)\]/)[1];
+    assert.match(hosts, /'localhost'/);
+    assert.match(hosts, /'127\.0\.0\.1'/);
+    assert.match(analytics, /hostsSinMedicion\.indexOf\(location\.hostname\)/);
+  });
+
+  test('ningún evento manda importes', () => {
+    /*
+     * La regla del sitio —no hay precios— vale también para lo que sale hacia
+     * Meta y Google. Un `value` inventado, o un cero, convierte los informes
+     * de campaña en cifras falsas.
+     */
+    assert.doesNotMatch(analytics, /\bvalue:/);
+    assert.doesNotMatch(analytics, /\bcurrency:/);
+    assert.doesNotMatch(
+      analytics,
+      /'Purchase'/,
+      'aquí no se cierra una venta, se pide una cotización'
+    );
+  });
+
+  test('la visita no se cuenta mientras la página se pre-renderiza', () => {
+    // El sitio lleva prefetch y clientPrerender: sin esta comprobación, pasar
+    // el ratón por encima de un enlace contaría como una visita.
+    assert.match(analytics, /document\.prerendering/);
+    assert.match(analytics, /prerenderingchange/);
   });
 });
 

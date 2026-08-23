@@ -529,15 +529,34 @@ export const GET: APIRoute = async () => {
       'terminos y condiciones',
       'politica de privacidad',
       'condiciones de uso',
-      'usan cookies',
       'guardan mi conversacion',
       'aviso legal',
     ],
     text:
       'En el pie de página están los tres documentos legales del sitio: términos y condiciones de uso ' +
       '(/terminos-y-condiciones), política de privacidad (/politica-de-privacidad) y política de ' +
-      'tratamiento de datos personales (/politica-de-datos). El sitio no instala cookies de analítica ni ' +
-      'de publicidad, y las conversaciones con este asistente no se guardan.',
+      'tratamiento de datos personales (/politica-de-datos). Las conversaciones con este asistente no ' +
+      'se guardan.',
+  });
+
+  add({
+    id: 'cookies-y-medicion',
+    topic: 'sitio',
+    q: [
+      'usan cookies',
+      'que cookies instala la pagina',
+      'me estan rastreando',
+      'google analytics',
+      'pixel de facebook',
+      'publicidad segmentada',
+      'como desactivo las cookies',
+    ],
+    text:
+      'El sitio mide su uso con Google Analytics (GA4) y con el píxel de Meta, que instalan cookies en el ' +
+      'navegador. Sirven para saber qué páginas se consultan y para medir qué anuncios terminan en una ' +
+      'solicitud de cotización. Nunca se les envían nombre, correo ni teléfono. El detalle —qué cookies ' +
+      'son y cómo desactivarlas— está en el numeral 4 de la política de privacidad ' +
+      '(/politica-de-privacidad#cookies). Bloquearlas no afecta al cotizador ni a los formularios.',
   });
 
   return new Response(

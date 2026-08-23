@@ -94,8 +94,10 @@ export const LEGAL = {
       url: '/politica-de-privacidad',
       nombre: 'Política de privacidad',
       nombreLargo: 'Política de privacidad del sitio web',
-      actualizado: '22 de agosto de 2026',
-      actualizadoISO: '2026-08-22',
+      // Subió al incorporar la medición del sitio (píxel de Meta y etiqueta
+      // de Google): la página cambió lo que dice sobre cookies y terceros.
+      actualizado: '23 de agosto de 2026',
+      actualizadoISO: '2026-08-23',
     },
     {
       url: '/politica-de-datos',
@@ -126,6 +128,34 @@ export const LEGAL = {
 export const FORMS = {
   contact: 'contacto',
   newsletter: 'suscripcion',
+};
+
+/**
+ * Medición del sitio: píxel de Meta y etiqueta de Google (GA4).
+ *
+ * Los dos identificadores son los que ya venía usando la empresa en el sitio
+ * anterior, así que el histórico no se parte al cambiar de página:
+ *
+ *   - `metaPixelId` es el mismo píxel que hoy corre en byslogistics.com.co y
+ *     en byslogisticsltda.com. Un píxel admite varios dominios; añadir este
+ *     sitio no exige crear otro ni tocar el portafolio comercial.
+ *   - `googleTagId` es la etiqueta de Google de la propiedad de Analytics.
+ *     «Etiqueta de Google» y «GA4» no son dos cosas: la etiqueta es el código
+ *     que se pega en la página y la propiedad es donde se ven los informes.
+ *
+ * Dejar un identificador en cadena vacía apaga esa medición por completo: no
+ * se carga el script ni se envía nada. Es la forma de desactivarla sin
+ * arrancar código de las plantillas.
+ *
+ * DÓNDE NO SE MIDE. `hostsSinMedicion` son los dominios donde el código no
+ * arranca. Están el servidor de desarrollo y el que levantan las pruebas de
+ * navegador: sin esto, cada `pnpm test` mandaría visitas falsas al píxel de
+ * producción y ensuciaría los públicos de remarketing.
+ */
+export const ANALYTICS = {
+  metaPixelId: '1137991652734329',
+  googleTagId: 'G-CPJH96HLSN',
+  hostsSinMedicion: ['localhost', '127.0.0.1', '0.0.0.0', '::1', '[::1]'],
 };
 
 export const SEO = {

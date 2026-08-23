@@ -157,6 +157,43 @@ describe('ficha de producto', { skip: skip() }, () => {
   });
 });
 
+describe('medición', { skip: skip() }, () => {
+  test('en local no sale ni un solo golpe a Meta ni a Google', async () => {
+    /*
+     * Estas pruebas navegan por medio sitio con un navegador de verdad. Si el
+     * píxel arrancara aquí, cada `pnpm test` metería visitas y conversiones
+     * falsas en la cuenta de producción y ensuciaría los públicos de
+     * remarketing —y nadie se enteraría hasta ver el informe—.
+     *
+     * Se comprueba pidiendo la página y pulsando los botones que sí miden.
+     */
+    const page = await browser.newPage();
+    const terceros = [];
+    page.on('request', peticion => {
+      const url = peticion.url();
+      if (/facebook|googletagmanager|google-analytics/.test(url)) {
+        terceros.push(url);
+      }
+    });
+
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.locator('[data-quote-add]').first().click();
+    await abrirCotizacion(page);
+    await page.waitForTimeout(300);
+
+    assert.deepEqual(terceros, [], 'la medición arrancó contra localhost');
+
+    // Y aun así el sitio funciona: los scripts llaman a `bysTrack` sin
+    // comprobar nada, así que si no existiera, el cotizador se caería.
+    assert.equal(
+      await page.getAttribute('[data-quote-panel]', 'data-open'),
+      'true'
+    );
+    assert.equal(await page.evaluate(() => typeof window.bysTrack), 'function');
+    await page.close();
+  });
+});
+
 describe('catálogo con filtros', { skip: skip() }, () => {
   test('filtra por línea de producto y acota las categorías', async () => {
     const page = await browser.newPage();
@@ -246,6 +283,238 @@ describe('catálogo con filtros', { skip: skip() }, () => {
     await page.waitForTimeout(150);
     assert.equal(await page.locator('#catalog-count').textContent(), '0');
     assert.ok(await page.locator('#catalog-empty').isVisible());
+    await page.close();
+  });
+
+  test('el buscador encuentra por categoría, no solo por nombre', async () => {
+    /*
+     * Casi nadie escribe el nombre exacto de una referencia: se escribe el
+     * tipo de producto. Antes, «guaya» solo encontraba las referencias que
+     * llevaban la palabra en su nombre, así que buscar devolvía menos que
+     * pulsar el filtro de esa misma categoría.
+     */
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.fill('#catalog-search', 'guaya');
+    await page.waitForTimeout(150);
+    const porTexto = Number(await page.locator('#catalog-count').textContent());
+
+    await page.fill('#catalog-search', '');
+    await page
+      .locator('[data-familia="precintos-de-seguridad"] summary')
+      .click();
+    await page.locator('input[value="grupo:precintos-de-guaya"]').check();
+    await page.waitForTimeout(150);
+    const porFiltro = Number(
+      await page.locator('#catalog-count').textContent()
+    );
+
+    assert.ok(
+      porTexto >= porFiltro,
+      `buscar «guaya» dio ${porTexto} y filtrar por su categoría, ${porFiltro}`
+    );
+    await page.close();
+  });
+
+  test('las palabras de la búsqueda cuentan sueltas y en cualquier orden', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.fill('#catalog-search', 'guaya precinto');
+    await page.waitForTimeout(150);
+    const revuelto = Number(await page.locator('#catalog-count').textContent());
+    assert.ok(revuelto > 0, 'dos palabras en otro orden no encontraron nada');
+
+    await page.fill('#catalog-search', 'precinto guaya');
+    await page.waitForTimeout(150);
+    assert.equal(
+      Number(await page.locator('#catalog-count').textContent()),
+      revuelto
+    );
+    await page.close();
+  });
+
+  test('quien no dice «precinto» también encuentra los precintos', async () => {
+    /*
+     * El catálogo dice «precinto»; el cliente escribe «sello» o «marchamo»
+     * según de dónde venga. Antes esas búsquedas devolvían cero en un catálogo
+     * que sí tiene el producto, y cero es la peor respuesta posible: quien la
+     * recibe se va, no prueba otra palabra.
+     */
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+
+    await page.fill('#catalog-search', 'precinto');
+    await page.waitForTimeout(150);
+    const precintos = await page.locator('#catalog-count').textContent();
+    assert.ok(Number(precintos) > 40, `solo ${precintos} precintos`);
+
+    for (const palabra of ['sello', 'marchamo']) {
+      await page.fill('#catalog-search', palabra);
+      await page.waitForTimeout(150);
+      assert.equal(
+        await page.locator('#catalog-count').textContent(),
+        precintos,
+        `«${palabra}» no llevó a los precintos`
+      );
+    }
+    await page.close();
+  });
+
+  test('el catálogo enseña con qué palabra buscó de verdad', async () => {
+    // Quien escribe «sello» no conoce la palabra «precinto», y es la que va a
+    // necesitar para hablar con el asesor comercial.
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    const aviso = page.locator('#catalog-sinonimo');
+
+    await page.fill('#catalog-search', 'precinto');
+    await page.waitForTimeout(150);
+    assert.ok(
+      !(await aviso.isVisible()),
+      'no hay nada que enseñar cuando ya se usó la palabra del catálogo'
+    );
+
+    await page.fill('#catalog-search', 'Sílica Gel');
+    await page.waitForTimeout(150);
+    assert.ok(await aviso.isVisible());
+    assert.match(
+      await aviso.textContent(),
+      /«Sílica Gel».+«absorbente de humedad»/,
+      'el aviso debe repetir la palabra tal como se escribió, con sus tildes'
+    );
+    await page.close();
+  });
+
+  test('un sinónimo no se lleva por delante una búsqueda que ya funciona', async () => {
+    /*
+     * «Candado» solo tiene que seguir llevando a los dos precintos tipo
+     * candado; es la frase «candado plástico» la que hay que rescatar. Si
+     * alguien tradujera «candado» → «precinto», esto devolvería los cuarenta y
+     * nueve precintos del catálogo.
+     */
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+
+    await page.fill('#catalog-search', 'candado');
+    await page.waitForTimeout(150);
+    const solos = await page.locator('#catalog-count').textContent();
+    assert.equal(solos, '2');
+    assert.ok(!(await page.locator('#catalog-sinonimo').isVisible()));
+
+    await page.fill('#catalog-search', 'candado plástico');
+    await page.waitForTimeout(150);
+    assert.equal(await page.locator('#catalog-count').textContent(), '2');
+    await page.close();
+  });
+
+  test('lo que se está viendo se puede copiar y volver a abrir', async () => {
+    // Es lo que permite que el equipo comercial mande «esta es nuestra línea
+    // de guaya» con un enlace, en vez de con instrucciones.
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page
+      .locator('[data-familia="precintos-de-seguridad"] summary')
+      .click();
+    await page.locator('input[value="grupo:precintos-de-guaya"]').check();
+    await page.fill('#catalog-search', 'ref');
+    await page.waitForTimeout(200);
+
+    const url = page.url();
+    assert.match(url, /f=grupo(%3A|:)precintos-de-guaya/);
+    assert.match(url, /q=ref/);
+    const esperado = await page.locator('#catalog-count').textContent();
+
+    const otra = await browser.newPage();
+    await otra.goto(url, { waitUntil: 'networkidle' });
+    await otra.waitForTimeout(200);
+    assert.equal(
+      await otra.locator('#catalog-count').textContent(),
+      esperado,
+      'el enlace no reprodujo lo que se estaba viendo'
+    );
+    assert.equal(
+      await otra.inputValue('#catalog-search'),
+      'ref',
+      'el término de búsqueda no volvió al campo'
+    );
+    await otra.close();
+    await page.close();
+  });
+
+  test('las fichas de filtro activo quitan uno solo cada una', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page
+      .locator('[data-familia="precintos-de-seguridad"] summary')
+      .click();
+    await page.locator('input[value="grupo:precintos-de-guaya"]').check();
+    await page.fill('#catalog-search', 'ref');
+    await page.waitForTimeout(200);
+
+    const fichas = page.locator('#catalog-active [data-quitar]:visible');
+    assert.equal(await fichas.count(), 2, 'deberían verse las dos fichas');
+
+    await page.locator('[data-quitar="busqueda"]').click();
+    await page.waitForTimeout(200);
+    assert.equal(await page.inputValue('#catalog-search'), '');
+    assert.equal(
+      await page.locator('#catalog-count').textContent(),
+      '8',
+      'quitar la búsqueda se llevó también el filtro de categoría'
+    );
+    await page.close();
+  });
+
+  test('el nombre de la referencia es el enlace de la tarjeta', async () => {
+    /*
+     * Antes el enlace era el epígrafe de la categoría: un lector de pantalla
+     * leía ciento quince enlaces llamados «precintos de correa dentada» que
+     * llevaban cada uno a un sitio distinto.
+     */
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    const tarjeta = page.locator('[data-catalog-item]').first();
+    const enlaces = tarjeta.locator('a');
+    assert.equal(await enlaces.count(), 1, 'la tarjeta repite el enlace');
+    assert.equal(
+      (await enlaces.first().textContent()).trim(),
+      (await tarjeta.locator('h2').textContent()).trim()
+    );
+
+    // Y aun así la tarjeta entera se puede pulsar, sin que el enlace se trague
+    // el botón de cotizar.
+    await tarjeta.locator('[data-quote-add]').click();
+    await page.waitForTimeout(200);
+    assert.match(
+      page.url(),
+      /\/catalogo\/?(\?.*)?$/,
+      'cotizar navegó a la ficha'
+    );
+    assert.equal(
+      await page.locator('[data-quote-count]').first().textContent(),
+      '1'
+    );
+    await page.close();
+  });
+
+  test('en el móvil los filtros arrancan plegados', async () => {
+    // La columna de filtros va delante de los resultados: desplegada, ocupaba
+    // la primera pantalla entera antes de la primera referencia.
+    const page = await browser.newPage({
+      viewport: { width: 390, height: 840 },
+    });
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(200);
+
+    const boton = page.locator('#catalog-filters-toggle');
+    assert.ok(await boton.isVisible(), 'no hay con qué desplegar los filtros');
+    assert.equal(await boton.getAttribute('aria-expanded'), 'false');
+    assert.ok(!(await page.locator('#catalog-filters').isVisible()));
+
+    await boton.click();
+    await page.waitForTimeout(200);
+    assert.ok(await page.locator('#catalog-filters').isVisible());
+    assert.equal(await boton.getAttribute('aria-expanded'), 'true');
     await page.close();
   });
 

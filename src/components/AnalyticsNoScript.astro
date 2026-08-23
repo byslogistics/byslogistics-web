@@ -1,0 +1,34 @@
+---
+/**
+ * El respaldo del píxel de Meta para quien navega sin JavaScript: una imagen
+ * de un píxel que, al pedirse, le cuenta la visita a Meta.
+ *
+ * VA AL PRINCIPIO DEL `<body>`, NO EN EL `<head>`. El fragmento que entrega
+ * Meta lo pone junto al script, dentro del `<head>`, y ahí es HTML inválido:
+ * dentro de `<head>`, un `<noscript>` solo admite `link`, `style` y `meta`. Un
+ * `<img>` cierra el `<head>` antes de tiempo y empuja al `<body>` todo lo que
+ * venía detrás. Aquí abajo hace exactamente lo mismo sin romper el documento.
+ *
+ * Ojo: a diferencia del script, esto no distingue dónde está corriendo. En el
+ * servidor de desarrollo el marcado también sale, pero solo se pide con
+ * JavaScript desactivado, que no es el caso ni del navegador ni de las
+ * pruebas.
+ */
+import { ANALYTICS } from '@data/constants';
+
+const { metaPixelId } = ANALYTICS;
+---
+
+{
+  metaPixelId && (
+    <noscript>
+      <img
+        height="1"
+        width="1"
+        style="display:none"
+        alt=""
+        src={`https://www.facebook.com/tr?id=${metaPixelId}&ev=PageView&noscript=1`}
+      />
+    </noscript>
+  )
+}

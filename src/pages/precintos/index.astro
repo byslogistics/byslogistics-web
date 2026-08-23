@@ -6,6 +6,7 @@ import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import ProductCard from '@components/ui/cards/ProductCard.astro';
 import backdrop from '@images/backgrounds/precintos-estudio.jpg';
 import { SITE } from '@data/constants';
+import { eventoDeListado } from '@utils/analytics';
 
 /**
  * TODO(catálogo): por ahora solo está cargada la categoría "Precintos de
@@ -35,6 +36,7 @@ const metaDescription =
     description: metaDescription,
     inLanguage: 'es-CO',
   }}
+  analytics={eventoDeListado('Precintos de Seguridad')}
 >
   <MainSection
     title="Precintos de Seguridad"
