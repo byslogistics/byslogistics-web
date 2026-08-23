@@ -268,6 +268,20 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
 
         {
           /*
+            Cuando lo escrito no es el nombre que usa el catálogo, se dice cuál
+            es. Quien escribe «sello» no conoce la palabra «precinto», y es la
+            que va a necesitar para hablar con el asesor comercial.
+          */
+        }
+        <p
+          id="catalog-sinonimo"
+          hidden
+          class="text-brand-700 dark:text-brand-400 mt-1 text-sm"
+        >
+        </p>
+
+        {
+          /*
             El recuento de arriba cambia con cada tecla, y anunciarlo tal cual
             deja al lector de pantalla leyendo cifras sin parar mientras se
             escribe. Este renglón dice lo mismo en una frase y con retardo:
@@ -578,7 +592,8 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
 </style>
 
 <script>
-  import { normalize } from '@utils/text';
+  import { traducirBusqueda } from '@utils/text';
+  import type { Sustitucion } from '@utils/text';
 
   function initCatalog() {
     const grid = document.getElementById('catalog-grid');
@@ -593,6 +608,7 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
     const searchClear = document.getElementById('catalog-search-clear');
     const count = document.getElementById('catalog-count');
     const status = document.getElementById('catalog-status');
+    const sinonimo = document.getElementById('catalog-sinonimo');
     const empty = document.getElementById('catalog-empty');
     const reset = document.getElementById('catalog-reset');
     const activos = document.getElementById('catalog-active');
@@ -632,7 +648,14 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
       const radio = marcado();
       const valor = radio?.value ?? '';
       const [tipo, id] = valor ? valor.split(':') : ['', ''];
-      const term = normalize(search?.value.trim() ?? '');
+      /*
+       * Lo escrito se traduce al vocabulario del catálogo antes de buscar:
+       * quien escribe «sello» o «marchamo» está buscando un precinto. Ver
+       * `traducirBusqueda` y la lista de sinonimos.ts.
+       */
+      const { termino: term, cambios } = traducirBusqueda(
+        search?.value.trim() ?? ''
+      );
       // Cada palabra por separado y todas tienen que estar: así «precinto
       // guaya» encuentra el precinto de guaya, que escrito de corrido no
       // aparece en ningún nombre.
@@ -652,6 +675,7 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
       if (count) count.textContent = String(visible);
       if (empty) empty.hidden = visible > 0;
       if (searchClear) searchClear.hidden = !search?.value;
+      pintarSinonimo(cambios);
 
       pintarActivos(radio, search?.value.trim() ?? '');
       escribirUrl(valor, search?.value.trim() ?? '');
@@ -673,6 +697,22 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
           window.bysTrack?.('buscar', { termino, resultados: visible });
         }
       }, 600);
+    }
+
+    /**
+     * Dice con qué palabra se buscó de verdad.
+     *
+     * No es un detalle de cortesía: quien escribe «sello» no conoce la
+     * palabra «precinto», y es la que va a necesitar para hablar con el
+     * asesor comercial y para leer el resto del sitio. Enseñarla en el
+     * momento en que la búsqueda funciona es donde se aprende.
+     */
+    function pintarSinonimo(cambios: Sustitucion[]) {
+      if (!sinonimo) return;
+      sinonimo.hidden = cambios.length === 0;
+      if (cambios.length === 0) return;
+      const [primero] = cambios;
+      sinonimo.textContent = `En este catálogo, «${primero.escrito}» se llama «${primero.catalogo}».`;
     }
 
     /** Las fichas de lo que está filtrado, que se quitan de una en una. */

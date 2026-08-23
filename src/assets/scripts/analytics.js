@@ -77,12 +77,18 @@
       google('view_item_list', { item_list_name: d.nombre });
     },
 
+    /*
+     * `resultados` es el dato que más va a servir: una búsqueda que devuelve
+     * cero es una palabra que el catálogo no entiende, y son las que hay que
+     * ir agregando a la lista de sinónimos (src/data_files/sinonimos.ts). Va
+     * en el evento de Google, que es donde se pueden cruzar las dos cosas.
+     */
     buscar: function (d) {
       meta('Search', {
         search_string: d.termino,
         content_category: 'catalogo',
       });
-      google('search', { search_term: d.termino });
+      google('search', { search_term: d.termino, resultados: d.resultados });
     },
 
     anadir_a_cotizacion: function (d) {

@@ -42,6 +42,26 @@ function pages() {
   return out;
 }
 
+/**
+ * La lista de sinónimos del buscador, leída del fuente.
+ *
+ * Se lee en vez de importarse porque el archivo usa los alias de Astro
+ * (@data/…), que node por su cuenta no resuelve. Mismo criterio que en
+ * content.test.js.
+ */
+function sinonimos() {
+  const fuente = readFileSync(
+    join(ROOT, 'src/data_files/sinonimos.ts'),
+    'utf8'
+  );
+  return [
+    ...fuente.matchAll(/busca:\s*'([^']+)',\s*escribe:\s*\[([\s\S]*?)\]/g),
+  ].map(m => ({
+    busca: m[1],
+    escribe: [...m[2].matchAll(/'([^']+)'/g)].map(x => x[1]),
+  }));
+}
+
 const RUTAS_ESPERADAS = [
   '/',
   '/catalogo/',
@@ -619,6 +639,55 @@ describe('catálogo', () => {
       m => m[1]
     );
     assert.equal(new Set(ids).size, ids.length, 'hay ids duplicados');
+  });
+
+  test('ningún sinónimo estropea una búsqueda que ya funciona', () => {
+    /*
+     * Este es el test que justifica la lista entera. Un sinónimo está para
+     * rescatar una búsqueda que hoy devuelve cero; si la palabra que se
+     * traduce YA existe en el catálogo, deja de rescatar y empieza a estorbar.
+     *
+     * El caso concreto: si alguien pusiera «candado» → «precinto», escribir
+     * «candado» dejaría de llevar a los dos precintos tipo candado y
+     * devolvería los cuarenta y nueve precintos del catálogo. La búsqueda
+     * seguiría "funcionando", que es lo que hace que nadie se entere.
+     */
+    const p = pages().find(x => x.route === '/catalogo/');
+    const indices = [...p.html.matchAll(/data-search="([^"]*)"/g)].map(
+      m => m[1]
+    );
+    assert.ok(indices.length > 100, 'no se leyeron los índices del catálogo');
+
+    const enElCatalogo = palabra =>
+      indices.some(indice => indice.includes(palabra));
+
+    for (const entrada of sinonimos()) {
+      for (const palabra of entrada.escribe) {
+        assert.ok(
+          !enElCatalogo(palabra),
+          `«${palabra}» ya lo usa el catálogo: traducirlo a «${entrada.busca}» ` +
+            'estropearía una búsqueda que hoy da el resultado correcto'
+        );
+      }
+    }
+  });
+
+  test('ningún sinónimo lleva a un producto que no se vende', () => {
+    // Un sinónimo que apunta a algo que no está en el catálogo cambia un cero
+    // por otro cero, y encima enseña en pantalla un nombre que no existe.
+    const p = pages().find(x => x.route === '/catalogo/');
+    const indices = [...p.html.matchAll(/data-search="([^"]*)"/g)].map(
+      m => m[1]
+    );
+
+    for (const entrada of sinonimos()) {
+      for (const palabra of entrada.busca.split(' ')) {
+        assert.ok(
+          indices.some(indice => indice.includes(palabra)),
+          `«${entrada.busca}» apunta a «${palabra}», que no está en el catálogo`
+        );
+      }
+    }
   });
 
   test('el buscador indexa sin tildes', () => {

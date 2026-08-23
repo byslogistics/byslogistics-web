@@ -178,6 +178,70 @@ describe('datos de la empresa', () => {
   });
 });
 
+describe('sinónimos del buscador', () => {
+  /*
+   * Se lee el fuente en vez de importarlo, como con fichas.ts: el archivo usa
+   * los alias de Astro (@data/…) y node por su cuenta no los resuelve.
+   */
+  const fuente = readFileSync(P('src/data_files/sinonimos.ts'), 'utf8');
+  const entradas = [
+    ...fuente.matchAll(/busca:\s*'([^']+)',\s*escribe:\s*\[([\s\S]*?)\]/g),
+  ].map(m => ({
+    busca: m[1],
+    escribe: [...m[2].matchAll(/'([^']+)'/g)].map(x => x[1]),
+  }));
+
+  test('la lista se pudo leer', () => {
+    assert.ok(entradas.length >= 5, `solo se leyeron ${entradas.length}`);
+    for (const entrada of entradas) {
+      assert.ok(
+        entrada.escribe.length > 0,
+        `«${entrada.busca}» no tiene sinónimos`
+      );
+    }
+  });
+
+  test('todo va sin tildes y en minúscula, o no se activa nunca', () => {
+    /*
+     * La comparación ocurre sobre el texto ya normalizado. Un sinónimo escrito
+     * «sílica» no se activaría jamás, y el fallo no se ve: la búsqueda
+     * simplemente sigue devolviendo cero, igual que antes de agregarlo.
+     */
+    for (const entrada of entradas) {
+      for (const palabra of [entrada.busca, ...entrada.escribe]) {
+        assert.match(
+          palabra,
+          /^[a-z0-9]+( [a-z0-9]+)*$/,
+          `«${palabra}» tiene tildes, mayúsculas o signos y nunca coincidiría`
+        );
+      }
+    }
+  });
+
+  test('ninguna palabra se traduce dos veces', () => {
+    const vistas = new Map();
+    for (const entrada of entradas) {
+      for (const palabra of entrada.escribe) {
+        const anterior = vistas.get(palabra);
+        assert.ok(
+          !anterior,
+          `«${palabra}» apunta a «${anterior}» y a «${entrada.busca}»`
+        );
+        vistas.set(palabra, entrada.busca);
+      }
+    }
+  });
+
+  test('un sinónimo no se traduce a sí mismo', () => {
+    for (const entrada of entradas) {
+      assert.ok(
+        !entrada.escribe.includes(entrada.busca),
+        `«${entrada.busca}» se traduce a sí mismo`
+      );
+    }
+  });
+});
+
 describe('navegación', () => {
   const nav = readFileSync(P('src/utils/navigation.ts'), 'utf8');
 

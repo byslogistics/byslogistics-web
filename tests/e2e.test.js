@@ -333,6 +333,80 @@ describe('catálogo con filtros', { skip: skip() }, () => {
     await page.close();
   });
 
+  test('quien no dice «precinto» también encuentra los precintos', async () => {
+    /*
+     * El catálogo dice «precinto»; el cliente escribe «sello» o «marchamo»
+     * según de dónde venga. Antes esas búsquedas devolvían cero en un catálogo
+     * que sí tiene el producto, y cero es la peor respuesta posible: quien la
+     * recibe se va, no prueba otra palabra.
+     */
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+
+    await page.fill('#catalog-search', 'precinto');
+    await page.waitForTimeout(150);
+    const precintos = await page.locator('#catalog-count').textContent();
+    assert.ok(Number(precintos) > 40, `solo ${precintos} precintos`);
+
+    for (const palabra of ['sello', 'marchamo']) {
+      await page.fill('#catalog-search', palabra);
+      await page.waitForTimeout(150);
+      assert.equal(
+        await page.locator('#catalog-count').textContent(),
+        precintos,
+        `«${palabra}» no llevó a los precintos`
+      );
+    }
+    await page.close();
+  });
+
+  test('el catálogo enseña con qué palabra buscó de verdad', async () => {
+    // Quien escribe «sello» no conoce la palabra «precinto», y es la que va a
+    // necesitar para hablar con el asesor comercial.
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    const aviso = page.locator('#catalog-sinonimo');
+
+    await page.fill('#catalog-search', 'precinto');
+    await page.waitForTimeout(150);
+    assert.ok(
+      !(await aviso.isVisible()),
+      'no hay nada que enseñar cuando ya se usó la palabra del catálogo'
+    );
+
+    await page.fill('#catalog-search', 'Sílica Gel');
+    await page.waitForTimeout(150);
+    assert.ok(await aviso.isVisible());
+    assert.match(
+      await aviso.textContent(),
+      /«Sílica Gel».+«absorbente de humedad»/,
+      'el aviso debe repetir la palabra tal como se escribió, con sus tildes'
+    );
+    await page.close();
+  });
+
+  test('un sinónimo no se lleva por delante una búsqueda que ya funciona', async () => {
+    /*
+     * «Candado» solo tiene que seguir llevando a los dos precintos tipo
+     * candado; es la frase «candado plástico» la que hay que rescatar. Si
+     * alguien tradujera «candado» → «precinto», esto devolvería los cuarenta y
+     * nueve precintos del catálogo.
+     */
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+
+    await page.fill('#catalog-search', 'candado');
+    await page.waitForTimeout(150);
+    const solos = await page.locator('#catalog-count').textContent();
+    assert.equal(solos, '2');
+    assert.ok(!(await page.locator('#catalog-sinonimo').isVisible()));
+
+    await page.fill('#catalog-search', 'candado plástico');
+    await page.waitForTimeout(150);
+    assert.equal(await page.locator('#catalog-count').textContent(), '2');
+    await page.close();
+  });
+
   test('lo que se está viendo se puede copiar y volver a abrir', async () => {
     // Es lo que permite que el equipo comercial mande «esta es nuestra línea
     // de guaya» con un enlace, en vez de con instrucciones.

@@ -268,6 +268,31 @@ El formulario exige marcar la autorización de tratamiento de datos, y ese
 consentimiento viaja en el envío (`autorizacion=Sí`) para dejar constancia,
 como pide la Ley 1581 de 2012.
 
+### El buscador entiende los nombres del cliente
+
+El catálogo dice «precinto». El cliente escribe **sello**, **marchamo** o
+**candado plástico** según de dónde venga, y esas búsquedas devolvían cero en
+un catálogo que sí tiene el producto.
+
+[`src/data_files/sinonimos.ts`](src/data_files/sinonimos.ts) traduce lo escrito
+al vocabulario del catálogo antes de buscar, y la página dice con qué palabra
+buscó de verdad: _«En este catálogo, "sello" se llama "precinto"»_. Ese
+renglón no es cortesía: quien escribió «sello» no conoce la palabra que va a
+necesitar para hablar con el asesor comercial.
+
+Para agregar uno, una línea en la lista. Dos reglas, con un test cada una:
+
+1. **Lo que se traduce no puede ser una palabra que el catálogo ya use.**
+   Traducir «candado» a «precinto» haría que buscar «candado» dejara de llevar
+   a los dos precintos tipo candado y devolviera los 49 precintos. Por eso
+   «candado» solo aparece dentro de la frase «candado plástico».
+2. **Aquello a lo que se traduce sí tiene que existir**, palabra por palabra.
+   Un sinónimo que apunta a un producto que no se vende cambia un cero por otro.
+
+Qué palabras agregar no hay que adivinarlo: el evento `Search` registra en
+Analytics qué se busca y cuántos resultados dio, así que las búsquedas que se
+quedan en cero salen solas en el informe.
+
 ---
 
 ## Medición
