@@ -133,12 +133,25 @@ export const FORMS = {
 /**
  * Medición del sitio: píxel de Meta y etiqueta de Google (GA4).
  *
- * Los dos identificadores son los que ya venía usando la empresa en el sitio
- * anterior, así que el histórico no se parte al cambiar de página:
+ * LOS DOS SON NUEVOS, CREADOS PARA ESTE SITIO, y eso es una decisión, no una
+ * casualidad. El sitio anterior es un WordPress con su propio píxel —que
+ * sigue vivo en byslogistics.com.co y en byslogisticsltda.com— y con eventos
+ * de una tienda que este sitio no tiene: ahí se registraban compras que aquí
+ * no existen, porque aquí no se vende, se cotiza. Heredar ese píxel habría
+ * mezclado dos formas distintas de contar en la misma cuenta, y un histórico
+ * contaminado no se puede limpiar después: queda para siempre en los públicos
+ * y en el aprendizaje de las campañas. Hay un test que impide que vuelva a
+ * entrar (tests/content.test.js), porque la forma probable de que pase es
+ * pegando otra vez el fragmento que entrega Meta.
  *
- *   - `metaPixelId` es el mismo píxel que hoy corre en byslogistics.com.co y
- *     en byslogisticsltda.com. Un píxel admite varios dominios; añadir este
- *     sitio no exige crear otro ni tocar el portafolio comercial.
+ * El precio de arrancar limpio hay que saberlo: el píxel nuevo empieza sin
+ * histórico, así que los públicos de remarketing se vuelven a construir desde
+ * cero y las campañas necesitan su fase de aprendizaje otra vez.
+ *
+ *   - `metaPixelId` es el píxel de este sitio. Un píxel admite varios
+ *     dominios, así que si mañana el sitio cambia de dirección no hay que
+ *     crear otro: basta con verificar el dominio nuevo en el portafolio
+ *     comercial de Meta.
  *   - `googleTagId` es la etiqueta de Google de la propiedad de Analytics.
  *     «Etiqueta de Google» y «GA4» no son dos cosas: la etiqueta es el código
  *     que se pega en la página y la propiedad es donde se ven los informes.
@@ -153,7 +166,7 @@ export const FORMS = {
  * producción y ensuciaría los públicos de remarketing.
  */
 export const ANALYTICS = {
-  metaPixelId: '1137991652734329',
+  metaPixelId: '1059859873468241',
   googleTagId: 'G-CPJH96HLSN',
   hostsSinMedicion: ['localhost', '127.0.0.1', '0.0.0.0', '::1', '[::1]'],
 };

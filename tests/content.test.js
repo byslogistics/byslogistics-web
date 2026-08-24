@@ -314,12 +314,45 @@ describe('configuración de despliegue', () => {
 describe('medición', () => {
   const constants = readFileSync(P('src/data_files/constants.ts'), 'utf8');
   const analytics = readFileSync(P('src/assets/scripts/analytics.js'), 'utf8');
+  /** El píxel del WordPress al que este sitio reemplaza. */
+  const PIXEL_ANTERIOR = ['1137991', '652734329'].join('');
 
-  test('los identificadores son los que ya usaba la empresa', () => {
-    // El píxel viene del sitio anterior: cambiarlo partiría el histórico y
-    // dejaría sin datos a los públicos de remarketing ya creados.
-    assert.match(constants, /metaPixelId:\s*'1137991652734329'/);
+  test('los identificadores son los de este sitio', () => {
+    assert.match(constants, /metaPixelId:\s*'1059859873468241'/);
     assert.match(constants, /googleTagId:\s*'G-CPJH96HLSN'/);
+  });
+
+  test('no vuelve a entrar el píxel del sitio anterior', () => {
+    /*
+     * 1137991652734329 es el píxel del WordPress que este sitio reemplaza.
+     * Sigue vivo en byslogistics.com.co y en byslogisticsltda.com, y mide una
+     * tienda: registra compras, que aquí no existen porque aquí no se vende,
+     * se cotiza. Mezclarlo con este sitio contamina un histórico que después
+     * no se puede limpiar —queda en los públicos y en el aprendizaje de las
+     * campañas—, y el fallo no se ve: los informes salen, solo que dicen algo
+     * que no pasó.
+     *
+     * Se comprueba en todo el repositorio y no solo en constants.ts porque la
+     * forma probable de que vuelva es pegando otra vez el fragmento que
+     * entrega Meta, que trae el identificador dentro.
+     */
+    const culpables = [];
+    const recorrer = dir => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = join(dir, entry.name);
+        if (entry.isDirectory()) {
+          if (!['node_modules', 'dist', '.git', '.astro'].includes(entry.name))
+            recorrer(full);
+        } else if (/\.(astro|ts|js|mjs|md|json|toml)$/.test(entry.name)) {
+          if (full.endsWith('content.test.js')) continue;
+          if (readFileSync(full, 'utf8').includes(PIXEL_ANTERIOR)) {
+            culpables.push(full.replace(ROOT, ''));
+          }
+        }
+      }
+    };
+    recorrer(ROOT);
+    assert.deepEqual(culpables, [], 'volvió el píxel del sitio anterior');
   });
 
   test('en local no se mide', () => {
