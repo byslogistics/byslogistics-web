@@ -16,6 +16,7 @@
     "test:content": "node --test tests/content.test.js",
     "test:build": "node --test tests/build.test.js",
     "test:chat": "node --test tests/chat.test.js",
+    "test:capi": "node --test tests/capi.test.js",
     "test:e2e": "node --test tests/e2e.test.js"
   },
   "dependencies": {

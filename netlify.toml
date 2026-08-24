@@ -21,6 +21,20 @@
 # Sin ninguna clave el endpoint sigue respondiendo: deriva al correo y al
 # P.B.X. en vez de fallar. Las claves solo existen en el servidor; el navegador
 # nunca las ve.
+#
+# La API de Conversiones de Meta vive en netlify/functions/capi.mts y se
+# publica en /api/capi. Sus variables, también en el panel de Netlify:
+#   META_CAPI_ACCESS_TOKEN  token generado en Events Manager. ES UN SECRETO:
+#                           da permiso para escribir en el conjunto de datos de
+#                           la empresa. Sin él, el endpoint responde bien y no
+#                           manda nada; el píxel del navegador sigue midiendo.
+#   META_PIXEL_ID           opcional. Por defecto, el píxel del sitio.
+#   META_API_VERSION        opcional. Por defecto v21.0. Se sube desde aquí
+#                           cuando Meta retire esa versión, sin tocar código.
+#   META_TEST_EVENT_CODE    SOLO para probar, y SOLO en una preview. Mientras
+#                           esté puesta, los eventos van a la pestaña «Eventos
+#                           de prueba» EN LUGAR de a los informes: dejarla en
+#                           producción es quedarse sin medición real.
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"

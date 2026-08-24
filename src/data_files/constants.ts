@@ -94,10 +94,11 @@ export const LEGAL = {
       url: '/politica-de-privacidad',
       nombre: 'Política de privacidad',
       nombreLargo: 'Política de privacidad del sitio web',
-      // Subió al incorporar la medición del sitio (píxel de Meta y etiqueta
-      // de Google): la página cambió lo que dice sobre cookies y terceros.
-      actualizado: '23 de agosto de 2026',
-      actualizadoISO: '2026-08-23',
+      // Sube cada vez que cambia lo que el sitio hace con los datos de quien
+      // lo visita. La última: la API de Conversiones de Meta, que es el único
+      // punto donde un dato de contacto participa en la publicidad.
+      actualizado: '24 de agosto de 2026',
+      actualizadoISO: '2026-08-24',
     },
     {
       url: '/politica-de-datos',

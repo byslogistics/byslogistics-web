@@ -554,9 +554,12 @@ export const GET: APIRoute = async () => {
     text:
       'El sitio mide su uso con Google Analytics (GA4) y con el píxel de Meta, que instalan cookies en el ' +
       'navegador. Sirven para saber qué páginas se consultan y para medir qué anuncios terminan en una ' +
-      'solicitud de cotización. Nunca se les envían nombre, correo ni teléfono. El detalle —qué cookies ' +
-      'son y cómo desactivarlas— está en el numeral 4 de la política de privacidad ' +
-      '(/politica-de-privacidad#cookies). Bloquearlas no afecta al cotizador ni a los formularios.',
+      'solicitud de cotización. Al enviar el formulario de contacto o suscribirse, el correo y el teléfono ' +
+      'se convierten en un código (SHA-256) en el servidor y es ese código, no el dato, el que se le ' +
+      'comunica a Meta para atribuir la consulta al anuncio; el contenido del mensaje nunca se envía. El ' +
+      'detalle completo está en el numeral 4 de la política de privacidad ' +
+      '(/politica-de-privacidad#cookies). Bloquear las cookies no afecta al cotizador ni a los formularios, ' +
+      'y quien prefiera evitarlo puede escribir por WhatsApp o al correo en vez de usar el formulario.',
   });
 
   return new Response(
