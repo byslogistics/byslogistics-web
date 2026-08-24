@@ -47,6 +47,12 @@ jobs:
       - name: Asistente
         run: pnpm test:chat
 
+      # La API de Conversiones de Meta. Tampoco sale a la red: el `fetch` se
+      # sustituye por un doble que captura lo que se le habría mandado a Meta,
+      # así que no necesita el token de CAPI.
+      - name: Conversiones de Meta
+        run: pnpm test:capi
+
       - name: Rutas servidas
         run: pnpm test:smoke
 
