@@ -297,13 +297,25 @@ quedan en cero salen solas en el informe.
 
 ## Medición
 
-El sitio mide con dos herramientas, las mismas que ya usaba la empresa en el
-sitio anterior, para no partir el histórico:
+El sitio mide con dos herramientas, **las dos creadas para este sitio**:
 
 | Herramienta              | Identificador      | Dónde se cambia               |
 | ------------------------ | ------------------ | ----------------------------- |
-| Píxel de Meta            | `1137991652734329` | `ANALYTICS` en `constants.ts` |
+| Píxel de Meta            | `1059859873468241` | `ANALYTICS` en `constants.ts` |
 | Etiqueta de Google (GA4) | `G-CPJH96HLSN`     | `ANALYTICS` en `constants.ts` |
+
+**El píxel del WordPress anterior no se hereda, a propósito.** Aquel mide una
+tienda —registra compras, que aquí no existen porque aquí no se vende, se
+cotiza— y sigue vivo en `byslogistics.com.co` y en `byslogisticsltda.com`.
+Mezclarlo con este sitio contaminaría un histórico que después no se puede
+limpiar: queda en los públicos y en el aprendizaje de las campañas. Hay un
+test que impide que vuelva a entrar, porque la forma probable de que pase es
+pegar otra vez el fragmento que entrega Meta, que trae el identificador
+dentro.
+
+El precio de arrancar limpio conviene saberlo: el píxel nuevo empieza sin
+histórico, así que los públicos de remarketing se construyen desde cero y las
+campañas necesitan otra vez su fase de aprendizaje.
 
 Dejar un identificador en cadena vacía apaga esa medición: no se carga su
 script ni se manda nada.
