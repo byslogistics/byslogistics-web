@@ -361,6 +361,52 @@ Al agregar una medición nueva hay que tocar tres sitios: el identificador en
 bloquea en silencio) y el numeral 4 de la política de privacidad, que enumera
 con nombre propio lo que se instala en el navegador de quien visita.
 
+### Los eventos de Meta salen por dos caminos
+
+Además del píxel del navegador, cada evento se manda **desde el servidor** con
+la API de Conversiones de Meta:
+[`netlify/functions/capi.mts`](netlify/functions/capi.mts), publicada en
+`/api/capi`.
+
+Existe porque el píxel del navegador se pierde eventos por razones que no
+dependen del sitio: bloqueadores de anuncios, la prevención de rastreo de
+Safari, una pestaña que se cierra antes de que salga la petición. Lo que sale
+del servidor no sufre nada de eso.
+
+**Los dos caminos llevan el mismo `event_id`.** Eso es la deduplicación: Meta
+reconoce que son el mismo evento y se queda con una copia. Sin ella cada
+conversión se contaría dos veces, y la optimización de campañas trabajaría
+sobre el doble de lo que ocurrió.
+
+**El endpoint solo acepta los eventos que el sitio manda** (`EVENTOS_PERMITIDOS`
+en la función). No es una formalidad: la ruta está abierta a internet y escribe
+en el conjunto de datos de la empresa, así que sin esa lista cualquiera podría
+meter compras inventadas. Hay un test que comprueba que la lista del endpoint y
+la del navegador no se separen.
+
+**Los datos de contacto viajan hasheados.** Cuando alguien envía el formulario
+o se suscribe, su correo, teléfono y nombre llegan a la función y salen de ella
+convertidos en SHA-256; el navegador nunca habla con Meta de esto. Es el único
+punto del sitio donde un dato de contacto participa en la publicidad, y está
+declarado en el numeral 4 de la política de privacidad. Si se prefiere no
+mandarlos, se quita el objeto `contacto` en
+[`contactForms.js`](src/assets/scripts/contactForms.js) y se actualiza ese
+numeral en el mismo cambio.
+
+**Qué eventos NO se implementaron, y por qué.** La guía de Events Manager
+propone una lista pensada para tiendas: `Purchase`, `Subscribe`, `StartTrial`,
+`AddPaymentInfo`, `Schedule`, `AddToWishlist`, `FindLocation`. Ninguno tiene
+disparador en este sitio —aquí no se vende, no hay suscripción de pago, ni
+prueba gratuita, ni pasarela, ni agenda de citas, ni lista de deseos—, y
+declararlos sin que ocurran daría cifras inventadas. La conversión de este
+sitio es `Lead`.
+
+Antes de dar la integración por buena, la lista de comprobación está en la
+propia guía de Events Manager; lo esencial es poner `META_TEST_EVENT_CODE` en
+una preview, disparar cada evento, verlos llegar en «Eventos de prueba» y
+**quitar esa variable antes de producción** — mientras esté puesta, los eventos
+van a la pestaña de pruebas en lugar de a los informes.
+
 ---
 
 ## Cotizador

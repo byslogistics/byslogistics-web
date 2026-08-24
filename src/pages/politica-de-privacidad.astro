@@ -30,6 +30,13 @@
  *     identificadores en ANALYTICS, constants.ts). Los dominios permitidos
  *     están enumerados uno a uno en la CSP de netlify.toml: lo que no esté
  *     ahí, el navegador no lo carga.
+ *   - Envío a Meta desde el servidor (API de Conversiones) →
+ *     netlify/functions/capi.mts, publicado en /api/capi. Es el único punto
+ *     del sitio donde un dato de contacto participa en la publicidad: el
+ *     correo, el teléfono y el nombre de quien envía el formulario salen de
+ *     ahí hasheados con SHA-256. Qué se hashea y qué no está en esa función;
+ *     el numeral 4 de esta página lo cuenta en castellano, y los dos tienen
+ *     que decir lo mismo.
  *
  * Si mañana se añade otra herramienta —un chat de terceros, un mapa de calor,
  * otra red publicitaria—, hay que actualizar esta página EN EL MISMO cambio.
@@ -73,8 +80,10 @@ const dominio = SITE.url.replace(/^https:\/\//, '');
 
   <h2 id="que-recogemos">2. Qué información recogemos</h2>
   <p>
-    Solo la que usted escribe. El sitio no le pide registrarse, no crea perfiles
-    y no le sigue el rastro entre visitas.
+    Solo la que usted escribe: el sitio no le pide registrarse ni crea una
+    cuenta suya. Lo que sí ocurre es que las herramientas de medición del
+    numeral <a href="#cookies">4</a> reconocen su navegador de una visita a la otra;
+    ahí se explica cuáles son y cómo desactivarlas.
   </p>
 
   <h3>Formulario de contacto</h3>
@@ -134,10 +143,11 @@ const dominio = SITE.url.replace(/^https:\/\//, '');
     <strong>
       No vendemos, arrendamos ni cedemos sus datos personales a terceros con
       fines comerciales.
-    </strong> Lo que usted escribe en el formulario, en la suscripción o en el cotizador
-    no se entrega a ninguna red publicitaria. Cosa distinta es su navegación por el
-    sitio, que sí alimenta nuestras herramientas de medición y de publicidad en la
-    medida que explica el numeral siguiente.
+    </strong> Nadie compra nuestra base de contactos, y el contenido de su mensaje
+    no sale de la empresa. Hay una excepción acotada que preferimos explicar antes
+    de que la encuentre: para saber qué anuncio originó su consulta, su correo y su
+    teléfono se convierten en un código y ese código se le comunica a Meta. Está contado
+    con detalle en el numeral siguiente.
   </p>
 
   <h2 id="cookies">4. Cookies, medición y publicidad</h2>
@@ -160,9 +170,48 @@ const dominio = SITE.url.replace(/^https:\/\//, '');
       terminan en una solicitud de cotización y permite volver a mostrarle anuncios
       de la empresa en las plataformas de Meta si visitó este sitio. Instala cookies
       (<code>_fbp</code>) y comunica a Meta las páginas que vio y acciones como
-      añadir una referencia al cotizador o enviarnos una consulta. <strong>
-        Nunca le enviamos su nombre, su correo ni su teléfono
-      </strong>: los eventos van sin datos de contacto.
+      añadir una referencia al cotizador o enviarnos una consulta.
+    </li>
+  </ul>
+
+  <h3 id="capi">Cuando nos escribe: qué se le manda a Meta</h3>
+  <p>
+    Esta parte merece decirse despacio, porque es la única en la que un dato
+    suyo interviene en la publicidad.
+  </p>
+  <p>
+    <strong>
+      Si usted envía el formulario de contacto o se suscribe a las novedades
+    </strong>, su correo, su teléfono y su nombre se convierten en nuestro
+    servidor en un código mediante una función matemática de un solo sentido
+    (SHA-256), y es <strong>ese código</strong> —no el dato— el que viaja a Meta junto
+    con el aviso de que alguien nos escribió. Sirve para una sola cosa: que podamos
+    saber qué anuncio originó la consulta.
+  </p>
+  <p>Conviene entender bien qué significa y qué no:</p>
+  <ul>
+    <li>
+      <strong
+        >Su correo y su teléfono no salen de nuestro dominio en claro.</strong
+      >
+      El navegador no se los manda a Meta; el que hace la conversión es nuestro propio
+      servidor, y lo que sale de ahí ya es el código.
+    </li>
+    <li>
+      <strong>El código no es anónimo, y no vamos a decir que lo sea.</strong> No
+      se puede volver del código al dato original, pero Meta calcula el mismo código
+      sobre los correos de sus usuarios: si usted tiene cuenta en Facebook o Instagram
+      con ese mismo correo, Meta reconocerá que es usted. Ese es exactamente el propósito.
+    </li>
+    <li>
+      <strong>El contenido de su mensaje nunca se envía.</strong> Lo que se le comunica
+      a Meta es que hubo una consulta, no qué decía.
+    </li>
+    <li>
+      <strong>Si prefiere que esto no ocurra</strong>, escríbanos por WhatsApp o
+      al correo de la empresa en vez de usar el formulario, o pídanos la
+      supresión escribiendo a{' '}
+      <a href={`mailto:${entidad.email}`}>{entidad.email}</a>.
     </li>
   </ul>
   <p>
@@ -216,8 +265,10 @@ const dominio = SITE.url.replace(/^https:\/\//, '');
       escrita en texto en esa misma página.
     </li>
     <li>
-      <strong>Meta Platforms</strong> — recibe, a través del píxel, las páginas que
-      usted ve en este sitio y las acciones descritas en el numeral 4. A diferencia
+      <strong>Meta Platforms</strong> — recibe las páginas que usted ve en este sitio
+      y las acciones descritas en el numeral 4, por dos vías: el píxel que corre en
+      su navegador y un envío desde nuestro propio servidor, que es el que incluye
+      los datos de contacto convertidos en código cuando usted nos escribe. A diferencia
       de los demás proveedores de esta lista, Meta no actúa solo por encargo nuestro:
       usa esa información también para sus propios fines, conforme a sus condiciones.
     </li>

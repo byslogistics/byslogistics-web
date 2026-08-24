@@ -32,12 +32,117 @@
   // conversiones falsas al píxel de producción.
   if (BYS.hostsSinMedicion.indexOf(location.hostname) !== -1) return;
 
-  function meta(nombre, datos) {
-    if (window.fbq) window.fbq('track', nombre, datos || {});
+  /*
+   * Cada evento sale por dos caminos —el píxel del navegador y la API de
+   * Conversiones, desde el servidor— con el MISMO identificador. Eso es lo que
+   * permite a Meta quedarse con una sola copia; sin él, cada conversión se
+   * contaría dos veces.
+   *
+   * Los dos caminos existen porque el del navegador se pierde eventos que no
+   * dependen del sitio: bloqueadores, la prevención de rastreo de Safari, una
+   * pestaña que se cierra antes de que salga la petición. Ver
+   * netlify/functions/capi.mts.
+   */
+  function idDeEvento() {
+    if (window.crypto && window.crypto.randomUUID) {
+      return window.crypto.randomUUID();
+    }
+    // Navegadores viejos, o un contexto sin https. Con que sea único basta:
+    // esto solo tiene que emparejar dos envíos de la misma visita.
+    return 'bys-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+  }
+
+  function meta(nombre, datos, contacto) {
+    var id = idDeEvento();
+    if (window.fbq) window.fbq('track', nombre, datos || {}, { eventID: id });
+    aServidor(nombre, datos, id, contacto);
   }
 
   function google(nombre, datos) {
     if (window.gtag) window.gtag('event', nombre, datos || {});
+  }
+
+  /* ---------------------------------------------------------------- *
+   * El camino del servidor (API de Conversiones)
+   * ---------------------------------------------------------------- */
+
+  function cookie(nombre) {
+    var trozos = ('; ' + document.cookie).split('; ' + nombre + '=');
+    return trozos.length === 2 ? trozos.pop().split(';').shift() : '';
+  }
+
+  /**
+   * El identificador del clic en el anuncio.
+   *
+   * Normalmente lo guarda el propio píxel en la cookie `_fbc`. Pero si es la
+   * primera página de la visita, fbevents.js todavía puede no haber cargado, y
+   * entonces la cookie no existe aunque el clic sí: el dato está en el
+   * parámetro `fbclid` de la dirección. Reconstruirlo evita perder la
+   * atribución justo en la visita que viene de una campaña, que es la única
+   * que hay que atribuir.
+   */
+  function clicDeAnuncio() {
+    var guardada = cookie('_fbc');
+    if (guardada) return guardada;
+    var fbclid = new URLSearchParams(location.search).get('fbclid');
+    return fbclid ? 'fb.1.' + Date.now() + '.' + fbclid : '';
+  }
+
+  /**
+   * Manda el evento al endpoint del sitio, que es quien habla con Meta.
+   *
+   * SE ESPERA A QUE EXISTA `_fbp`. Esa cookie la crea el píxel del navegador al
+   * cargar, y es el identificador con el que Meta empareja los dos caminos.
+   * Mandar el evento antes de que exista —cosa que pasa en la primera página
+   * de cada visita, porque fbevents.js carga en diferido— es mandarlo sin la
+   * mitad de su capacidad de coincidencia. Se espera lo justo: en cuanto
+   * aparece, o dos segundos, lo que ocurra primero.
+   *
+   * `keepalive` es lo que permite que la petición sobreviva a un clic que se
+   * lleva la página por delante, que es exactamente cuando se disparan los
+   * eventos que más importan: enviar la cotización, pulsar WhatsApp.
+   */
+  function aServidor(nombre, datos, id, contacto) {
+    // Si la medición de Meta está apagada, lo está entera: ni el píxel del
+    // navegador ni el camino del servidor. Ver `ANALYTICS` en constants.ts.
+    if (!BYS.pixel) return;
+
+    var intentos = 0;
+    (function esperar() {
+      if (!cookie('_fbp') && intentos++ < 20) {
+        setTimeout(esperar, 100);
+        return;
+      }
+      var cuerpo = {
+        event_name: nombre,
+        event_id: id,
+        event_source_url: location.href,
+        custom_data: datos || {},
+        user_data: {
+          fbp: cookie('_fbp'),
+          fbc: clicDeAnuncio(),
+        },
+      };
+      // Los datos de contacto solo viajan cuando la persona acaba de
+      // escribirlos en un formulario del sitio. Ver `enviar_formulario`.
+      if (contacto) {
+        cuerpo.user_data.email = contacto.email;
+        cuerpo.user_data.telefono = contacto.telefono;
+        cuerpo.user_data.nombre = contacto.nombre;
+      }
+      try {
+        fetch('/api/capi', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(cuerpo),
+          keepalive: true,
+        }).catch(function () {
+          /* que falle la medición nunca debe romper la página */
+        });
+      } catch (e) {
+        /* sin fetch, o bloqueado: el píxel del navegador sigue por su cuenta */
+      }
+    })();
   }
 
   /*
@@ -130,13 +235,22 @@
       google('generate_lead', { method: 'cotizador_whatsapp' });
     },
 
+    /*
+     * Los dos únicos eventos que llevan datos de contacto, y solo por el
+     * camino del servidor: la persona acaba de escribirlos en un formulario
+     * del sitio. Van en claro hasta la función y salen de ahí hasheados con
+     * SHA-256; el navegador nunca habla con Meta de esto. Es lo que sube la
+     * calidad de coincidencia, que es la razón de ser de la API de
+     * Conversiones. Ver netlify/functions/capi.mts y el numeral 4 de la
+     * política de privacidad, que lo dice con estas mismas palabras.
+     */
     enviar_formulario: function (d) {
-      meta('Lead', { content_name: d.formulario });
+      meta('Lead', { content_name: d.formulario }, d.contacto);
       google('generate_lead', { method: d.formulario });
     },
 
-    suscripcion: function () {
-      meta('CompleteRegistration', { content_name: 'Suscripción' });
+    suscripcion: function (d) {
+      meta('CompleteRegistration', { content_name: 'Suscripción' }, d.contacto);
       google('sign_up', { method: 'newsletter' });
     },
 
@@ -160,7 +274,8 @@
       'https://connect.facebook.net/en_US/fbevents.js');
 
       window.fbq('init', BYS.pixel);
-      window.fbq('track', 'PageView');
+      // Por los dos caminos y con un solo identificador, como el resto.
+      meta('PageView', {});
     }
 
     if (BYS.google) {

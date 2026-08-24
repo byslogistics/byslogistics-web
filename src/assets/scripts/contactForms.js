@@ -101,7 +101,22 @@ function initForms() {
         // hay medición y un bloqueador puede quitarla.
         window.bysTrack?.(
           formulario === 'suscripcion' ? 'suscripcion' : 'enviar_formulario',
-          { formulario }
+          {
+            formulario,
+            /*
+             * Lo que la persona acaba de escribir viaja al endpoint del propio
+             * sitio, que lo hashea con SHA-256 antes de que salga hacia Meta:
+             * es lo que permite atribuir la conversión al anuncio que la
+             * originó. En claro no sale del dominio, y el navegador no se lo
+             * manda a nadie más. Está declarado en el numeral 4 de la política
+             * de privacidad.
+             */
+            contacto: {
+              email: (data.get('email') ?? '').toString().trim(),
+              telefono: (data.get('phone') ?? '').toString().trim(),
+              nombre: (data.get('name') ?? '').toString().trim(),
+            },
+          }
         );
         setStatus(
           form,
