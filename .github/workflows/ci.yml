@@ -53,6 +53,15 @@ jobs:
       - name: Conversiones de Meta
         run: pnpm test:capi
 
+      # Formulario de contacto y suscripción a novedades. Tampoco salen a la
+      # red: el `fetch` hacia Resend se sustituye por un doble, así que no
+      # necesitan RESEND_API_KEY.
+      - name: Formulario de contacto
+        run: pnpm test:contacto
+
+      - name: Suscripción a novedades
+        run: pnpm test:suscripcion
+
       - name: Rutas servidas
         run: pnpm test:smoke
 

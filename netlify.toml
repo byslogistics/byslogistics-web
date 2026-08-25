@@ -35,6 +35,27 @@
 #                           esté puesta, los eventos van a la pestaña «Eventos
 #                           de prueba» EN LUGAR de a los informes: dejarla en
 #                           producción es quedarse sin medición real.
+#
+# Los formularios de contacto y suscripción viven en
+# netlify/functions/contacto.mts (/api/contacto) y suscripcion.mts
+# (/api/suscripcion), y los dos entregan por Resend. A diferencia de CAPI, no
+# tienen un camino de repuesto si faltan estas variables: el formulario
+# responde con error y el sitio ofrece WhatsApp como alternativa.
+#   RESEND_API_KEY       clave de Resend, con permiso de envío únicamente. ES
+#                         UN SECRETO. La cuenta de Resend es la de la empresa,
+#                         no la de quien despliegue el sitio.
+#   RESEND_FROM           opcional. Remitente de los correos, con el formato
+#                         «Nombre <correo@dominio>». Por defecto
+#                         «B&S Logistics <contacto@byslogistics.com.co>». El
+#                         dominio tiene que estar verificado en Resend.
+#   RESEND_CONTACT_TO     opcional, separado por comas si es más de un
+#                         correo. A quién llega el aviso del formulario de
+#                         contacto. Por defecto, a ventas@precintosdeseguridad.co
+#                         y a los otros dos correos administrativos del dominio
+#                         (ver AVISO_ADICIONAL en contacto.mts).
+#
+# suscripcion.mts solo necesita RESEND_API_KEY: crear un contacto en Resend no
+# pide el identificador de ninguna audiencia (la cuenta tiene una sola).
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"

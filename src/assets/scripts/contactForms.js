@@ -1,18 +1,21 @@
 /**
  * Envío de los formularios del sitio (contacto y suscripción).
  *
- * El sitio es estático y se despliega en Netlify, así que la entrega la hace
- * Netlify Forms: el robot de Netlify detecta en el HTML publicado los
- * formularios marcados con `data-netlify="true"` y les habilita un endpoint.
+ * La entrega la hacen dos funciones de Netlify que hablan con Resend:
+ * netlify/functions/contacto.mts (/api/contacto) y
+ * netlify/functions/suscripcion.mts (/api/suscripcion). El nombre del
+ * formulario (el atributo `name` del `<form>`, definido en FORMS,
+ * constants.ts) es también la ruta: «contacto» manda a /api/contacto y
+ * «suscripcion» a /api/suscripcion.
  *
  * Se envía por fetch en lugar de dejar que el navegador haga el POST nativo,
  * para no recargar la página y poder mostrar el estado en la misma pantalla.
- * Netlify acepta ese POST contra la ruta de la propia página, codificado como
- * formulario y con el campo `form-name`.
+ * El cuerpo va como JSON, con una clave por campo del formulario.
  *
- * En desarrollo local no hay endpoint de Netlify, así que el envío falla; para
- * que el formulario nunca quede en un callejón sin salida, el mensaje de error
- * dirige al WhatsApp y al correo de la empresa.
+ * En desarrollo local no hay funciones de Netlify corriendo (salvo con
+ * `netlify dev`), así que el envío falla; para que el formulario nunca quede
+ * en un callejón sin salida, el mensaje de error dirige al WhatsApp y al
+ * correo de la empresa.
  */
 
 const SENDING = 'Enviando…';
@@ -50,18 +53,17 @@ function buildWhatsappMessage(form, data) {
   return lines.join('\n');
 }
 
-async function sendToNetlify(form, data) {
-  // Netlify espera el POST codificado como formulario, con form-name incluido.
-  const body = new URLSearchParams();
+async function sendToApi(form, data) {
+  const payload = {};
   for (const [key, value] of data.entries()) {
-    if (typeof value === 'string') body.append(key, value);
+    if (typeof value === 'string') payload[key] = value;
   }
-  body.set('form-name', form.getAttribute('name') ?? '');
 
-  const response = await fetch(form.getAttribute('action') || '/', {
+  const nombre = form.getAttribute('name') ?? '';
+  const response = await fetch(`/api/${nombre}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body.toString(),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -95,7 +97,7 @@ function initForms() {
       setStatus(form, SENDING, 'pending');
 
       try {
-        await sendToNetlify(form, data);
+        await sendToApi(form, data);
         // El envío que Netlify aceptó es la conversión; el intento, no. Por eso
         // se mide aquí dentro y no al pulsar el botón. `?.` porque en local no
         // hay medición y un bloqueador puede quitarla.
