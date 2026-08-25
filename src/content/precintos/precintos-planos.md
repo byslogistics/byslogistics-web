@@ -11,5 +11,7 @@ products:
     image: ../../images/productos/precinto-correa-plana-42-cms.jpg
     imageAlt: 'Precinto de correa plana de 42 cms con superficie para marcar'
   - name: 'Precinto Plano BC 42 cms'
+    image: ../../images/productos/precinto-plano-bc-42-cms.png
+    imageAlt: 'Precinto plano de 42 cms con botón de color'
     description: 'Colores: amarillo, azul, rojo, verde y blanco.'
 ---

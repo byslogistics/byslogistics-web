@@ -130,6 +130,8 @@ products:
       - question: '¿Qué resistencia a la tensión tiene?'
         answer: 'Resiste unos 18 kgf de tensión, suficiente para asegurar puertas de furgón, tulas, canastillas y cajas sin que ceda en ruta. Recuerde que un precinto no es un candado: su función es evidenciar la apertura, no impedirla.'
   - name: 'Precinto Dentado Doble Cierre 39 cms'
+    image: ../../images/productos/precinto-correa-dentada-doble-cierre-39-cms.jpg
+    imageAlt: 'Precinto de correa dentada con doble cierre de 39 cms'
     specs:
       - etiqueta: 'Longitud total'
         valor: '390 mm'
