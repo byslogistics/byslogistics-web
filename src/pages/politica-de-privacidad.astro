@@ -12,9 +12,12 @@
  * de verdad, y se puede comprobar en el repositorio. Las referencias, por si
  * hay que revisarlas cuando el sitio cambie:
  *
- *   - Formularios de contacto y suscripción → Netlify Forms
- *     (`data-netlify` en ContactSection.astro y FooterSection.astro;
- *      nombres en FORMS, constants.ts).
+ *   - Formularios de contacto y suscripción → Resend, por dos funciones de
+ *     Netlify (netlify/functions/contacto.mts y suscripcion.mts, publicadas
+ *     en /api/contacto y /api/suscripcion; nombres de los formularios en
+ *     FORMS, constants.ts). Contacto manda dos correos —aviso al equipo
+ *     comercial y confirmación a quien escribió—; suscripción agrega el
+ *     correo a la audiencia de Resend.
  *   - Cotizador → `localStorage` con la clave `bys-cotizacion`
  *     (src/assets/scripts/quoteCart.js). No se envía a ningún servidor.
  *   - Tema claro/oscuro → `localStorage` con la clave `hs_theme`
@@ -88,9 +91,10 @@ const dominio = SITE.url.replace(/^https:\/\//, '');
 
   <h3>Formulario de contacto</h3>
   <p>
-    Nombre, correo electrónico, teléfono, empresa y el mensaje que redacte.
-    Todos los campos los diligencia usted; para enviarlo hay que marcar de forma
-    expresa la casilla de autorización de tratamiento de datos.
+    Nombre, correo electrónico, teléfono, empresa, el motivo de su consulta y el
+    mensaje que redacte. Todos los campos los diligencia usted —solo el nombre,
+    el correo y el mensaje son obligatorios—; para enviarlo hay que marcar de
+    forma expresa la casilla de autorización de tratamiento de datos.
   </p>
 
   <h3>Suscripción a novedades</h3>
@@ -253,9 +257,14 @@ const dominio = SITE.url.replace(/^https:\/\//, '');
   </p>
   <ul>
     <li>
-      <strong>Netlify</strong> — aloja el sitio y recibe los envíos de los formularios
-      de contacto y de suscripción, que quedan en su panel para que el equipo comercial
-      los atienda.
+      <strong>Netlify</strong> — aloja el sitio y ejecuta el código del servidor que
+      procesa los formularios antes de entregarlos.
+    </li>
+    <li>
+      <strong>Resend</strong> — el proveedor de correo que entrega de verdad el formulario
+      de contacto a nuestro equipo comercial y le confirma a usted que lo recibimos.
+      Si se suscribe a las novedades, es también donde queda su correo en la lista
+      de la que salen esos envíos.
     </li>
     <li>
       <strong>Google</strong> — la página de contacto incrusta el mapa de nuestra

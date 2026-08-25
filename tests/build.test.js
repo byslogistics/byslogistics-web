@@ -379,20 +379,36 @@ describe('enlaces', () => {
 });
 
 describe('formularios', () => {
-  test('el de contacto tiene el marcado que Netlify necesita', () => {
+  test('el de contacto manda a /api/contacto, no a Netlify Forms', () => {
     const p = pages().find(x => x.route === '/contacto/');
     const form = p.html.match(/<form[^>]*name="contacto"[^>]*>/)[0];
-    assert.match(form, /data-netlify="true"/);
     assert.match(form, /method="POST"/);
-    assert.match(form, /data-netlify-honeypot="botcheck"/);
-    assert.match(p.html, /name="form-name"[^>]*value="contacto"/);
+    assert.match(form, /data-contact-form/);
+    // El nombre del formulario es la ruta a la que lo manda contactForms.js
+    // (`/api/${nombre}`): sin marcado de Netlify, no hace falta form-name.
+    assert.doesNotMatch(form, /data-netlify/);
+    assert.doesNotMatch(p.html, /name="form-name"/);
   });
 
-  test('el de suscripción también, y está en todas las páginas', () => {
+  test('el de contacto pide empresa y motivo, además de los campos base', () => {
+    const p = pages().find(x => x.route === '/contacto/');
+    assert.match(p.html, /name="company"/);
+    assert.match(p.html, /<select[^>]*name="subject"/);
+    // Las opciones del <select> tienen que ser las que acepta contacto.mts
+    // (MOTIVOS): un valor que se agregue solo aquí se descartaría en el
+    // servidor sin ningún error a la vista.
+    for (const valor of ['cotizacion', 'distribucion', 'soporte', 'otro']) {
+      assert.match(p.html, new RegExp(`<option value="${valor}"`));
+    }
+  });
+
+  test('el de suscripción también manda a su endpoint, y está en todas las páginas', () => {
     for (const p of pages()) {
       if (p.route === '/404.html' || p.route.endsWith('404.html')) continue;
       if (!p.html.includes('name="suscripcion"')) continue;
-      assert.match(p.html, /<form[^>]*name="suscripcion"[^>]*data-netlify/);
+      const form = p.html.match(/<form[^>]*name="suscripcion"[^>]*>/)[0];
+      assert.match(form, /data-contact-form/);
+      assert.doesNotMatch(form, /data-netlify/);
     }
   });
 
@@ -408,7 +424,9 @@ describe('formularios', () => {
 
   test('todos los campos visibles tienen etiqueta asociada', () => {
     const p = pages().find(x => x.route === '/contacto/');
-    for (const [, id] of p.html.matchAll(/<input[^>]*id="(hs-[^"]+)"/g)) {
+    for (const [, id] of p.html.matchAll(
+      /<(?:input|select)[^>]*id="(hs-[^"]+)"/g
+    )) {
       assert.ok(
         p.html.includes(`for="${id}"`),
         `el campo ${id} no tiene <label for>`

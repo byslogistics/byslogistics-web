@@ -50,8 +50,10 @@ before(async () => {
   assert.ok(existsSync(DIST), 'ejecuta `pnpm build` antes de estos tests');
 
   server = createServer(async (req, res) => {
-    // El POST del formulario lo interceptan los tests; aquí se responde 200
-    // para simular el endpoint que Netlify expone en producción.
+    // El POST de los formularios y del asistente lo interceptan los tests que
+    // lo necesitan (page.route); aquí se responde 200 en general, para
+    // simular las funciones de Netlify (/api/contacto, /api/suscripcion,
+    // /api/chat) sin tener que levantarlas.
     if (req.method === 'POST') {
       res.writeHead(200).end('ok');
       return;
@@ -663,10 +665,10 @@ describe('formulario de contacto', { skip: skip() }, () => {
   test('envía los campos y la constancia de autorización', async () => {
     const page = await browser.newPage();
     let cuerpo = null;
-    await page.route('**/', route => {
+    await page.route('**/api/contacto', route => {
       if (route.request().method() === 'POST') {
         cuerpo = route.request().postData();
-        return route.fulfill({ status: 200, body: 'ok' });
+        return route.fulfill({ status: 200, body: '{"enviado":true}' });
       }
       return route.continue();
     });
@@ -674,23 +676,24 @@ describe('formulario de contacto', { skip: skip() }, () => {
     await page.fill('#hs-name-contacts', 'Richard');
     await page.fill('#hs-email-contacts', 'r@e.com');
     await page.fill('#hs-phone-number', '3001234567');
+    await page.selectOption('#hs-subject-contacts', 'cotizacion');
     await page.fill('#hs-about-contacts', 'Necesito precintos');
     await page.check('input[name="autorizacion"]');
     await page.getByRole('button', { name: 'Enviar mensaje' }).click();
     await page.waitForTimeout(600);
 
-    const datos = new URLSearchParams(cuerpo ?? '');
-    assert.equal(datos.get('form-name'), 'contacto');
-    assert.equal(datos.get('name'), 'Richard');
-    assert.equal(datos.get('email'), 'r@e.com');
-    assert.equal(datos.get('message'), 'Necesito precintos');
-    assert.equal(datos.get('autorizacion'), 'Sí');
+    const datos = JSON.parse(cuerpo ?? '{}');
+    assert.equal(datos.name, 'Richard');
+    assert.equal(datos.email, 'r@e.com');
+    assert.equal(datos.subject, 'cotizacion');
+    assert.equal(datos.message, 'Necesito precintos');
+    assert.equal(datos.autorizacion, 'Sí');
     await page.close();
   });
 
   test('si el envío falla, ofrece WhatsApp en lugar de fallar en silencio', async () => {
     const page = await browser.newPage();
-    await page.route('**/', route =>
+    await page.route('**/api/contacto', route =>
       route.request().method() === 'POST'
         ? route.fulfill({ status: 500, body: 'err' })
         : route.continue()
@@ -698,6 +701,7 @@ describe('formulario de contacto', { skip: skip() }, () => {
     await page.goto(base + '/contacto/', { waitUntil: 'networkidle' });
     await page.fill('#hs-name-contacts', 'Richard');
     await page.fill('#hs-email-contacts', 'r@e.com');
+    await page.selectOption('#hs-subject-contacts', 'cotizacion');
     await page.fill('#hs-about-contacts', 'Consulta');
     await page.check('input[name="autorizacion"]');
 

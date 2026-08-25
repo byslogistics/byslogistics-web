@@ -5,10 +5,25 @@ import TextInput from '@components/ui/forms/input/TextInput.astro';
 import EmailContactInput from '@components/ui/forms/input/EmailContactInput.astro';
 import PhoneInput from '@components/ui/forms/input/PhoneInput.astro';
 import TextAreaInput from '@components/ui/forms/input/TextAreaInput.astro';
+import SelectInput from '@components/ui/forms/input/SelectInput.astro';
 import Icon from '@components/ui/icons/Icon.astro';
 import SectionBackdrop from '@components/ui/blocks/SectionBackdrop.astro';
 import backdrop from '@images/backgrounds/logistica-oscuro.jpg';
 import { CONTACT, FORMS } from '@data/constants';
+
+/**
+ * Los motivos de consulta. Repetidos aquí y en `MOTIVOS`
+ * (netlify/functions/contacto.mts) por el mismo motivo que el resto de listas
+ * duplicadas del sitio: son dos mundos que no se importan entre sí. Lo que
+ * llega en `subject` y no está en la lista del servidor se descarta ahí, así
+ * que agregar un motivo nuevo va en los dos sitios.
+ */
+const motivos = [
+  { value: 'cotizacion', label: 'Cotización de producto' },
+  { value: 'distribucion', label: 'Distribución o alianza comercial' },
+  { value: 'soporte', label: 'Soporte con un pedido' },
+  { value: 'otro', label: 'Otro' },
+];
 
 const copy = {
   title: 'Estamos aquí para ayudarle',
@@ -17,7 +32,9 @@ const copy = {
   formTitle: 'Realizar una consulta',
   formSubTitle: 'Le respondemos en un plazo de 1 a 2 días hábiles.',
   name: 'Nombre',
-  details: 'Mensaje adicional',
+  company: 'Empresa',
+  subject: 'Motivo de la consulta',
+  details: 'Mensaje',
   send: 'Enviar mensaje',
   pbxHeading: 'P.B.X. en Bogotá',
   pbxContent: 'Comuníquese con nuestras líneas fijas.',
@@ -78,20 +95,27 @@ const copy = {
         <form
           name={FORMS.contact}
           method="POST"
-          data-netlify="true"
-          data-netlify-honeypot="botcheck"
           data-contact-form
           data-form-whatsapp={CONTACT.whatsapp}
           data-wa-intro="Hola, quisiera hacer una consulta:"
-          data-form-success="¡Gracias! Recibimos su mensaje y le respondemos en 1 o 2 días hábiles."
+          data-form-success="¡Gracias! Recibimos su mensaje. Revise su correo: le mandamos una confirmación, y le respondemos en 1 o 2 días hábiles."
         >
-          {/* Netlify identifica el formulario por este campo */}
-          <input type="hidden" name="form-name" value={FORMS.contact} />
-
           <div class="grid gap-4">
             <TextInput id="hs-name-contacts" label={copy.name} name="name" />
             <EmailContactInput id="hs-email-contacts" />
             <PhoneInput id="hs-phone-number" />
+            <TextInput
+              id="hs-company-contacts"
+              label={copy.company}
+              name="company"
+              required={false}
+            />
+            <SelectInput
+              id="hs-subject-contacts"
+              label={copy.subject}
+              name="subject"
+              options={motivos}
+            />
             <TextAreaInput
               id="hs-about-contacts"
               label={copy.details}

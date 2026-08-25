@@ -135,13 +135,10 @@ const linkClass =
         <form
           name={FORMS.newsletter}
           method="POST"
-          data-netlify="true"
-          data-netlify-honeypot="botcheck"
           data-contact-form
           data-form-success="¡Listo! Quedó suscrito a nuestras novedades."
           data-form-fallback={`No pudimos completar la suscripción. Escríbenos a ${CONTACT.email} y lo agregamos a la lista.`}
         >
-          <input type="hidden" name="form-name" value={FORMS.newsletter} />
           {/* Trampa antispam */}
           <input
             type="checkbox"

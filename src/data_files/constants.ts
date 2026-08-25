@@ -95,10 +95,11 @@ export const LEGAL = {
       nombre: 'Política de privacidad',
       nombreLargo: 'Política de privacidad del sitio web',
       // Sube cada vez que cambia lo que el sitio hace con los datos de quien
-      // lo visita. La última: la API de Conversiones de Meta, que es el único
-      // punto donde un dato de contacto participa en la publicidad.
-      actualizado: '24 de agosto de 2026',
-      actualizadoISO: '2026-08-24',
+      // lo visita. La última: los formularios pasan de Netlify Forms a
+      // Resend, que ahora es quien entrega los correos y guarda la lista de
+      // suscripción.
+      actualizado: '25 de agosto de 2026',
+      actualizadoISO: '2026-08-25',
     },
     {
       url: '/politica-de-datos',
@@ -116,15 +117,17 @@ export const LEGAL = {
 } as const;
 
 /**
- * Nombres de los formularios en Netlify Forms.
+ * Nombres de los formularios del sitio.
  *
- * El robot de Netlify detecta al desplegar los formularios marcados con
- * `data-netlify="true"` y los agrupa por este nombre. Los envíos se ven en
- * el panel de Netlify → Forms, y desde ahí se configuran las notificaciones
- * por correo a ventas@precintosdeseguridad.co.
+ * El nombre es también la ruta a la que se envían: contactForms.js manda
+ * cada formulario a `/api/${nombre}`, así que «contacto» va a
+ * netlify/functions/contacto.mts y «suscripcion» a
+ * netlify/functions/suscripcion.mts. Las dos funciones entregan por Resend —
+ * ver la cabecera de cada una para las variables de entorno que necesitan.
  *
- * Si se cambia un nombre, Netlify lo trata como un formulario nuevo y los
- * envíos anteriores quedan en el anterior.
+ * Si se cambia un nombre, hay que cambiar también el de la función (y su
+ * `export const config = { path: ... }`), o el formulario deja de tener
+ * dónde entregarse.
  */
 export const FORMS = {
   contact: 'contacto',

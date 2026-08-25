@@ -32,7 +32,7 @@ pnpm preview      # sirve dist/ como en producción
 src/
 ├── assets/
 │   ├── scripts/
-│   │   ├── contactForms.js   Envío de formularios (Netlify Forms)
+│   │   ├── contactForms.js   Envío de formularios (contacto y suscripción, por Resend)
 │   │   ├── quoteCart.js      Cotizador: carrito + mensaje de WhatsApp
 │   │   └── lenisSmoothScroll.js
 │   └── styles/global.css     Tema de Tailwind. Aquí vive la paleta de marca
@@ -245,28 +245,36 @@ esté a la vista, y el bloque se pasaba de largo.
 
 ## Formularios
 
-El sitio es estático, así que la recepción la hace **Netlify Forms**: al
-desplegar, Netlify detecta en el HTML los formularios marcados con
-`data-netlify="true"` y les habilita un endpoint. No hace falta ningún servicio
-externo ni llave de acceso.
+La entrega la hacen dos funciones de Netlify que hablan con **Resend**, no
+Netlify Forms. El nombre de cada formulario, definido en `FORMS`
+(`constants.ts`), es también su ruta:
 
-Hay dos formularios, con los nombres definidos en `FORMS` (`constants.ts`):
+| Nombre        | Dónde              | Endpoint           | Función                             |
+| ------------- | ------------------ | ------------------ | ----------------------------------- |
+| `contacto`    | Página de contacto | `/api/contacto`    | `netlify/functions/contacto.mts`    |
+| `suscripcion` | Pie de página      | `/api/suscripcion` | `netlify/functions/suscripcion.mts` |
 
-| Nombre        | Dónde              |
-| ------------- | ------------------ |
-| `contacto`    | Página de contacto |
-| `suscripcion` | Pie de página      |
+`contacto` manda dos correos por Resend en un solo lote: un aviso al equipo
+comercial (con `reply_to` puesto en el correo de quien escribió, para
+responder directo) y una confirmación a la persona. `suscripcion` agrega el
+correo a la audiencia de Resend — no manda ningún correo por su cuenta, solo
+deja a la persona en la lista.
 
-Tras el primer despliegue, configura las notificaciones en
-**Netlify → Forms → contacto → Settings → Form notifications** para que los
-mensajes lleguen a `ventas@precintosdeseguridad.co`.
+Variables de entorno que necesitan (panel de Netlify, nunca en el
+repositorio): `RESEND_API_KEY`, `RESEND_AUDIENCE_ID` y, opcionales,
+`RESEND_FROM` y `RESEND_CONTACT_TO`. Ver la cabecera de cada función y el
+comentario en `netlify.toml` para el detalle. A diferencia de la API de
+Conversiones de Meta, estos dos endpoints **no tienen un camino de repuesto**:
+si falta la clave, el formulario responde con error de verdad, no con un 200
+fingido — es su único camino de entrega.
 
-Si el envío falla, el formulario de contacto abre WhatsApp con el mensaje ya
-compuesto en lugar de dejar al visitante sin salida.
+Si el envío del formulario de contacto falla, se abre WhatsApp con el mensaje
+ya compuesto en lugar de dejar al visitante sin salida. El de suscripción
+muestra un mensaje pidiendo escribir al correo de la empresa.
 
-El formulario exige marcar la autorización de tratamiento de datos, y ese
-consentimiento viaja en el envío (`autorizacion=Sí`) para dejar constancia,
-como pide la Ley 1581 de 2012.
+El formulario de contacto exige marcar la autorización de tratamiento de
+datos, y ese consentimiento viaja en el envío (`autorizacion=Sí`) para dejar
+constancia, como pide la Ley 1581 de 2012.
 
 ### El buscador entiende los nombres del cliente
 
@@ -556,7 +564,8 @@ Qué cubren, en resumen:
   restos de la plantilla original.
 - **HTML generado:** que todas las rutas existan, que no haya enlaces internos
   rotos ni `href="#"`, que cada página tenga un solo `h1`, título y descripción
-  propios, y que los formularios lleven el marcado que Netlify necesita.
+  propios, y que los formularios lleven los campos y el nombre que esperan
+  `contacto.mts` y `suscripcion.mts`.
 - **Asistente:** que cada pregunta real recupere el hecho correcto, que ningún
   importe pase la barandilla, que el prompt imponga el trato de usted y que el
   endpoint derive a una persona cuando no hay clave o el proveedor falla. El
