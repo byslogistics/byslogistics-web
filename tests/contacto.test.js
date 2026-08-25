@@ -131,7 +131,7 @@ describe('lo que se le manda a Resend', () => {
     assert.equal(llamada.body.length, 2);
 
     const [interno, confirmacion] = llamada.body;
-    assert.deepEqual(interno.to, ['ventas@precintosdeseguridad.co']);
+    assert.ok(interno.to.includes('ventas@precintosdeseguridad.co'));
     assert.equal(interno.reply_to, 'Richard <richard@ejemplo.com>');
     assert.deepEqual(confirmacion.to, ['richard@ejemplo.com']);
   });
@@ -142,14 +142,28 @@ describe('lo que se le manda a Resend', () => {
     assert.doesNotMatch(JSON.stringify(llamada.body), /token-de-prueba/);
   });
 
+  test('sin RESEND_CONTACT_TO, el aviso llega a ventas y a los dos correos administrativos', async () => {
+    await pedir(envio());
+    const [interno] = llamada.body;
+    assert.deepEqual(interno.to, [
+      'ventas@precintosdeseguridad.co',
+      'byslogisticssas@gmail.com',
+      'byslogisticsltda@hotmail.com',
+    ]);
+  });
+
   test('RESEND_FROM y RESEND_CONTACT_TO cambian el remitente y el destino', async () => {
     process.env.RESEND_FROM = 'Ventas <ventas@byslogistics.com.co>';
-    process.env.RESEND_CONTACT_TO = 'otro@precintosdeseguridad.co';
+    process.env.RESEND_CONTACT_TO =
+      'otro@precintosdeseguridad.co, otro-mas@precintosdeseguridad.co';
     await pedir(envio());
     const [interno, confirmacion] = llamada.body;
     assert.equal(interno.from, 'Ventas <ventas@byslogistics.com.co>');
     assert.equal(confirmacion.from, 'Ventas <ventas@byslogistics.com.co>');
-    assert.deepEqual(interno.to, ['otro@precintosdeseguridad.co']);
+    assert.deepEqual(interno.to, [
+      'otro@precintosdeseguridad.co',
+      'otro-mas@precintosdeseguridad.co',
+    ]);
   });
 
   test('el motivo se traduce al texto que verá el equipo comercial', async () => {

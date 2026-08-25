@@ -30,8 +30,9 @@
  *                        `FROM_POR_DEFECTO`, más abajo. El dominio tiene que
  *                        estar verificado en la cuenta de Resend de la
  *                        empresa o el envío falla.
- *   RESEND_CONTACT_TO   opcional. A quién llega el aviso interno. Por
- *                        defecto `CONTACT_EMAIL`, más abajo.
+ *   RESEND_CONTACT_TO   opcional. A quién llega el aviso interno, separado
+ *                        por comas si es más de uno. Por defecto,
+ *                        `CONTACT_EMAIL` más `AVISO_ADICIONAL`, más abajo.
  *
  * Los tipos de Netlify se declaran aquí en lugar de importar
  * `@netlify/functions`, por el mismo motivo que en capi.mts: no sumar una
@@ -49,6 +50,16 @@ interface NetlifyContext {
  * que comprueba que digan lo mismo.
  */
 const CONTACT_EMAIL = 'ventas@precintosdeseguridad.co';
+
+/**
+ * Copia del aviso interno, además de `CONTACT_EMAIL`. Son los otros dos
+ * correos administrativos del dominio (byslogistics.com.co), a pedido de la
+ * empresa: quien revise cualquiera de los tres ve la consulta.
+ */
+const AVISO_ADICIONAL = [
+  'byslogisticssas@gmail.com',
+  'byslogisticsltda@hotmail.com',
+];
 
 const FROM_POR_DEFECTO = 'B&S Logistics <contacto@byslogistics.com.co>';
 
@@ -314,10 +325,16 @@ export default async (req: Request, context: NetlifyContext) => {
   const interno = correoInterno(datos);
   const confirmacion = correoConfirmacion(datos);
 
+  const destinatarios = process.env.RESEND_CONTACT_TO
+    ? process.env.RESEND_CONTACT_TO.split(',')
+        .map(d => d.trim())
+        .filter(Boolean)
+    : [CONTACT_EMAIL, ...AVISO_ADICIONAL];
+
   const lote = [
     {
       from,
-      to: [process.env.RESEND_CONTACT_TO || CONTACT_EMAIL],
+      to: destinatarios,
       reply_to: `${name} <${email}>`,
       subject: `Nueva consulta${datos.subject ? ` — ${datos.subject}` : ''} — ${name}`,
       html: interno.html,
