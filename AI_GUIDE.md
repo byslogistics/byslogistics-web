@@ -49,6 +49,38 @@ Ejemplo: `import { CONTACT } from '@data/constants';`
 | [scripts/](scripts/)                                 | `extract-xlsx-images.mjs` (saca las fotos del listado de precios) y `smoke.mjs` (comprueba que las rutas responden).                                                                                                                                                                                                      |
 | [netlify/functions/](netlify/functions/)             | El asistente: `chat.mts` (endpoint `/api/chat`) y `_retrieval.mts` (recuperación, prompt y bloqueo de precios). Su base de conocimiento la genera [src/pages/kb.json.ts](src/pages/kb.json.ts) en el build. Y `capi.mts` (endpoint `/api/capi`), el envío de eventos a Meta desde el servidor.                            |
 
+## Carpeta de subida de contenido (📤SUBIR-CONTENIDO)
+
+La clienta no edita código: deja fotos, logos o banners sueltos en
+[`📤SUBIR-CONTENIDO/`](📤SUBIR-CONTENIDO/), en la raíz del repositorio, y le
+pide a la IA que los publique. Esa carpeta es solo un buzón de entrada
+—nunca el destino final de una imagen— y su nombre y existencia son fijos:
+**no se renombra, no se borra y no se usa como carpeta de medios**, ni
+siquiera vacía. Un test (`tests/upload-content.test.js`) lo comprueba.
+
+Cuando haya archivos ahí:
+
+1. Ábrelos y decide qué son: logo/marca, foto de fondo de sección, foto de
+   producto o catálogo, imagen social/PWA, o algo sin encaje claro.
+2. Muévelos (no los copies dejando el original) a su carpeta real:
+
+   | Qué es                                                       | Va a                                                                                                                                                             |
+   | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | Logo o variante de marca                                     | `src/images/brand/` — si reemplaza un archivo existente, conserva su nombre (`logo.png`, `logo-navbar.png`); si es nuevo, añádelo y conéctalo donde corresponda. |
+   | Foto de fondo de sección                                     | `src/images/backgrounds/`                                                                                                                                        |
+   | Foto de producto o de catálogo                               | `src/images/productos/`, y después corre `node scripts/trim-product-images.mjs` para quitarle el margen muerto.                                                  |
+   | Imagen social (OG) o iconos PWA                              | `src/images/social.png`, `src/images/icon.png`, `src/images/icon-maskable.png`                                                                                   |
+   | Algo que debe servirse sin procesar (favicon suelto, un PDF) | `public/`                                                                                                                                                        |
+
+3. Conéctala donde deba mostrarse (un `cardImage` en `src/content/`, el
+   campo `image` de una referencia del catálogo, un componente, etc.):
+   subir el archivo no alcanza si nada lo referencia.
+4. Al terminar, la carpeta debe quedar vacía otra vez (solo con su
+   `README.md`) y avísale a la clienta a qué carpeta fue cada imagen.
+
+Si no es evidente qué es una imagen o dónde debe ir, pregunta antes de
+adivinar: es más barato preguntar que reemplazar la foto equivocada.
+
 ## Cómo está armada la maquetación
 
 Vale la pena entenderlo antes de tocar anchos o márgenes:
