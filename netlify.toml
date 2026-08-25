@@ -53,10 +53,9 @@
 #                         contacto. Por defecto, a ventas@precintosdeseguridad.co
 #                         y a los otros dos correos administrativos del dominio
 #                         (ver AVISO_ADICIONAL en contacto.mts).
-#   RESEND_AUDIENCE_ID    el identificador de la audiencia de Resend
-#                         (Resend → Audiences → la lista → Settings) donde
-#                         queda quien se suscribe. No es secreto, pero es
-#                         propio de la cuenta, así que no se hardcodea.
+#
+# suscripcion.mts solo necesita RESEND_API_KEY: crear un contacto en Resend no
+# pide el identificador de ninguna audiencia (la cuenta tiene una sola).
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"

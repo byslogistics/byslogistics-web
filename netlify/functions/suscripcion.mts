@@ -1,10 +1,12 @@
 /**
  * Suscripción a novedades. Se publica en /api/suscripcion.
  *
- * QUÉ HACE. Agrega el correo a la audiencia de Resend (Resend → Audiences),
+ * QUÉ HACE. Agrega el correo a los contactos de Resend (Resend → Audience),
  * que es la lista real desde la que más adelante se mandan las novedades
  * (con Resend → Broadcasts, o con la propia API). No manda ningún correo
- * desde aquí: solo deja a la persona en la lista.
+ * desde aquí: solo deja a la persona en la lista. La cuenta de Resend de la
+ * empresa tiene una sola audiencia, y crear un contacto no pide su
+ * identificador —ni el SDK de Resend lo pide—, así que tampoco se pide aquí.
  *
  * Mismo reparto que capi.mts y contacto.mts: la clave de Resend vive solo en
  * las variables de entorno de Netlify, nunca en el navegador ni en el
@@ -17,11 +19,7 @@
  * FooterSection.astro).
  *
  * Variables de entorno (panel de Netlify, NUNCA en el repositorio):
- *   RESEND_API_KEY       la misma clave que usa contacto.mts.
- *   RESEND_AUDIENCE_ID   el identificador de la audiencia en Resend
- *                         (Resend → Audiences → la lista → Settings). No es
- *                         secreto, pero es propio de la cuenta de la
- *                         empresa, así que no se hardcodea.
+ *   RESEND_API_KEY   la misma clave que usa contacto.mts.
  */
 
 interface NetlifyContext {
@@ -92,27 +90,23 @@ export default async (req: Request, context: NetlifyContext) => {
   if (!pareceCorreo(email)) return json({ error: 'Correo no válido' }, 400);
 
   const token = process.env.RESEND_API_KEY;
-  const audiencia = process.env.RESEND_AUDIENCE_ID;
-  if (!token || !audiencia) {
+  if (!token) {
     console.error(
-      `[suscripcion] falta RESEND_API_KEY o RESEND_AUDIENCE_ID: no se pudo suscribir a ${email}`
+      `[suscripcion] RESEND_API_KEY ausente: no se pudo suscribir a ${email}`
     );
     return json({ enviado: false, motivo: 'sin configurar' }, 502);
   }
 
   try {
-    const res = await fetch(
-      `https://api.resend.com/audiences/${audiencia}/contacts`,
-      {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ email, unsubscribed: false }),
-        signal: AbortSignal.timeout(10_000),
-      }
-    );
+    const res = await fetch('https://api.resend.com/contacts', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ email, unsubscribed: false }),
+      signal: AbortSignal.timeout(10_000),
+    });
 
     if (!res.ok) {
       const detalle = (await res.text().catch(() => '')).slice(0, 500);

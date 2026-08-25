@@ -2,7 +2,7 @@
  * Tests de la suscripción a novedades (/api/suscripcion).
  *
  * Ninguno sale a la red: `fetch` se sustituye por un doble que captura lo que
- * la función habría mandado a la audiencia de Resend.
+ * la función habría mandado a los contactos de Resend.
  */
 import { test, describe, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
@@ -26,7 +26,6 @@ const pedir = (cuerpo, { origin = ORIGEN, metodo = 'POST' } = {}) =>
 
 beforeEach(() => {
   process.env.RESEND_API_KEY = 'token-de-prueba';
-  process.env.RESEND_AUDIENCE_ID = 'aud-123';
   llamada = null;
 
   globalThis.fetch = async (url, init) => {
@@ -41,7 +40,6 @@ beforeEach(() => {
 afterEach(() => {
   globalThis.fetch = fetchReal;
   delete process.env.RESEND_API_KEY;
-  delete process.env.RESEND_AUDIENCE_ID;
 });
 
 describe('quién puede suscribirse', () => {
@@ -81,19 +79,12 @@ describe('sin configurar', () => {
     assert.equal((await res.json()).enviado, false);
     assert.equal(llamada, null);
   });
-
-  test('sin RESEND_AUDIENCE_ID tampoco', async () => {
-    delete process.env.RESEND_AUDIENCE_ID;
-    const res = await pedir({ email: 'r@e.com' });
-    assert.notEqual(res.status, 200);
-    assert.equal(llamada, null);
-  });
 });
 
 describe('lo que se le manda a Resend', () => {
-  test('a la audiencia configurada, con el correo', async () => {
+  test('al endpoint de contactos, con el correo', async () => {
     await pedir({ email: 'nueva@ejemplo.com' });
-    assert.match(llamada.url, /\/audiences\/aud-123\/contacts$/);
+    assert.match(llamada.url, /\/contacts$/);
     assert.equal(llamada.body.email, 'nueva@ejemplo.com');
     assert.equal(llamada.body.unsubscribed, false);
   });

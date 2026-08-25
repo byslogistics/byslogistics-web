@@ -260,8 +260,8 @@ responder directo) y una confirmación a la persona. `suscripcion` agrega el
 correo a la audiencia de Resend — no manda ningún correo por su cuenta, solo
 deja a la persona en la lista.
 
-Variables de entorno que necesitan (panel de Netlify, nunca en el
-repositorio): `RESEND_API_KEY`, `RESEND_AUDIENCE_ID` y, opcionales,
+Variable de entorno que necesitan (panel de Netlify, nunca en el
+repositorio): `RESEND_API_KEY`. `contacto.mts` acepta además, opcionales,
 `RESEND_FROM` y `RESEND_CONTACT_TO`. Ver la cabecera de cada función y el
 comentario en `netlify.toml` para el detalle. A diferencia de la API de
 Conversiones de Meta, estos dos endpoints **no tienen un camino de repuesto**:
