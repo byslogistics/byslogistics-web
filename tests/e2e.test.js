@@ -579,8 +579,12 @@ describe('cotizador', { skip: skip() }, () => {
     await abrirCotizacion(page);
     await page.waitForTimeout(400);
     await page.locator('[data-quote-qty]').first().fill('2500');
-    await page.fill('[data-quote-field="name"]', 'Richard');
     await page.fill('[data-quote-field="company"]', 'Transportes SAS');
+    await page.fill('[data-quote-field="nit"]', '900.000.000-0');
+    await page.fill('[data-quote-field="name"]', 'Richard');
+    await page.fill('[data-quote-field="phone"]', '300 000 0000');
+    await page.fill('[data-quote-field="city"]', 'Bogotá');
+    await page.fill('[data-quote-field="email"]', 'richard@transportes.co');
     await page.waitForTimeout(150);
 
     const url = await page.evaluate(() => {
@@ -597,8 +601,38 @@ describe('cotizador', { skip: skip() }, () => {
     assert.match(url, /^https:\/\/wa\.me\/573209514930\?text=/);
     const mensaje = decodeURIComponent(url.split('?text=')[1]);
     assert.match(mensaje, /2\.500 und\./, 'la cantidad debe ir formateada');
-    assert.match(mensaje, /Nombre: Richard/);
-    assert.match(mensaje, /Empresa: Transportes SAS/);
+    // Los seis datos del cotizador del hub, en su mismo orden.
+    assert.match(
+      mensaje,
+      /Empresa: Transportes SAS\nNIT o C\.C\.: 900\.000\.000-0\nNombre: Richard\nTeléfono: 300 000 0000\nCiudad: Bogotá\nCorreo: richard@transportes\.co/
+    );
+    await page.close();
+  });
+
+  test('omite del mensaje los datos que se dejan en blanco', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.locator('[data-quote-add]').first().click();
+    await abrirCotizacion(page);
+    await page.waitForTimeout(400);
+    await page.fill('[data-quote-field="city"]', 'Medellín');
+    await page.waitForTimeout(150);
+
+    const url = await page.evaluate(() => {
+      let captured = null;
+      const orig = window.open;
+      window.open = u => {
+        captured = u;
+        return null;
+      };
+      document.querySelector('[data-quote-send]').click();
+      window.open = orig;
+      return captured;
+    });
+    const mensaje = decodeURIComponent(url.split('?text=')[1]);
+    assert.match(mensaje, /Ciudad: Medellín/);
+    assert.doesNotMatch(mensaje, /Empresa:/);
+    assert.doesNotMatch(mensaje, /Correo:/);
     await page.close();
   });
 
