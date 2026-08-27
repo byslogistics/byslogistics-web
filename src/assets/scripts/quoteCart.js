@@ -18,6 +18,28 @@
 const STORAGE_KEY = 'bys-cotizacion';
 const DEFAULT_QTY = 1000;
 
+/**
+ * Los datos del solicitante, con la etiqueta con la que salen en el mensaje y
+ * en el orden en que se escriben.
+ *
+ * Los seis primeros son los que pide el cotizador del hub, en su mismo orden,
+ * para que el asesor pase la solicitud a la cotización formal sin volver a
+ * preguntar nada. El marcado de los campos está en QuoteCart.astro, en la
+ * constante `CAMPOS`: al tocar uno hay que tocar el otro.
+ *
+ * Ojo: los botones «Añadir» de las tarjetas llevan data-quote-name con el
+ * nombre del producto, así que los campos del panel usan data-quote-field.
+ */
+const CAMPOS_CLIENTE = [
+  ['company', 'Empresa'],
+  ['nit', 'NIT o C.C.'],
+  ['name', 'Nombre'],
+  ['phone', 'Teléfono'],
+  ['city', 'Ciudad'],
+  ['email', 'Correo'],
+  ['notes', 'Observaciones'],
+];
+
 /** @typedef {{id: string, name: string, group: string, qty: number}} QuoteLine */
 
 /** @returns {QuoteLine[]} */
@@ -248,22 +270,19 @@ function trapFocus(event) {
 
 /** Arma el texto del pedido para WhatsApp. */
 function buildMessage() {
-  // Ojo: los botones "Añadir" llevan data-quote-name con el nombre del
-  // producto, así que los campos del panel usan data-quote-field.
   const field = key =>
     document.querySelector(`[data-quote-field="${key}"]`)?.value.trim() ?? '';
-  const name = field('name');
-  const company = field('company');
-  const notes = field('notes');
 
   const parts = ['Hola, quisiera cotizar las siguientes referencias:', ''];
   lines.forEach((line, index) => {
     parts.push(`${index + 1}. ${line.name} — ${formatNumber(line.qty)} und.`);
   });
   parts.push('');
-  if (name) parts.push(`Nombre: ${name}`);
-  if (company) parts.push(`Empresa: ${company}`);
-  if (notes) parts.push(`Observaciones: ${notes}`);
+  // Lo que quedó en blanco no ocupa un renglón: nadie manda «Ciudad:» a secas.
+  for (const [key, etiqueta] of CAMPOS_CLIENTE) {
+    const valor = field(key);
+    if (valor) parts.push(`${etiqueta}: ${valor}`);
+  }
   return parts.join('\n');
 }
 

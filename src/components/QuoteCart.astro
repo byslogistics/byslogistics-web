@@ -25,6 +25,72 @@
  * porque `overflow: hidden` en el body no lo detiene.
  */
 import { CONTACT } from '@data/constants';
+
+/**
+ * Los datos de quien pide la cotización.
+ *
+ * Son los mismos seis campos, con el mismo orden y las mismas etiquetas, que
+ * pide el cotizador del hub (`cotizador/src/ui/PanelCotizacion.tsx` en
+ * Hub-Business-Supplies). Esa es toda la razón de que estén aquí: la solicitud
+ * llega por WhatsApp y el asesor la pasa a la cotización formal copiando
+ * renglón por renglón. Si los dos formularios no piden lo mismo, la diferencia
+ * se paga preguntando por chat lo que faltó.
+ *
+ * Al cambiar uno hay que cambiar el otro, y también la lista de
+ * `CAMPOS_CLIENTE` de @scripts/quoteCart.js, que es la que arma el mensaje.
+ */
+const CAMPOS = [
+  {
+    key: 'company',
+    etiqueta: 'Empresa',
+    type: 'text',
+    placeholder: 'Razón social',
+    autocomplete: 'organization',
+  },
+  {
+    key: 'nit',
+    etiqueta: 'NIT o C.C.',
+    type: 'text',
+    placeholder: '900.000.000-0',
+    autocomplete: 'off',
+  },
+  {
+    key: 'name',
+    etiqueta: 'Nombre completo',
+    type: 'text',
+    placeholder: 'Quién solicita la cotización',
+    autocomplete: 'name',
+  },
+  {
+    key: 'phone',
+    etiqueta: 'Teléfono',
+    type: 'tel',
+    placeholder: '300 000 0000',
+    autocomplete: 'tel',
+  },
+  {
+    key: 'city',
+    etiqueta: 'Ciudad',
+    type: 'text',
+    placeholder: 'Ciudad de entrega',
+    autocomplete: 'address-level2',
+  },
+  {
+    key: 'email',
+    etiqueta: 'Correo',
+    type: 'email',
+    placeholder: 'nombre@empresa.com',
+    autocomplete: 'email',
+  },
+  // `as const` para que `type` sea la unión literal que espera <input>, y no
+  // un `string` cualquiera.
+] as const;
+
+/* Repetidas en siete campos, valen más como constante que como literal. */
+const CLASE_ETIQUETA =
+  'text-xs font-bold tracking-wide text-neutral-700 uppercase dark:text-neutral-300';
+const CLASE_CAMPO =
+  'focus:border-brand-500 focus:ring-brand-200 rounded-xl border border-neutral-300 bg-white/70 px-3.5 py-2.5 text-sm text-neutral-800 outline-hidden focus:ring-3 dark:border-neutral-600 dark:bg-neutral-800/70 dark:text-neutral-100';
 ---
 
 <div
@@ -148,53 +214,38 @@ import { CONTACT } from '@data/constants';
             Sus datos
           </h3>
           <p class="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-            Opcionales, pero nos ahorran una pregunta al responderle.
+            Opcionales, pero son los que lleva la cotización: dejarlos aquí nos
+            ahorra pedírselos después.
           </p>
 
           <div class="mt-4 grid gap-3">
+            {
+              CAMPOS.map(campo => (
+                <label class="grid gap-1.5">
+                  <span class={CLASE_ETIQUETA}>{campo.etiqueta}</span>
+                  <input
+                    type={campo.type}
+                    data-quote-field={campo.key}
+                    autocomplete={campo.autocomplete}
+                    placeholder={campo.placeholder}
+                    class={CLASE_CAMPO}
+                  />
+                </label>
+              ))
+            }
             <label class="grid gap-1.5">
-              <span
-                class="text-xs font-bold tracking-wide text-neutral-700 uppercase dark:text-neutral-300"
-                >Nombre</span
-              >
-              <input
-                type="text"
-                data-quote-field="name"
-                autocomplete="name"
-                placeholder="Su nombre"
-                class="focus:border-brand-500 focus:ring-brand-200 rounded-xl border border-neutral-300 bg-white/70 px-3.5 py-2.5 text-sm text-neutral-800 outline-hidden focus:ring-3 dark:border-neutral-600 dark:bg-neutral-800/70 dark:text-neutral-100"
-              />
-            </label>
-            <label class="grid gap-1.5">
-              <span
-                class="text-xs font-bold tracking-wide text-neutral-700 uppercase dark:text-neutral-300"
-                >Empresa</span
-              >
-              <input
-                type="text"
-                data-quote-field="company"
-                autocomplete="organization"
-                placeholder="Razón social"
-                class="focus:border-brand-500 focus:ring-brand-200 rounded-xl border border-neutral-300 bg-white/70 px-3.5 py-2.5 text-sm text-neutral-800 outline-hidden focus:ring-3 dark:border-neutral-600 dark:bg-neutral-800/70 dark:text-neutral-100"
-              />
-            </label>
-            <label class="grid gap-1.5">
-              <span
-                class="text-xs font-bold tracking-wide text-neutral-700 uppercase dark:text-neutral-300"
-                >Observaciones</span
-              >
+              <span class={CLASE_ETIQUETA}>Observaciones</span>
               <textarea
-                rows="4"
+                rows="3"
                 data-quote-field="notes"
-                placeholder="Ciudad de entrega, personalización, plazos…"
-                class="focus:border-brand-500 focus:ring-brand-200 rounded-xl border border-neutral-300 bg-white/70 px-3.5 py-2.5 text-sm text-neutral-800 outline-hidden focus:ring-3 dark:border-neutral-600 dark:bg-neutral-800/70 dark:text-neutral-100"
-              ></textarea>
+                placeholder="Personalización, plazos, otros detalles…"
+                class={CLASE_CAMPO}></textarea>
             </label>
           </div>
         </div>
 
         <div
-          class="shrink-0 border-t border-neutral-900/10 px-5 py-4 sm:px-8 dark:border-white/10"
+          class="cotizador-envio shrink-0 border-t border-neutral-900/10 px-5 py-4 sm:px-8 dark:border-white/10"
         >
           <button
             type="button"
@@ -252,6 +303,22 @@ import { CONTACT } from '@data/constants';
     border-color: rgb(255 255 255 / 0.1);
   }
 
+  /* El botón de enviar se queda pegado al pie mientras se llenan los datos.
+     En móvil el panel entero es un solo carril de desplazamiento y, con los
+     seis campos de la cotización, el botón quedaba a un rodillo largo del
+     último dato que se escribe. De lg en adelante no hace falta: ahí la
+     columna lateral tiene su propio scroll y el botón ya está fuera de él. */
+  .cotizador-envio {
+    position: sticky;
+    bottom: 0;
+    background-color: rgb(255 255 255 / 0.92);
+    backdrop-filter: blur(12px);
+  }
+
+  :global(.dark) .cotizador-envio {
+    background-color: rgb(23 23 23 / 0.92);
+  }
+
   @media (min-width: 640px) {
     .cotizador-columna {
       padding: 1.5rem 2rem;
@@ -282,6 +349,12 @@ import { CONTACT } from '@data/constants';
       min-height: 0;
       overflow-y: auto;
       overscroll-behavior: contain;
+    }
+
+    .cotizador-envio {
+      position: static;
+      background-color: transparent;
+      backdrop-filter: none;
     }
   }
 </style>

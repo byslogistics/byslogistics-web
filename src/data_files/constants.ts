@@ -95,11 +95,11 @@ export const LEGAL = {
       nombre: 'Política de privacidad',
       nombreLargo: 'Política de privacidad del sitio web',
       // Sube cada vez que cambia lo que el sitio hace con los datos de quien
-      // lo visita. La última: los formularios pasan de Netlify Forms a
-      // Resend, que ahora es quien entrega los correos y guarda la lista de
-      // suscripción.
-      actualizado: '25 de agosto de 2026',
-      actualizadoISO: '2026-08-25',
+      // lo visita. La última: el cotizador pasa a pedir los mismos datos que
+      // la cotización formal —NIT o cédula, teléfono, ciudad y correo, además
+      // de empresa y nombre—, que siguen viajando solo por WhatsApp.
+      actualizado: '27 de agosto de 2026',
+      actualizadoISO: '2026-08-27',
     },
     {
       url: '/politica-de-datos',
