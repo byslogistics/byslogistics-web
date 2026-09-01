@@ -57,8 +57,14 @@ export const SINONIMOS: Array<{ busca: string; escribe: string[] }> = [
   {
     // «Candado» solo ya lleva a los precintos tipo candado, y así debe
     // seguir. La frase completa es la que hay que rescatar.
+    //
+    // «candado plastico» SALIÓ de esta lista: desde la actualización del
+    // catálogo hay una referencia que se llama «Precinto Tipo Candado
+    // Plástico», así que esa búsqueda ya da en el clavo sola y traducirla
+    // la haría más ancha, no más útil — que es justo lo que prohíbe la
+    // regla 1 de arriba.
     busca: 'precinto tipo candado',
-    escribe: ['candado plastico', 'candado de seguridad'],
+    escribe: ['candado de seguridad'],
   },
   {
     busca: 'guaya',

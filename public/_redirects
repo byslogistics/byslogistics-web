@@ -1,0 +1,117 @@
+# Redirecciones 301 de las fichas que cambiaron de dirección.
+#
+# POR QUÉ EXISTE ESTE ARCHIVO. La dirección de una ficha sale de su nombre
+# (ver `slugify` en src/utils/catalog.ts), así que la actualización del
+# catálogo de 2026 —que renombró casi todas las referencias con el nombre
+# comercial de la dueña— movió de sitio 100 páginas. Sin estas líneas, lo que
+# Google tiene indexado y lo que un cliente guardó en favoritos responde 404,
+# y la autoridad que esas páginas habían ganado se pierde en vez de heredarse.
+#
+# CUÁNDO SE TOCA. Cada vez que se renombre una referencia hay que añadir aquí
+# su dirección vieja. Nunca se borra una línea: una redirección vieja no
+# estorba, y quitarla vuelve a romper un enlace que ya estaba arreglado.
+#
+# FORMATO: <dirección vieja> <dirección nueva> 301. Netlify hace coincidir con
+# y sin barra final, así que se escriben sin ella, como los enlaces del sitio.
+# Este archivo vive en public/, así que se copia tal cual a dist/ al construir.
+
+/precintos/precintos-de-ancla/precinto-ancla-cajas                                       /precintos/precintos-de-ancla/precinto-ancla-para-cajas-de-seguridad-plasticas  301
+/precintos/precintos-de-botella/precinto-botella-bs-02                                   /precintos/precintos-de-botella/precinto-botella-bs-02-iso-pas-17712  301
+/precintos/precintos-de-botella/precinto-botella-one-seal                                /precintos/precintos-de-botella/precinto-botella-one-seal-iso-pas-17712  301
+/precintos/precintos-de-botella/precinto-guaya-botella-130-cms                           /precintos/precintos-de-botella/precinto-guaya-botella-130-cm-iso-pas-17712  301
+/precintos/precintos-de-correa-dentada/precinto-correa-03-doble-cierre-35-cms            /precintos/precintos-de-correa-dentada/precinto-dentado-doble-cierre-35-cm  301
+/precintos/precintos-de-correa-dentada/precinto-correa-dentada-mini                      /precintos/precintos-de-correa-dentada/precinto-correa-dentada-18-cm  301
+/precintos/precintos-de-correa-dentada/precinto-correa-dentada-plana-30-cms              /precintos/precintos-de-correa-dentada/precinto-de-seguridad-correa-dentada-plana-30-cm  301
+/precintos/precintos-de-correa-dentada/precinto-dentado-doble-cierre-35-cms              /precintos/precintos-de-correa-dentada/precinto-correa-dentada-doble-cierre-35-cm  301
+/precintos/precintos-de-correa-dentada/precinto-dentado-doble-cierre-39-cms              /precintos/precintos-de-correa-dentada/precinto-dentado-doble-cierre-39-cm  301
+/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms                     /precintos/precintos-de-correa-dentada/precinto-correa-doble-dentado-38-cm  301
+/precintos/precintos-de-correa-espiral/precinto-correa-espiral-24-cms                    /precintos/precintos-de-correa-espiral/precinto-de-correa-espiral-24-cm  301
+/precintos/precintos-de-correa-espiral/precinto-correa-espiral-33-cms                    /precintos/precintos-de-correa-espiral/precinto-de-correa-espiral-33-cm  301
+/precintos/precintos-de-dado-y-zuncho/precinto-dado-grande-tp-con-guaya-de-30-cms        /precintos/precintos-de-dado-y-zuncho/precinto-dado-grande-con-guaya  301
+/precintos/precintos-de-dado-y-zuncho/precinto-dado-grande-tp-con-zuncho-de-30-cms       /precintos/precintos-de-dado-y-zuncho/precinto-dado-grande-con-zuncho  301
+/precintos/precintos-de-dado-y-zuncho/precinto-dado-pequeno-tp-con-guaya-de-30-cms       /precintos/precintos-de-dado-y-zuncho/precinto-dado-pequeno-con-guaya-30-cm  301
+/precintos/precintos-de-dado-y-zuncho/precinto-dado-pequeno-tp-con-zuncho-de-30-cms      /precintos/precintos-de-dado-y-zuncho/precinto-dado-pequeno-con-zuncho-30-cm  301
+/precintos/precintos-de-dado-y-zuncho/precinto-zuncho-paleta-40-cms                      /precintos/precintos-de-dado-y-zuncho/precinto-zuncho-paleta  301
+/precintos/precintos-de-guaya/precinto-cable-nylon-40-cms                                /precintos/precintos-de-guaya/precinto-de-seguridad-cable-nylon-40-cm  301
+/precintos/precintos-de-guaya/precinto-guaya-ref-01-120-cms                              /precintos/precintos-de-guaya/precinto-de-guaya-ref-01-120-cm  301
+/precintos/precintos-de-guaya/precinto-guaya-ref-01-40-cms                               /precintos/precintos-de-guaya/precinto-de-guaya-ref-01-40-cm  301
+/precintos/precintos-de-guaya/precinto-guaya-ref-02-120-cms                              /precintos/precintos-de-guaya/precinto-de-guaya-ref-02-120-cm  301
+/precintos/precintos-de-guaya/precinto-guaya-ref-02-40-cms                               /precintos/precintos-de-guaya/precinto-de-guaya-ref-02-40-cm  301
+/precintos/precintos-de-guaya/precinto-guaya-ref-02-60-cms                               /precintos/precintos-de-guaya/precinto-de-guaya-ref-02-60-cm  301
+/precintos/precintos-de-guaya/precinto-guaya-tornillo                                    /precintos/precintos-de-guaya/precinto-de-guaya-con-tornillo  301
+/precintos/precintos-metalicos-y-accesorios/chapa-de-seguridad                           /precintos/precintos-metalicos-y-accesorios/chapa-de-seguridad-para-medidores  301
+/precintos/precintos-metalicos-y-accesorios/kit-de-seguridad                             /precintos/precintos-metalicos-y-accesorios/kit-de-seguridad-para-contenedores  301
+/precintos/precintos-metalicos-y-accesorios/precinto-multiproposito                      /precintos/precintos-metalicos-y-accesorios/precinto-de-seguridad-multiproposito  301
+/precintos/precintos-planos/precinto-plano-36-cms                                        /precintos/precintos-planos/precinto-correa-plana-36-cm  301
+/precintos/precintos-planos/precinto-plano-42-cms                                        /precintos/precintos-planos/precinto-correa-plana-de-42-cm  301
+/precintos/precintos-rotor-y-tornillo/precinto-rotor-3-con-guaya-30-cms                  /precintos/precintos-rotor-y-tornillo/precinto-de-seguridad-rotor-3-guaya-30-cm  301
+/precintos/precintos-rotor-y-tornillo/precinto-rotor-4-vp-con-guaya-30-cms               /precintos/precintos-rotor-y-tornillo/precinto-de-seguridad-rotor-4  301
+/precintos/precintos-rotor-y-tornillo/precinto-rotor-ref-01-con-guaya-20-cms             /precintos/precintos-rotor-y-tornillo/precinto-tipo-rotor-ref-01  301
+/precintos/precintos-rotor-y-tornillo/precinto-tornillo-9-con-guaya-30-cms               /precintos/precintos-rotor-y-tornillo/precinto-tipo-tornillo-9  301
+/precintos/precintos-tipo-candado/precinto-candado-cyc                                   /precintos/precintos-tipo-candado/precinto-tipo-candado-plastico  301
+/precintos/precintos-tipo-candado/precinto-candado                                       /precintos/precintos-tipo-candado/precinto-candado-con-alambre  301
+/precintos/precintos-tubulares/precinto-tubular-1                                        /precintos/precintos-tubulares/precinto-de-seguridad-tubular-1-24-y-38-cm  301
+/precintos/precintos-tubulares/precinto-tubular-2-20-cms                                 /precintos/precintos-tubulares/precinto-tubular-2-20-cm  301
+/precintos/precintos-tubulares/precinto-tubular-2-41-cms                                 /precintos/precintos-tubulares/precinto-tubular-41-cm  301
+/precintos/precintos-tubulares/precinto-tubular-2-70-cms                                 /precintos/precintos-tubulares/precinto-de-seguridad-tubular-2-80-cm  301
+/precintos/precintos-tubulares/precinto-tubular-3-30-cms                                 /precintos/precintos-tubulares/precinto-tubular-3-30-cm  301
+/precintos/precintos-tubulares/precinto-tubular-3-35-cms                                 /precintos/precintos-tubulares/precinto-de-seguridad-tubular-3-35-cm  301
+/productos/cajas-de-seguridad/caja-de-seguridad-60-x-40-x-32-cms                         /productos/cajas-de-seguridad/caja-de-seguridad-plastica-60-x-40-x-32-cm  301
+/productos/cajas-de-seguridad/caja-de-seguridad-60-x-40-x-40-cms                         /productos/cajas-de-seguridad/caja-de-seguridad-plastica-60-x-40-x-40-cm  301
+/productos/embalaje-protector/absorbente-dry-bag-hook-2-000-g                            /productos/embalaje-protector/absorbente-dry-bag-hook-x-2000-gramos  301
+/productos/embalaje-protector/absorbente-gk-gel-750-g                                    /productos/embalaje-protector/absorbente-gk-gel-750-gramos  301
+/productos/embalaje-protector/bolsa-inflable-eco-striker-120-x-85-cms                    /productos/embalaje-protector/bolsa-inflable-para-carga-eco-striker-120-x-85-cm  301
+/productos/embalaje-protector/bolsa-inflable-eco-striker-185-x-85-cms                    /productos/embalaje-protector/bolsa-inflable-para-carga-eco-striker-185-x-85-cm  301
+/productos/embalaje-protector/bolsa-inflable-flex-eco-120-x-85-cms                       /productos/embalaje-protector/bolsa-inflable-para-carga-flex-eco-120-x-85-cm  301
+/productos/embalaje-protector/bolsa-inflable-flex-eco-185-x-85-cms                       /productos/embalaje-protector/bolsa-inflable-para-carga-flex-eco-185-x-85-cm  301
+/productos/embalaje-protector/bolsa-inflable-flex-eco-220-x-100-cms                      /productos/embalaje-protector/bolsa-inflable-para-carga-flex-eco-220-x-100-cm  301
+/productos/embalaje-protector/bolsa-inflable-re-use-100-x-185-cms                        /productos/embalaje-protector/bolsa-inflable-para-carga-re-use-100-x-185-cm  301
+/productos/embalaje-protector/bolsa-inflable-re-use-120-x-85-cms                         /productos/embalaje-protector/bolsa-inflable-para-carga-re-use-120-x-85-cm  301
+/productos/embalaje-protector/infladora-quick                                            /productos/embalaje-protector/infladora-quick-bolsa-re-use  301
+/productos/embalaje-protector/infladora-striker                                          /productos/embalaje-protector/infladora-striker-bolsa-eco-striker  301
+/productos/embalaje-protector/pistola-bates-flex                                         /productos/embalaje-protector/pistola-bates-flex-bolsa-flex-eco  301
+/productos/etiquetas-y-cintas-de-seguridad/cinta-de-seguridad-50-x-3-cms                 /productos/etiquetas-y-cintas-de-seguridad/cinta-de-seguridad-void-50-m-x-3-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/cinta-de-seguridad-50-x-5-cms                 /productos/etiquetas-y-cintas-de-seguridad/rollo-void-troquelado-15-x-5-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-autodestructible-3-2-x-1-5-cms       /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-autodestructible-3-2-x-1-5-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-autodestructible-5-0-x-2-5-cms       /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-autodestructible-5-0-x-2-5-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-holograma-1-3-x-1-0-cms              /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-holograma-1-3-x-1-0-cm-plateado-dorado  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-holograma-2-2-x-1-5-cms              /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-holograma-2-2-x-1-5-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-holograma-3-2-x-2-5-cms              /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-holograma-3-2-x-2-5-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-holograma-3-6-x-2-3-cms              /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-holograma-3-6-x-2-3-transparente  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-holograma-4-0-x-1-0-cms              /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-holograma-4-0-x-1-0-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-holograma-4-2-x-1-8-cms              /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-holograma-4-2-x-1-8-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-holograma-4-6-x-1-7-cms              /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-holograma-4-6-x-1-7-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-holograma-4-7-x-2-2-cms              /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-holograma-4-7-x-2-2-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-holograma-4-7-x-2-5-cms              /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-holograma-4-7-x-2-5-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-holograma-5-0-x-2-0-cms              /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-holograma-5-0-x-2-0-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-holograma-7-x-1-cms                  /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-holograma-7-x-1-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-holograma-redonda-16-mm              /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-holograma-redonda-16-mm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-holograma-redonda-25-mm              /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-holograma-redonda-25-mm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-holograma-redonda-35-mm              /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-holograma-redonda-35-mm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-no-transfer-5-x-3-cms                /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-no-transfer-5-x-3-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-opened-10-x-5-cms                    /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-opened-10-x-5-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-opened-2-2-x-1-5-cms                 /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-opened-2-2-x-1-5-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-opened-3-2-x-1-5-cms                 /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-opened-3-2-x-1-5-cm-personalizada  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-opened-5-0-x-1-0-cms                 /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-opened-5-0-x-1-0-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-opened-5-0-x-2-5-cms-naranja-blanca  /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-opened-5-0-x-2-5-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-opened-5-0-x-2-5-cms                 /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-opened-5-0-x-2-5-cm-personalizada  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-opened-6-0-x-3-0-cms                 /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-opened-6-0-x-3-0-cm-verde  301
+/productos/etiquetas-y-cintas-de-seguridad/etiqueta-void-transferencia-total-5-x-3-cms   /productos/etiquetas-y-cintas-de-seguridad/etiqueta-de-seguridad-void-transferencia-total-5-x-3-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/holograma-dorado-5-0-x-2-5-cms                /productos/etiquetas-y-cintas-de-seguridad/holograma-de-seguridad-5-0-x-2-5-cm  301
+/productos/etiquetas-y-cintas-de-seguridad/holograma-importado-2-2-x-1-5-cms             /productos/etiquetas-y-cintas-de-seguridad/holograma-de-seguridad-2-2-x-1-5-cm-importada  301
+/productos/etiquetas-y-cintas-de-seguridad/rollo-void-troquelado-15-x-5-cms              /productos/etiquetas-y-cintas-de-seguridad/rollo-void-troquelado-15-x-5-cm  301
+/productos/tulas-y-bolsas-de-seguridad/bolsa-courier-25-x-19-cms                         /productos/tulas-y-bolsas-de-seguridad/bolsa-courier-de-seguridad-25-x-19-cm  301
+/productos/tulas-y-bolsas-de-seguridad/bolsa-courier-28-x-23-cms                         /productos/tulas-y-bolsas-de-seguridad/bolsa-courier-de-seguridad-28-x-23-cm  301
+/productos/tulas-y-bolsas-de-seguridad/bolsa-courier-33-x-25-cms                         /productos/tulas-y-bolsas-de-seguridad/bolsa-courier-de-seguridad-33-x-25-cm  301
+/productos/tulas-y-bolsas-de-seguridad/bolsa-courier-35-x-33-cms                         /productos/tulas-y-bolsas-de-seguridad/bolsa-courier-de-seguridad-35-x-33-cm  301
+/productos/tulas-y-bolsas-de-seguridad/bolsa-courier-39-x-28-cms                         /productos/tulas-y-bolsas-de-seguridad/bolsa-courier-de-seguridad-39-x-28-cm  301
+/productos/tulas-y-bolsas-de-seguridad/bolsa-courier-40-x-28-cms                         /productos/tulas-y-bolsas-de-seguridad/bolsa-courier-de-seguridad-40-x-28-cm  301
+/productos/tulas-y-bolsas-de-seguridad/bolsa-courier-45-x-41-cms                         /productos/tulas-y-bolsas-de-seguridad/bolsa-courier-de-seguridad-45-x-41-cm  301
+/productos/tulas-y-bolsas-de-seguridad/bolsa-courier-60-x-48-cms                         /productos/tulas-y-bolsas-de-seguridad/bolsa-courier-de-seguridad-60-x-48-cm  301
+/productos/tulas-y-bolsas-de-seguridad/bolsa-courier-60-x-60-cms                         /productos/tulas-y-bolsas-de-seguridad/bolsa-courier-de-seguridad-60-x-60-cm  301
+/productos/tulas-y-bolsas-de-seguridad/bolsa-de-seguridad-11-x-8-5-cms                   /productos/tulas-y-bolsas-de-seguridad/bolsa-de-seguridad-void-11-x-8-5-cm  301
+/productos/tulas-y-bolsas-de-seguridad/bolsa-de-seguridad-28-x-17-cms                    /productos/tulas-y-bolsas-de-seguridad/bolsa-de-seguridad-void-28-x-17-cm  301
+/productos/tulas-y-bolsas-de-seguridad/bolsa-de-seguridad-34-x-25-cms                    /productos/tulas-y-bolsas-de-seguridad/bolsa-de-seguridad-void-34-x-25-cm  301
+/productos/tulas-y-bolsas-de-seguridad/bolsa-de-seguridad-38-x-28-cms                    /productos/tulas-y-bolsas-de-seguridad/bolsa-de-seguridad-void-38-x-28-cm  301
+/productos/tulas-y-bolsas-de-seguridad/bolsa-de-seguridad-52-x-40-cms                    /productos/tulas-y-bolsas-de-seguridad/bolsa-de-seguridad-void-52-x-40-cm  301
+/productos/tulas-y-bolsas-de-seguridad/tula-de-seguridad-30-x-40-cms                     /productos/tulas-y-bolsas-de-seguridad/tula-de-seguridad-30-x-40-cm  301

@@ -117,15 +117,15 @@ describe('ficha de producto', { skip: skip() }, () => {
     });
 
     await page
-      .locator('a', { hasText: 'Precinto Doble Dentado 38 cms' })
+      .locator('a', { hasText: 'Precinto Correa Doble Dentado 38 cm' })
       .first()
       .click();
     await page.waitForLoadState('networkidle');
 
-    assert.match(page.url(), /\/precinto-doble-dentado-38-cms\/?$/);
+    assert.match(page.url(), /\/precinto-correa-doble-dentado-38-cm\/?$/);
     assert.equal(
       await page.locator('h1').textContent(),
-      'Precinto Doble Dentado 38 cms'
+      'Precinto Correa Doble Dentado 38 cm'
     );
 
     // El cotizador es el mismo del sitio, con la referencia ya adentro.
@@ -136,7 +136,7 @@ describe('ficha de producto', { skip: skip() }, () => {
     assert.equal(await panel.getAttribute('data-open'), 'true');
     assert.match(
       await panel.textContent(),
-      /Precinto Doble Dentado 38 cms/,
+      /Precinto Correa Doble Dentado 38 cm/,
       'la referencia no llegó al cotizador'
     );
     await page.close();
@@ -146,7 +146,7 @@ describe('ficha de producto', { skip: skip() }, () => {
     const page = await browser.newPage();
     await page.goto(
       base +
-        '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/',
+        '/precintos/precintos-de-correa-dentada/precinto-correa-doble-dentado-38-cm/',
       { waitUntil: 'networkidle' }
     );
 
@@ -201,7 +201,7 @@ describe('catálogo con filtros', { skip: skip() }, () => {
     const page = await browser.newPage();
     await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
 
-    assert.equal(await page.locator('#catalog-count').textContent(), '115');
+    assert.equal(await page.locator('#catalog-count').textContent(), '118');
 
     // Las categorías viven dentro del desplegable de su línea: en reposo no se
     // ve ninguna, y abrir una línea solo enseña las suyas.
@@ -215,7 +215,7 @@ describe('catálogo con filtros', { skip: skip() }, () => {
       .locator('input[value="familia:etiquetas-y-cintas-de-seguridad"]')
       .check();
     await page.waitForTimeout(150);
-    assert.equal(await page.locator('#catalog-count').textContent(), '33');
+    assert.equal(await page.locator('#catalog-count').textContent(), '35');
     assert.equal(
       await linea.locator('.filtro-opcion:visible').count(),
       6,
@@ -533,7 +533,7 @@ describe('catálogo con filtros', { skip: skip() }, () => {
     await page.waitForTimeout(150);
     await page.click('#catalog-reset');
     await page.waitForTimeout(150);
-    assert.equal(await page.locator('#catalog-count').textContent(), '115');
+    assert.equal(await page.locator('#catalog-count').textContent(), '118');
     await page.close();
   });
 });
