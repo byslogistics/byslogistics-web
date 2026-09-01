@@ -229,7 +229,7 @@ products:
   - name: 'Precinto de Seguridad Tubular 2 80 cm'
     description: 'Precinto plástico de seguridad tipo tubular o cola de ratón, con correa redonda, flexible y ajustable de aproximadamente 80 cm de longitud, diseñado para aplicaciones que requieren mayor alcance y capacidad de ajuste. Incorpora un inserto metálico en la cápsula de cierre que proporciona una sujeción firme y evita el retroceso de la correa una vez instalado. Su longitud permite asegurar elementos de gran tamaño o rodear superficies amplias donde un precinto convencional resulta demasiado corto.'
     image: ../../images/productos/precinto-tubular-ref-02-70-cms.jpg
-    imageAlt: 'Precinto tubular Ref. 02 de 70 cms'
+    imageAlt: 'Precinto tubular Ref. 02 de 80 cm'
     specs:
       - etiqueta: 'Longitud total'
         valor: '80 cm'
