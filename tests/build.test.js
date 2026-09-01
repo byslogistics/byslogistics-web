@@ -949,3 +949,90 @@ describe('guías de uso', () => {
     }
   });
 });
+
+/*
+ * Las redirecciones que sostienen lo que ya estaba indexado.
+ *
+ * La dirección de una ficha sale de su nombre, así que renombrar el catálogo
+ * mueve páginas de sitio. public/_redirects es lo que impide que eso se
+ * convierta en un 404 para quien llega desde Google o desde un favorito, y es
+ * un archivo que se edita a mano: estos tests son los que avisan cuando se
+ * queda desfasado.
+ */
+describe('redirecciones', () => {
+  /** Las reglas de public/_redirects, ya copiadas a dist/ al construir. */
+  function reglas() {
+    const archivo = join(DIST, '_redirects');
+    assert.ok(existsSync(archivo), 'no se copió _redirects a dist/');
+    return readFileSync(archivo, 'utf8')
+      .split('\n')
+      .map(l => l.trim())
+      .filter(l => l && !l.startsWith('#'))
+      .map(l => {
+        const [desde, hacia, estado] = l.split(/\s+/);
+        return { desde, hacia, estado };
+      });
+  }
+
+  /** Una ruta de ficha, con y sin barra final, tal como se sirve. */
+  const existe = ruta =>
+    pages().some(p => p.route.replace(/\/$/, '') === ruta.replace(/\/$/, ''));
+
+  test('todas son permanentes', () => {
+    // Sin esta cota, los demás tests pasarían con el archivo vacío.
+    assert.ok(
+      reglas().length > 50,
+      'se esperaban las redirecciones del catálogo 2026'
+    );
+    for (const r of reglas()) {
+      assert.equal(r.estado, '301', `${r.desde} no está declarada como 301`);
+    }
+  });
+
+  test('ninguna lleva a una página que no existe', () => {
+    for (const r of reglas()) {
+      assert.ok(
+        existe(r.hacia),
+        `${r.desde} redirige a ${r.hacia}, que no está en dist/`
+      );
+    }
+  });
+
+  /*
+   * Una regla cuyo origen SIGUE siendo una página del sitio no se aplica
+   * nunca: el archivo estático gana. Con los dos precintos que intercambiaron
+   * nombre en el catálogo de 2026, eso mandaría al visitante al producto
+   * equivocado sin que nadie se entere.
+   */
+  test('ninguna queda tapada por una página viva', () => {
+    for (const r of reglas()) {
+      assert.ok(
+        !existe(r.desde),
+        `${r.desde} sigue existiendo como página: su redirección nunca se aplicaría`
+      );
+    }
+  });
+
+  test('ningún origen se declara dos veces', () => {
+    const origenes = reglas().map(r => r.desde);
+    const repetidos = origenes.filter((o, i) => origenes.indexOf(o) !== i);
+    assert.deepEqual([...new Set(repetidos)], [], 'hay orígenes duplicados');
+  });
+
+  test('ninguna encadena con otra', () => {
+    /*
+     * Redirigir a una dirección que a su vez redirige cuesta un salto de más y
+     * diluye lo que se hereda. Como cada renombrado se apunta contra la
+     * dirección VIVA, encadenar solo puede venir de una regla escrita a mano.
+     */
+    const porOrigen = new Map(
+      reglas().map(r => [r.desde.replace(/\/$/, ''), r.hacia])
+    );
+    for (const r of reglas()) {
+      assert.ok(
+        !porOrigen.has(r.hacia.replace(/\/$/, '')),
+        `${r.desde} lleva a ${r.hacia}, que a su vez redirige`
+      );
+    }
+  });
+});
