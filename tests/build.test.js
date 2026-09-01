@@ -642,19 +642,19 @@ describe('medición', () => {
 });
 
 describe('catálogo', () => {
-  test('publica las 116 referencias del listado', () => {
+  test('publica las 118 referencias del listado', () => {
     const p = pages().find(x => x.route === '/catalogo/');
     // Solo las tarjetas: el atributo también aparece dentro del selector del
     // script de filtrado, y contarlo daría uno de más.
     const count = (p.html.match(/<article[^>]*data-catalog-item/g) ?? [])
       .length;
-    assert.equal(count, 116, `se esperaban 116 referencias, hay ${count}`);
+    assert.equal(count, 118, `se esperaban 118 referencias, hay ${count}`);
   });
 
   test('cada referencia se puede añadir a la cotización', () => {
     const p = pages().find(x => x.route === '/catalogo/');
     const adds = (p.html.match(/data-quote-add="/g) ?? []).length;
-    assert.equal(adds, 116);
+    assert.equal(adds, 118);
   });
 
   test('los identificadores de referencia no se repiten', () => {

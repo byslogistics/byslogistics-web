@@ -77,7 +77,7 @@ products:
         answer: 'Sí. BYS LOGISTICS S.A.S. realiza envíos a ciudades y municipios de Colombia.'
       - question: '¿Dónde comprar precinto de guaya ref. 01 40 cm en Colombia?'
         answer: 'BYS LOGISTICS S.A.S. suministra precinto de guaya ref. 01 40 cm para empresas, con opciones de stock, personalización y despachos a nivel nacional.'
-  - name: 'Precinto de Guaya Ref. 01 60 cm'
+  - name: 'Precinto Guaya Ref. 01 - 60 cms'
     image: ../../images/productos/precinto-guaya-ref-01.jpg
     imageAlt: 'Precinto de guaya Ref. 01 con cuerpo metálico azul'
   - name: 'Precinto de Guaya Ref. 01 120 cm'

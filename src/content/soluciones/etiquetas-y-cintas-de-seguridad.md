@@ -80,6 +80,7 @@ groups:
           - question: '¿Realizan envíos a nivel nacional?'
             answer: 'Sí. BYS LOGISTICS S.A.S. realiza despachos en Colombia.'
       - name: 'Cinta de Seguridad VOID 50 m x 5 cm'
+        slug: 'cinta-de-seguridad-void-50-m-x-5-cm'
         description: 'Cinta de seguridad tamper evident en rollo de 50 metros, diseñada para dejar evidencia visible de apertura mediante mensaje VOID al ser retirada de la superficie donde fue adherida. Puede utilizarse sobre cartón, metal, madera y vidrio, y solicitarse sin impresión o personalizada con logo e información de la empresa.'
         specs:
           - etiqueta: 'Ancho'
@@ -105,49 +106,123 @@ groups:
     specs:
       - etiqueta: 'Material'
       - etiqueta: 'Medidas'
-        valor: '5 × 3 cm'
+      - etiqueta: 'Longitud del rollo'
+      - etiqueta: 'Ancho'
       - etiqueta: 'Tipo de seguridad'
-        valor: 'Evidencia VOID'
     medidas:
       valores:
         - etiqueta: 'Medidas'
-          valor: '5 × 3 cm'
-    personalizacion:
-      - 'Logo'
-      - 'Texto'
-      - 'Numeración o diseño personalizado'
-    moq:
-      unidades: 1000
-    usos:
-      - 'Sellos de garantía'
-      - 'Cajas y empaques'
-      - 'Equipos electrónicos'
-      - 'Productos farmacéuticos y cosméticos'
-      - 'Documentos'
-      - 'Activos'
-      - 'Puertas, gabinetes y superficies de control'
-    sectores:
-      - 'Tecnología y electrónica'
-      - 'Farmacéutico'
-      - 'Cosmético'
-      - 'Comercio y retail'
-      - 'Industria'
-      - 'Logística'
-      - 'Servicio técnico y garantías'
-      - 'Alimentos y consumo masivo'
-    presentacion:
-      - 'Rollo x 1000 unidades'
+        - etiqueta: 'Longitud del rollo'
+        - etiqueta: 'Ancho'
     products:
-      - name: 'Rollo VOID Troquelado 15 x 5 cms'
-        description: 'Rojo.'
+      - name: 'Cinta de Seguridad VOID 50 m x 5 cm'
+        slug: 'rollo-void-troquelado-15-x-5-cm'
+        description: 'Cinta de seguridad tamper evident en rollo de 50 metros, diseñada para dejar evidencia visible de apertura mediante mensaje VOID al ser retirada de la superficie donde fue adherida. Puede utilizarse sobre cartón, metal, madera y vidrio, y solicitarse sin impresión o personalizada con logo e información de la empresa.'
+        specs:
+          - etiqueta: 'Material'
+            valor: 'Poliéster'
+          - etiqueta: 'Longitud del rollo'
+            valor: 'Rollo de 50 metros'
+          - etiqueta: 'Ancho'
+            valor: '5 cm'
+          - etiqueta: 'Tipo de seguridad'
+            valor: 'Adhesivo tamper evident con evidencia VOID'
+        medidas:
+          valores:
+            - etiqueta: 'Longitud del rollo'
+              valor: 'Rollo de 50 metros'
+            - etiqueta: 'Ancho'
+              valor: '5 cm'
+        colores:
+          - nombre: 'Según referencia: rojo'
+          - nombre: 'Azul'
+            hex: '#1273e0'
+          - nombre: 'Verde'
+            hex: '#2ba84a'
+          - nombre: 'Turquesa'
+          - nombre: 'Plateado'
+            hex: '#c0c0c0'
+          - nombre: 'Dorado'
+            hex: '#d4af37'
+          - nombre: 'Naranja'
+            hex: '#f07d1a'
+          - nombre: 'Violeta y otros'
+        personalizacion:
+          - 'Personalizable con logo e información de la empresa desde 1 rollo'
+          - 'También disponible sin impresión'
+        moq:
+          unidades: 1
+          nota: 'Desde 1 rollo para personalización'
+        usos:
+          - 'Cajas y empaques'
+          - 'Domicilios'
+          - 'Transporte y logística'
+          - 'Sellos de garantía'
+          - 'Puertas y gabinetes'
+          - 'Superficies metálicas, de madera, vidrio y cartón'
+        sectores:
+          - 'Comercio electrónico'
+          - 'Logística y transporte'
+          - 'Retail'
+          - 'Industria y manufactura'
+          - 'Tecnología'
+          - 'Farmacéutico'
+          - 'Alimentos'
+          - 'Servicio técnico y garantías'
+        presentacion:
+          - 'Rollo de 50 metros'
+        faq:
+          - question: '¿Qué ocurre cuando se retira la cinta de seguridad?'
+            answer: 'Al despegarla deja evidencia visible tipo VOID, permitiendo identificar que la superficie o empaque fue abierto o intervenido.'
+          - question: '¿Sobre qué superficies se puede utilizar?'
+            answer: 'Puede aplicarse sobre cajas de cartón y superficies metálicas, de madera y vidrio, siempre verificando previamente la compatibilidad del adhesivo.'
+          - question: '¿Se puede personalizar?'
+            answer: 'Sí. Puede personalizarse con logo e información de la empresa desde 1 rollo, o adquirirse sin impresión.'
+          - question: '¿Cuál es la presentación?'
+            answer: 'Se suministra en rollos de 50 metros y anchos de 3 cm o 5 cm según la referencia.'
+          - question: '¿Realizan envíos a nivel nacional?'
+            answer: 'Sí. BYS LOGISTICS S.A.S. realiza despachos en Colombia.'
       - name: 'Etiqueta de Seguridad VOID Transferencia Total 5 x 3 cm'
         description: 'Etiqueta de Seguridad Tamper Evident diseñada para proteger empaques, productos, equipos y superficies frente a aperturas o sustituciones no autorizadas. Su tecnología deja evidencia visible de apertura o manipulación al intentar retirarla. Es una solución práctica para sellos de garantía, control de activos, trazabilidad y protección de producto.'
         specs:
           - etiqueta: 'Material'
             valor: 'Poliéster'
+          - etiqueta: 'Medidas'
+            valor: '5 × 3 cm'
+          - etiqueta: 'Tipo de seguridad'
+            valor: 'Evidencia VOID'
+        medidas:
+          valores:
+            - etiqueta: 'Medidas'
+              valor: '5 × 3 cm'
         colores:
           - nombre: 'Azul'
             hex: '#1273e0'
+        personalizacion:
+          - 'Logo'
+          - 'Texto'
+          - 'Numeración o diseño personalizado'
+        moq:
+          unidades: 1000
+        usos:
+          - 'Sellos de garantía'
+          - 'Cajas y empaques'
+          - 'Equipos electrónicos'
+          - 'Productos farmacéuticos y cosméticos'
+          - 'Documentos'
+          - 'Activos'
+          - 'Puertas, gabinetes y superficies de control'
+        sectores:
+          - 'Tecnología y electrónica'
+          - 'Farmacéutico'
+          - 'Cosmético'
+          - 'Comercio y retail'
+          - 'Industria'
+          - 'Logística'
+          - 'Servicio técnico y garantías'
+          - 'Alimentos y consumo masivo'
+        presentacion:
+          - 'Rollo x 1000 unidades'
         faq:
           - question: '¿Para qué sirve esta etiqueta de seguridad?'
             answer: 'Sirve para evidenciar intentos de apertura, retiro o sustitución y fortalecer el control de productos, empaques y activos.'
@@ -172,6 +247,14 @@ groups:
         specs:
           - etiqueta: 'Material'
             valor: 'Material autoadhesivo de seguridad'
+          - etiqueta: 'Medidas'
+            valor: '5 × 3 cm'
+          - etiqueta: 'Tipo de seguridad'
+            valor: 'Evidencia VOID'
+        medidas:
+          valores:
+            - etiqueta: 'Medidas'
+              valor: '5 × 3 cm'
         colores:
           - nombre: 'Blanco'
             hex: '#ffffff'
@@ -180,6 +263,31 @@ groups:
           - nombre: 'Verde'
             hex: '#2ba84a'
           - nombre: 'Azul y amarillo'
+        personalizacion:
+          - 'Logo'
+          - 'Texto'
+          - 'Numeración o diseño personalizado'
+        moq:
+          unidades: 1000
+        usos:
+          - 'Sellos de garantía'
+          - 'Cajas y empaques'
+          - 'Equipos electrónicos'
+          - 'Productos farmacéuticos y cosméticos'
+          - 'Documentos'
+          - 'Activos'
+          - 'Puertas, gabinetes y superficies de control'
+        sectores:
+          - 'Tecnología y electrónica'
+          - 'Farmacéutico'
+          - 'Cosmético'
+          - 'Comercio y retail'
+          - 'Industria'
+          - 'Logística'
+          - 'Servicio técnico y garantías'
+          - 'Alimentos y consumo masivo'
+        presentacion:
+          - 'Rollo x 1000 unidades'
         faq:
           - question: '¿Para qué sirve esta etiqueta de seguridad?'
             answer: 'Sirve para evidenciar intentos de apertura, retiro o sustitución y fortalecer el control de productos, empaques y activos.'
@@ -261,7 +369,7 @@ groups:
             answer: 'Sí. BYS LOGISTICS S.A.S. realiza despachos a diferentes ciudades y municipios de Colombia.'
           - question: '¿Dónde comprar etiquetas de seguridad en Colombia?'
             answer: 'BYS LOGISTICS S.A.S. suministra etiquetas tamper evident, autodestructibles y holográficas para diferentes necesidades de seguridad y trazabilidad.'
-      - name: 'Etiqueta de Seguridad Opened 3.2 x 1.5 cm'
+      - name: 'Etiqueta de Seguridad Opened 3.2 x 1.5 cm Personalizada'
         description: 'Etiqueta de Seguridad Tamper Evident diseñada para proteger empaques, productos, equipos y superficies frente a aperturas o sustituciones no autorizadas. Su tecnología deja evidencia visible de apertura o manipulación al intentar retirarla. Es una solución práctica para sellos de garantía, control de activos, trazabilidad y protección de producto.'
         specs:
           - etiqueta: 'Medidas'
@@ -275,7 +383,41 @@ groups:
         colores:
           - nombre: 'Plata mate'
             hex: '#b8b8b8'
-        notaPersonalizacion: '*Disponible personalizada o sin impresión.'
+        moq:
+          unidades: 500
+        presentacion:
+          - 'Rollo x 500 unidades'
+        faq:
+          - question: '¿Para qué sirve esta etiqueta de seguridad?'
+            answer: 'Sirve para evidenciar intentos de apertura, retiro o sustitución y fortalecer el control de productos, empaques y activos.'
+          - question: '¿Qué ocurre al intentar retirarla?'
+            answer: 'Deja evidencia visible de apertura o manipulación al intentar retirarla.'
+          - question: '¿Es reutilizable?'
+            answer: 'No. Está diseñada para que una intervención deje evidencia y no pueda reutilizarse como una etiqueta convencional.'
+          - question: '¿Se puede personalizar?'
+            answer: 'Dependiendo de la referencia y cantidad, puede desarrollarse con logo, numeración, código de barras, mensajes de seguridad u otros elementos de identificación.'
+          - question: '¿Dónde se puede utilizar?'
+            answer: 'En cajas, empaques, equipos, productos, documentos y superficies compatibles que requieran control de apertura o autenticidad.'
+          - question: '¿Realizan envíos a nivel nacional?'
+            answer: 'Sí. BYS LOGISTICS S.A.S. realiza despachos a diferentes ciudades y municipios de Colombia.'
+          - question: '¿Dónde comprar etiquetas de seguridad en Colombia?'
+            answer: 'BYS LOGISTICS S.A.S. suministra etiquetas tamper evident, autodestructibles y holográficas para diferentes necesidades de seguridad y trazabilidad.'
+      - name: 'Etiqueta de Seguridad Opened 3.2 x 1.5 cm'
+        description: 'Etiqueta de Seguridad Tamper Evident diseñada para proteger empaques, productos, equipos y superficies frente a aperturas o sustituciones no autorizadas. Su tecnología deja evidencia visible de apertura o manipulación al intentar retirarla. Es una solución práctica para sellos de garantía, control de activos, trazabilidad y protección de producto.'
+        specs:
+          - etiqueta: 'Medidas'
+            valor: '3,2 × 1,5 cm'
+          - etiqueta: 'Tipo de seguridad'
+            valor: 'Evidencia OPENED / ABIERTO'
+        medidas:
+          valores:
+            - etiqueta: 'Medidas'
+              valor: '3,2 × 1,5 cm'
+        colores:
+          - nombre: 'Plata mate'
+            hex: '#b8b8b8'
+        personalizacion:
+          - 'Sin impresión'
         moq:
           unidades: 500
         presentacion:
@@ -330,7 +472,7 @@ groups:
             answer: 'Sí. BYS LOGISTICS S.A.S. realiza despachos a diferentes ciudades y municipios de Colombia.'
           - question: '¿Dónde comprar etiquetas de seguridad en Colombia?'
             answer: 'BYS LOGISTICS S.A.S. suministra etiquetas tamper evident, autodestructibles y holográficas para diferentes necesidades de seguridad y trazabilidad.'
-      - name: 'Etiqueta de Seguridad Opened 5.0 x 2.5 cm'
+      - name: 'Etiqueta de Seguridad Opened 5.0 x 2.5 cm Personalizada'
         description: 'Etiqueta de Seguridad Tamper Evident diseñada para proteger empaques, productos, equipos y superficies frente a aperturas o sustituciones no autorizadas. Su tecnología deja evidencia visible de apertura o manipulación al intentar retirarla. Es una solución práctica para sellos de garantía, control de activos, trazabilidad y protección de producto.'
         specs:
           - etiqueta: 'Medidas'
@@ -344,7 +486,6 @@ groups:
         colores:
           - nombre: 'Plata mate'
             hex: '#b8b8b8'
-        notaPersonalizacion: '*Disponible personalizada o sin impresión.'
         moq:
           unidades: 500
         presentacion:
@@ -364,7 +505,42 @@ groups:
             answer: 'Sí. BYS LOGISTICS S.A.S. realiza despachos a diferentes ciudades y municipios de Colombia.'
           - question: '¿Dónde comprar etiquetas de seguridad en Colombia?'
             answer: 'BYS LOGISTICS S.A.S. suministra etiquetas tamper evident, autodestructibles y holográficas para diferentes necesidades de seguridad y trazabilidad.'
-      - name: 'Etiqueta de Seguridad Opened 5.0 x 2.5 cm Naranja'
+      - name: 'Etiqueta de Seguridad Opened 5.0 x 2.5 cm sin impresión'
+        description: 'Etiqueta de Seguridad Tamper Evident diseñada para proteger empaques, productos, equipos y superficies frente a aperturas o sustituciones no autorizadas. Su tecnología deja evidencia visible de apertura o manipulación al intentar retirarla. Es una solución práctica para sellos de garantía, control de activos, trazabilidad y protección de producto.'
+        specs:
+          - etiqueta: 'Medidas'
+            valor: '5,0 × 2,5 cm'
+          - etiqueta: 'Tipo de seguridad'
+            valor: 'Evidencia OPEND'
+        medidas:
+          valores:
+            - etiqueta: 'Medidas'
+              valor: '5,0 × 2,5 cm'
+        colores:
+          - nombre: 'Plata mate'
+            hex: '#b8b8b8'
+        personalizacion:
+          - 'Sin impresión'
+        moq:
+          unidades: 500
+        presentacion:
+          - 'Rollo x 500 unidades'
+        faq:
+          - question: '¿Para qué sirve esta etiqueta de seguridad?'
+            answer: 'Sirve para evidenciar intentos de apertura, retiro o sustitución y fortalecer el control de productos, empaques y activos.'
+          - question: '¿Qué ocurre al intentar retirarla?'
+            answer: 'Deja evidencia visible de apertura o manipulación al intentar retirarla.'
+          - question: '¿Es reutilizable?'
+            answer: 'No. Está diseñada para que una intervención deje evidencia y no pueda reutilizarse como una etiqueta convencional.'
+          - question: '¿Se puede personalizar?'
+            answer: 'Dependiendo de la referencia y cantidad, puede desarrollarse con logo, numeración, código de barras, mensajes de seguridad u otros elementos de identificación.'
+          - question: '¿Dónde se puede utilizar?'
+            answer: 'En cajas, empaques, equipos, productos, documentos y superficies compatibles que requieran control de apertura o autenticidad.'
+          - question: '¿Realizan envíos a nivel nacional?'
+            answer: 'Sí. BYS LOGISTICS S.A.S. realiza despachos a diferentes ciudades y municipios de Colombia.'
+          - question: '¿Dónde comprar etiquetas de seguridad en Colombia?'
+            answer: 'BYS LOGISTICS S.A.S. suministra etiquetas tamper evident, autodestructibles y holográficas para diferentes necesidades de seguridad y trazabilidad.'
+      - name: 'Etiqueta de Seguridad Opened 5.0 x 2.5 cm'
         description: 'Etiqueta de Seguridad Tamper Evident diseñada para proteger empaques, productos, equipos y superficies frente a aperturas o sustituciones no autorizadas. Su tecnología deja evidencia visible de apertura o manipulación al intentar retirarla. Es una solución práctica para sellos de garantía, control de activos, trazabilidad y protección de producto.'
         specs:
           - etiqueta: 'Medidas'

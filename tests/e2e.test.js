@@ -201,7 +201,7 @@ describe('catálogo con filtros', { skip: skip() }, () => {
     const page = await browser.newPage();
     await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
 
-    assert.equal(await page.locator('#catalog-count').textContent(), '116');
+    assert.equal(await page.locator('#catalog-count').textContent(), '118');
 
     // Las categorías viven dentro del desplegable de su línea: en reposo no se
     // ve ninguna, y abrir una línea solo enseña las suyas.
@@ -215,7 +215,7 @@ describe('catálogo con filtros', { skip: skip() }, () => {
       .locator('input[value="familia:etiquetas-y-cintas-de-seguridad"]')
       .check();
     await page.waitForTimeout(150);
-    assert.equal(await page.locator('#catalog-count').textContent(), '33');
+    assert.equal(await page.locator('#catalog-count').textContent(), '35');
     assert.equal(
       await linea.locator('.filtro-opcion:visible').count(),
       6,
@@ -533,7 +533,7 @@ describe('catálogo con filtros', { skip: skip() }, () => {
     await page.waitForTimeout(150);
     await page.click('#catalog-reset');
     await page.waitForTimeout(150);
-    assert.equal(await page.locator('#catalog-count').textContent(), '116');
+    assert.equal(await page.locator('#catalog-count').textContent(), '118');
     await page.close();
   });
 });
