@@ -1,0 +1,126 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro';
+import MainSection from '@components/ui/blocks/MainSection.astro';
+import Breadcrumb from '@components/ui/blocks/Breadcrumb.astro';
+import Icon from '@components/ui/icons/Icon.astro';
+import backdrop from '@images/backgrounds/precinto-tecnologia.jpg';
+import { SITE } from '@data/constants';
+import { FAMILIAS } from '@data/preguntas';
+import { getPreguntasPorFamilia } from '@utils/preguntas';
+
+/**
+ * Hub de preguntas frecuentes.
+ *
+ * Reparte hacia las seis familias. No lista las sesenta preguntas de una vez a
+ * propósito: una lista así no se lee, y la página que tiene que posicionarse
+ * para «precintos botella» es el índice de esa familia, no esta.
+ */
+const porFamilia = await getPreguntasPorFamilia();
+const familias = FAMILIAS.map(familia => ({
+  ...familia,
+  preguntas: porFamilia.get(familia.id) ?? [],
+})).sort((a, b) => a.order - b.order);
+
+const total = familias.reduce((n, f) => n + f.preguntas.length, 0);
+
+const pageTitle = `Preguntas frecuentes sobre precintos y sellos de seguridad | ${SITE.title}`;
+const metaDescription =
+  'Qué es un precinto, qué tipos existen, qué exige la norma ISO/PAS 17712 y cómo elegir el adecuado. Respuestas por familia de producto.';
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'CollectionPage',
+      '@id': `${SITE.url}/preguntas`,
+      url: `${SITE.url}/preguntas`,
+      name: pageTitle,
+      description: metaDescription,
+      inLanguage: 'es-CO',
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE.url },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Preguntas',
+          item: `${SITE.url}/preguntas`,
+        },
+      ],
+    },
+  ],
+};
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={metaDescription}
+  customOgTitle="Preguntas frecuentes"
+  structuredData={structuredData}
+>
+  <MainSection
+    title="Preguntas frecuentes"
+    subTitle={`${total} respuestas sobre precintos, etiquetas y control de carga, agrupadas por línea de producto. Si busca una referencia concreta, el catálogo la tiene; si todavía no sabe cuál necesita, empiece por aquí.`}
+    backdrop={backdrop}
+  />
+
+  <section class="mx-auto max-w-[85rem] px-10 pt-10 sm:px-14 lg:px-20">
+    <Breadcrumb items={[{ name: 'Inicio', url: '/' }, { name: 'Preguntas' }]} />
+  </section>
+
+  <section class="mx-auto max-w-[85rem] px-10 py-12 sm:px-14 lg:px-20">
+    <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        familias.map(familia => (
+          <li>
+            <a
+              href={`/preguntas/${familia.id}`}
+              class="group hover:border-brand-400 dark:hover:border-brand-400 flex h-full flex-col rounded-2xl border border-neutral-300 bg-neutral-50 p-6 ring-zinc-500 outline-hidden transition duration-300 hover:-translate-y-1 hover:shadow-lg focus-visible:ring-3 dark:border-neutral-700 dark:bg-neutral-950 dark:ring-zinc-200"
+            >
+              <h2 class="text-lg font-bold text-balance text-neutral-800 dark:text-neutral-100">
+                {familia.title}
+              </h2>
+              <p class="mt-3 grow text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                {familia.description}
+              </p>
+              <span class="text-brand-600 dark:text-brand-400 mt-5 inline-flex items-center gap-x-2 text-sm font-bold">
+                {familia.preguntas.length} preguntas
+                <span class="transition-transform duration-300 group-hover:translate-x-1">
+                  <Icon name="arrowRight" />
+                </span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section
+    class="border-t border-neutral-300 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900"
+  >
+    <div class="mx-auto max-w-[85rem] px-10 py-14 sm:px-14 lg:px-20">
+      <div class="max-w-3xl">
+        <h2
+          class="text-2xl font-bold text-neutral-800 lg:text-3xl dark:text-neutral-100"
+        >
+          ¿Busca algo más concreto?
+        </h2>
+        <p class="mt-4 leading-relaxed text-neutral-600 dark:text-neutral-400">
+          Las <a
+            href="/usos"
+            class="text-brand-700 dark:text-brand-400 font-bold hover:underline"
+            >guías de uso</a
+          > resuelven aplicaciones completas —cómo precintar un carrotanque, qué llevar
+          en una tula de recaudo—, y en <a
+            href="/faq"
+            class="text-brand-700 dark:text-brand-400 font-bold hover:underline"
+            >preguntas rápidas</a
+          > están las respuestas cortas sobre pedidos, despachos y personalización.
+        </p>
+      </div>
+    </div>
+  </section>
+</MainLayout>

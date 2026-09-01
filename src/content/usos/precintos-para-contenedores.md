@@ -3,6 +3,7 @@ title: 'Precintos de seguridad para contenedores marítimos y furgones'
 description: 'Qué precinto usar en la puerta de un contenedor marítimo y de un furgón, cómo instalarlo y cómo verificarlo al recibir la carga.'
 order: 1
 sector: 'Transporte'
+actualizado: 2026-08-22
 summary: 'La puerta de un contenedor es el punto más expuesto de toda la ruta. Qué precinto va ahí y cómo verificarlo.'
 heroImage: ../../images/productos/precinto-guaya-ref-01.jpg
 heroImageAlt: 'Precinto de guaya con cuerpo metálico azul y numeración grabada'

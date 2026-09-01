@@ -3,6 +3,7 @@ title: 'Etiquetas VOID y sellos de garantía: cómo evidenciar una apertura'
 description: 'Diferencias entre etiquetas VOID, OPENED, autodestructibles y holográficas, y en qué caso conviene cada una como sello de garantía.'
 order: 4
 sector: 'Alimentos, farmacéuticos y retail'
+actualizado: 2026-08-13
 summary: 'Cuatro tipos de etiqueta de seguridad y el criterio para elegir entre ellas.'
 heroImage: ../../images/productos/etiqueta-void-no-transfer.jpg
 heroImageAlt: 'Etiqueta VOID no transfer que deja la marca al retirarse'

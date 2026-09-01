@@ -1,0 +1,107 @@
+---
+import { getCollection } from 'astro:content';
+import MainLayout from '@/layouts/MainLayout.astro';
+import MainSection from '@components/ui/blocks/MainSection.astro';
+import Breadcrumb from '@components/ui/blocks/Breadcrumb.astro';
+import Icon from '@components/ui/icons/Icon.astro';
+import backdrop from '@images/backgrounds/precinto-tecnologia.jpg';
+import { SITE } from '@data/constants';
+
+/**
+ * Listado de novedades, de la más reciente a la más antigua.
+ *
+ * Es la sección más pequeña del sitio a propósito. Si algún día crece más que
+ * las guías o las preguntas, es señal de que se está publicando como noticia
+ * algo que debería ser guía —y una guía se actualiza y conserva su posición,
+ * mientras que una noticia se hunde sola con la siguiente.
+ */
+const novedades = (await getCollection('novedades')).sort(
+  (a, b) => b.data.fecha.getTime() - a.data.fecha.getTime()
+);
+
+const pageTitle = `Novedades | ${SITE.title}`;
+const metaDescription =
+  'Cambios normativos, certificaciones y referencias nuevas en el catálogo de precintos y elementos de seguridad de BYS Logistics.';
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'CollectionPage',
+      '@id': `${SITE.url}/novedades`,
+      url: `${SITE.url}/novedades`,
+      name: pageTitle,
+      description: metaDescription,
+      inLanguage: 'es-CO',
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE.url },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Novedades',
+          item: `${SITE.url}/novedades`,
+        },
+      ],
+    },
+  ],
+};
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={metaDescription}
+  customOgTitle="Novedades"
+  structuredData={structuredData}
+>
+  <MainSection
+    title="Novedades"
+    subTitle="Cambios normativos, certificaciones y referencias nuevas. Lo que sí tiene fecha: para todo lo demás están las guías y las preguntas frecuentes."
+    backdrop={backdrop}
+  />
+
+  <section class="mx-auto max-w-[85rem] px-10 pt-10 sm:px-14 lg:px-20">
+    <Breadcrumb items={[{ name: 'Inicio', url: '/' }, { name: 'Novedades' }]} />
+  </section>
+
+  <section class="mx-auto max-w-[85rem] px-10 py-12 sm:px-14 lg:px-20">
+    <ul class="flex max-w-3xl flex-col gap-6">
+      {
+        novedades.map(novedad => (
+          <li>
+            <a
+              href={`/novedades/${novedad.id}`}
+              class="group hover:border-brand-400 dark:hover:border-brand-400 flex flex-col rounded-2xl border border-neutral-300 bg-neutral-50 p-6 ring-zinc-500 outline-hidden transition duration-300 hover:-translate-y-1 hover:shadow-lg focus-visible:ring-3 dark:border-neutral-700 dark:bg-neutral-950 dark:ring-zinc-200"
+            >
+              <time
+                datetime={novedad.data.fecha.toISOString().slice(0, 10)}
+                class="text-brand-700 dark:text-brand-400 text-sm font-bold tracking-wide uppercase"
+              >
+                {novedad.data.fecha.toLocaleDateString('es-CO', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  timeZone: 'UTC',
+                })}
+              </time>
+              <h2 class="mt-2 text-xl font-bold text-balance text-neutral-800 dark:text-neutral-100">
+                {novedad.data.title}
+              </h2>
+              <p class="mt-3 leading-relaxed text-neutral-600 dark:text-neutral-400">
+                {novedad.data.resumen}
+              </p>
+              <span class="text-brand-600 dark:text-brand-400 mt-4 inline-flex items-center gap-x-2 text-sm font-bold">
+                Leer
+                <span class="transition-transform duration-300 group-hover:translate-x-1">
+                  <Icon name="arrowRight" />
+                </span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</MainLayout>

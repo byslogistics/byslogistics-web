@@ -1,13 +1,22 @@
 ---
 import Icon from '@components/ui/icons/Icon.astro';
 // Define props from Astro
-const { id, collapseId, question, answer, first } = Astro.props;
+const { id, collapseId, question, answer, masEn, first } = Astro.props;
 // Define TypeScript interface for props
 interface Props {
   id: string;
   collapseId: string;
   question: string;
   answer: string;
+  /**
+   * Ruta a la respuesta completa, cuando existe.
+   *
+   * Aquí va la versión corta; la larga tiene su propia página en /preguntas.
+   * Con este enlace las dos se ayudan en vez de competir: quien resuelve su
+   * duda en dos líneas se queda, y quien quiere el detalle sabe dónde está —y
+   * el buscador entiende cuál de las dos es la página de esa pregunta.
+   */
+  masEn?: string;
   first?: boolean;
 }
 // Define class names for the accordion and its content
@@ -47,5 +56,16 @@ function getAccordionClass(first: boolean = false) {
     <p class="text-pretty text-neutral-600 dark:text-neutral-400">
       {answer}
     </p>
+    {
+      masEn && (
+        <a
+          href={masEn}
+          class="text-brand-700 dark:text-brand-400 mt-3 inline-flex items-center gap-x-1.5 text-sm font-bold ring-zinc-500 outline-hidden hover:underline focus-visible:ring-3 dark:ring-zinc-200"
+        >
+          Leer la respuesta completa
+          <Icon name="arrowRight" />
+        </a>
+      )
+    }
   </div>
 </div>

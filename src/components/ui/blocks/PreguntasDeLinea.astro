@@ -1,0 +1,81 @@
+---
+import Icon from '@components/ui/icons/Icon.astro';
+import { preguntasPorCategoria } from '@utils/preguntas';
+
+/**
+ * Las preguntas frecuentes que hablan de esta línea de producto.
+ *
+ * EL SENTIDO INVERSO DEL ENLACE. Ninguna categoría declara sus preguntas: cada
+ * pregunta declara de qué líneas habla, y este bloque invierte esa lista en el
+ * build. Mantener las dos direcciones a mano termina siempre con una
+ * desactualizada; derivando una de la otra, no puede pasar.
+ *
+ * Sirve a las dos puntas del embudo: a quien llegó a la categoría y todavía
+ * duda —se lleva la respuesta sin salir a buscarla— y al buscador, que ve la
+ * categoría enlazada con el contenido que la explica.
+ *
+ * Si la línea no tiene preguntas, no se pinta nada: un encabezado sin lista
+ * debajo es peor que no tener la sección.
+ */
+interface Props {
+  /** URL de la categoría, tal como la declaran las preguntas. */
+  url: string;
+  /** Cuántas enseñar como máximo. */
+  limite?: number;
+}
+
+const { url, limite = 6 } = Astro.props;
+
+const porCategoria = await preguntasPorCategoria();
+const preguntas = (porCategoria.get(url) ?? []).slice(0, limite);
+const familia = preguntas[0]?.familia;
+---
+
+{
+  preguntas.length > 0 && (
+    <section class="mx-auto max-w-[85rem] px-10 py-14 sm:px-14 lg:px-20">
+      <div class="max-w-3xl">
+        <h2 class="text-2xl font-bold text-neutral-800 lg:text-3xl dark:text-neutral-100">
+          Preguntas frecuentes sobre esta línea
+        </h2>
+        <p class="mt-3 text-neutral-600 dark:text-neutral-400">
+          Lo que más nos preguntan antes de elegir una referencia.
+        </p>
+      </div>
+
+      <ul class="mt-8 grid gap-4 sm:grid-cols-2">
+        {preguntas.map(pregunta => (
+          <li>
+            <a
+              href={pregunta.url}
+              class="group hover:border-brand-400 dark:hover:border-brand-400 flex h-full flex-col rounded-2xl border border-neutral-300 bg-neutral-50 p-5 ring-zinc-500 outline-hidden transition duration-300 hover:-translate-y-1 hover:shadow-lg focus-visible:ring-3 dark:border-neutral-700 dark:bg-neutral-950 dark:ring-zinc-200"
+            >
+              <h3 class="font-bold text-balance text-neutral-800 dark:text-neutral-100">
+                {pregunta.title}
+              </h3>
+              <p class="mt-2 grow text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                {pregunta.description}
+              </p>
+              <span class="text-brand-600 dark:text-brand-400 mt-4 inline-flex items-center gap-x-2 text-sm font-bold">
+                Leer la respuesta
+                <span class="transition-transform duration-300 group-hover:translate-x-1">
+                  <Icon name="arrowRight" />
+                </span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      {familia && (
+        <a
+          href={`/preguntas/${familia.id}`}
+          class="text-brand-700 dark:text-brand-400 mt-8 inline-flex items-center gap-x-2 font-bold ring-zinc-500 outline-hidden hover:underline focus-visible:ring-3 dark:ring-zinc-200"
+        >
+          Ver todas las preguntas sobre {familia.title.toLowerCase()}
+          <Icon name="arrowRight" />
+        </a>
+      )}
+    </section>
+  )
+}

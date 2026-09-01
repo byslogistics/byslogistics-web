@@ -421,3 +421,195 @@ describe('preguntas heredadas por las fichas de producto', () => {
     }
   });
 });
+
+/**
+ * La colección de preguntas y los enlaces que la sostienen.
+ *
+ * Estas páginas salen del documento de preguntas frecuentes de la dueña, y su
+ * valor no está solo en el texto: está en que cada una enlaza a las líneas de
+ * producto que menciona, y en que esas líneas enlazan de vuelta. Ese cruce se
+ * declara UNA vez —en `categorias`— y se deriva en las dos direcciones, así que
+ * un destino mal escrito rompe las dos a la vez y en silencio.
+ */
+describe('preguntas frecuentes con página propia', () => {
+  const DIR = P('src/content/preguntas');
+
+  /** Todas las preguntas, con su familia y su frontmatter en crudo. */
+  function preguntas() {
+    return readdirSync(DIR, { withFileTypes: true })
+      .filter(e => e.isDirectory())
+      .flatMap(familia =>
+        readdirSync(join(DIR, familia.name))
+          .filter(f => f.endsWith('.md'))
+          .map(f => ({
+            familia: familia.name,
+            slug: f.replace(/\.md$/, ''),
+            fm: frontmatter(join(DIR, familia.name, f)),
+          }))
+      );
+  }
+
+  /** Los ids de familia declarados en el archivo de datos. */
+  function familiasDeclaradas() {
+    const fuente = readFileSync(P('src/data_files/preguntas.ts'), 'utf8');
+    return new Set(
+      [...fuente.matchAll(/^\s{4}id: '([^']+)'/gm)].map(m => m[1])
+    );
+  }
+
+  /** Las URLs de categoría que el sitio publica de verdad. */
+  function categoriasReales() {
+    return new Set([
+      ...readdirSync(P('src/content/precintos'))
+        .filter(f => f.endsWith('.md'))
+        .map(f => `/precintos/${f.replace(/\.md$/, '')}`),
+      ...readdirSync(P('src/content/soluciones'))
+        .filter(f => f.endsWith('.md'))
+        .map(f => `/productos/${f.replace(/\.md$/, '')}`),
+    ]);
+  }
+
+  const valores = (fm, campo) =>
+    [
+      ...fm.matchAll(new RegExp(`^${campo}:\\n((?:\\s+- .*\\n)+)`, 'gm')),
+    ].flatMap(m => [...m[1].matchAll(/- '([^']+)'/g)].map(x => x[1]));
+
+  test('hay preguntas publicadas y ninguna carpeta vacía', () => {
+    const todas = preguntas();
+    assert.ok(
+      todas.length >= 50,
+      `se esperaban las del documento, hay ${todas.length}`
+    );
+    for (const familia of familiasDeclaradas()) {
+      const suyas = todas.filter(p => p.familia === familia);
+      assert.ok(suyas.length > 0, `la familia ${familia} no tiene preguntas`);
+    }
+  });
+
+  test('cada pregunta declara los campos que su página necesita', () => {
+    for (const { familia, slug, fm } of preguntas()) {
+      for (const campo of ['title', 'description', 'familia', 'order']) {
+        assert.match(
+          fm,
+          new RegExp(`^${campo}:`, 'm'),
+          `${familia}/${slug} no declara ${campo}`
+        );
+      }
+    }
+  });
+
+  /*
+   * `aPregunta` en utils/preguntas.ts descarta en silencio la pregunta cuya
+   * familia no existe. Es lo correcto —mejor omitirla que publicar media
+   * página— pero deja de ser correcto si nadie se entera: este test es el que
+   * avisa.
+   */
+  test('ninguna pregunta apunta a una familia que no existe', () => {
+    const declaradas = familiasDeclaradas();
+    for (const { familia, slug, fm } of preguntas()) {
+      const suya = fm.match(/^familia: '([^']+)'/m)?.[1];
+      assert.ok(
+        declaradas.has(suya),
+        `${familia}/${slug} declara la familia «${suya}», que no existe`
+      );
+      assert.equal(
+        suya,
+        familia,
+        `${familia}/${slug} está en una carpeta que no es su familia`
+      );
+    }
+  });
+
+  test('la carpeta de cada pregunta manda sobre su URL', () => {
+    const vistos = new Set();
+    for (const { familia, slug } of preguntas()) {
+      const url = `/preguntas/${familia}/${slug}`;
+      assert.ok(!vistos.has(url), `${url} está declarada dos veces`);
+      vistos.add(url);
+    }
+  });
+
+  test('cada pregunta enlaza a líneas de producto que existen', () => {
+    const reales = categoriasReales();
+    let conEnlace = 0;
+    for (const { familia, slug, fm } of preguntas()) {
+      const categorias = valores(fm, 'categorias');
+      if (categorias.length) conEnlace++;
+      for (const url of categorias) {
+        assert.ok(
+          reales.has(url),
+          `${familia}/${slug} enlaza a ${url}, que no existe`
+        );
+      }
+    }
+    // Sin este enlace la página es tráfico que no vende: se lee y se sale.
+    assert.equal(
+      conEnlace,
+      preguntas().length,
+      'hay preguntas sin ninguna línea de producto'
+    );
+  });
+
+  test('las guías y las preguntas hermanas que cita existen', () => {
+    const guias = new Set(
+      readdirSync(P('src/content/usos'))
+        .filter(f => f.endsWith('.md'))
+        .map(f => f.replace(/\.md$/, ''))
+    );
+    const todas = preguntas();
+    for (const { familia, slug, fm } of todas) {
+      for (const guia of valores(fm, 'guias')) {
+        assert.ok(
+          guias.has(guia),
+          `${familia}/${slug} cita la guía ${guia}, que no existe`
+        );
+      }
+      for (const hermana of valores(fm, 'relacionadas')) {
+        assert.ok(
+          todas.some(p => p.familia === familia && p.slug === hermana),
+          `${familia}/${slug} cita a ${hermana}, que no está en su familia`
+        );
+      }
+    }
+  });
+
+  /*
+   * /faq da la respuesta corta y enlaza a la larga. Un enlace roto aquí manda
+   * al visitante a un 404 justo cuando decidió profundizar, que es el peor
+   * momento para perderlo.
+   */
+  test('los enlaces de /faq a la respuesta larga apuntan a algo', () => {
+    const faqs = JSON.parse(
+      readFileSync(P('src/data_files/faqs.json'), 'utf8')
+    );
+    const reales = new Set(
+      preguntas().map(p => `/preguntas/${p.familia}/${p.slug}`)
+    );
+    const enlaces = faqs.categories
+      .flatMap(c => c.faqs)
+      .map(f => f.masEn)
+      .filter(Boolean);
+    assert.ok(
+      enlaces.length > 0,
+      'ninguna respuesta corta enlaza a su versión larga'
+    );
+    for (const url of enlaces) {
+      assert.ok(reales.has(url), `/faq enlaza a ${url}, que no existe`);
+    }
+  });
+
+  test('cada novedad declara su fecha y su resumen', () => {
+    const dir = P('src/content/novedades');
+    const archivos = readdirSync(dir).filter(f => f.endsWith('.md'));
+    for (const nombre of archivos) {
+      const fm = frontmatter(join(dir, nombre));
+      for (const campo of ['title', 'description', 'fecha', 'resumen']) {
+        assert.match(
+          fm,
+          new RegExp(`^${campo}:`, 'm'),
+          `${nombre} no declara ${campo}`
+        );
+      }
+    }
+  });
+});

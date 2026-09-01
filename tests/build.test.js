@@ -1036,3 +1036,171 @@ describe('redirecciones', () => {
     }
   });
 });
+
+/**
+ * La sección de recursos: preguntas, guías y novedades.
+ *
+ * Lo que se comprueba aquí no es que las páginas existan —eso ya lo garantiza
+ * la colección— sino que el CRUCE funcione en el HTML final: que una pregunta
+ * enlace al catálogo y que el catálogo enlace de vuelta. Ese cruce se declara
+ * en un solo sitio y se deriva en las dos direcciones, así que si se rompe se
+ * rompe entero y en silencio.
+ */
+describe('recursos', () => {
+  const fichasDePregunta = () =>
+    pages().filter(p => /^\/preguntas\/[^/]+\/[^/]+\/$/.test(p.route));
+
+  test('se publican las preguntas del documento', () => {
+    assert.ok(
+      fichasDePregunta().length >= 50,
+      `se esperaban las del documento, hay ${fichasDePregunta().length}`
+    );
+  });
+
+  test('cada familia tiene su índice, y el hub las reparte', () => {
+    const hub = pages().find(p => p.route === '/preguntas/');
+    assert.ok(hub, 'falta /preguntas/');
+
+    const indices = pages().filter(p => /^\/preguntas\/[^/]+\/$/.test(p.route));
+    assert.equal(indices.length, 6, 'se esperaban las seis familias');
+    for (const indice of indices) {
+      const id = indice.route.replace(/\/preguntas\/|\/$/g, '');
+      assert.match(
+        hub.html,
+        new RegExp(`href="/preguntas/${id}"`),
+        `el hub no enlaza la familia ${id}`
+      );
+    }
+  });
+
+  test('cada pregunta lleva al catálogo', () => {
+    for (const p of fichasDePregunta()) {
+      assert.match(
+        p.html,
+        /href="\/(precintos|productos)\/[a-z0-9-]+"/,
+        `${p.route} no enlaza a ninguna línea de producto`
+      );
+    }
+  });
+
+  /*
+   * El sentido inverso. Es la mitad del valor de la sección: sin él, una visita
+   * que llegó por búsqueda lee y se va, y la categoría no recibe nada de la
+   * autoridad que gane el artículo.
+   */
+  test('las líneas de producto enlazan de vuelta a sus preguntas', () => {
+    const categorias = pages().filter(p =>
+      /^\/(precintos|productos)\/[^/]+\/$/.test(p.route)
+    );
+    const conBloque = categorias.filter(p =>
+      p.html.includes('Preguntas frecuentes sobre esta línea')
+    );
+    assert.ok(
+      conBloque.length >= 5,
+      `solo ${conBloque.length} categorías enlazan de vuelta a sus preguntas`
+    );
+    for (const p of conBloque) {
+      assert.match(
+        p.html,
+        /href="\/preguntas\/[^/]+\/[^"]+"/,
+        `${p.route} pinta el bloque pero no enlaza ninguna pregunta`
+      );
+    }
+  });
+
+  test('cada pregunta publica su FAQPage y sus migas', () => {
+    for (const p of fichasDePregunta()) {
+      assert.ok(p.html.includes('"FAQPage"'), `${p.route} sin FAQPage`);
+      assert.ok(
+        p.html.includes('"BreadcrumbList"'),
+        `${p.route} sin BreadcrumbList`
+      );
+    }
+  });
+
+  /*
+   * «Actualizado» en vez de «publicado»: es lo que permite refrescar una página
+   * sin escribir una nueva, conservando su dirección y su posición.
+   */
+  test('las guías publican cuándo se revisaron', () => {
+    const guias = pages().filter(p => /^\/usos\/[^/]+\/$/.test(p.route));
+    assert.ok(guias.length >= 6);
+    for (const guia of guias) {
+      assert.ok(
+        guia.html.includes('Actualizado el'),
+        `${guia.route} no dice cuándo se revisó`
+      );
+      assert.ok(
+        guia.html.includes('dateModified'),
+        `${guia.route} sin dateModified`
+      );
+    }
+  });
+
+  test('las novedades sí llevan fecha de publicación', () => {
+    const entradas = pages().filter(p =>
+      /^\/novedades\/[^/]+\/$/.test(p.route)
+    );
+    assert.ok(entradas.length >= 1, 'no hay ninguna novedad publicada');
+    for (const entrada of entradas) {
+      assert.ok(
+        entrada.html.includes('"BlogPosting"'),
+        `${entrada.route} sin BlogPosting`
+      );
+      assert.ok(
+        entrada.html.includes('datePublished'),
+        `${entrada.route} sin datePublished`
+      );
+    }
+  });
+
+  test('/faq lleva a la respuesta larga donde la hay', () => {
+    const faq = pages().find(p => p.route === '/faq/');
+    const enlaces = [...faq.html.matchAll(/href="(\/preguntas\/[^"]+)"/g)].map(
+      m => m[1]
+    );
+    assert.ok(
+      enlaces.length >= 5,
+      'casi ninguna respuesta corta enlaza la larga'
+    );
+    const rutas = new Set(pages().map(p => p.route.replace(/\/$/, '')));
+    for (const url of enlaces) {
+      assert.ok(rutas.has(url), `/faq enlaza a ${url}, que no se generó`);
+    }
+  });
+
+  test('el menú lleva a recursos y ya no duplica usos y faq', () => {
+    const home = pages().find(p => p.route === '/');
+    assert.match(
+      home.html,
+      /href="\/recursos"/,
+      'el menú no lleva a /recursos'
+    );
+    // Las dos páginas viejas siguen publicadas —están indexadas— y se enlazan
+    // desde el pie y desde /recursos, pero ya no ocupan sitio en el menú.
+    assert.ok(
+      pages().some(p => p.route === '/usos/'),
+      '/usos dejó de existir'
+    );
+    assert.ok(
+      pages().some(p => p.route === '/faq/'),
+      '/faq dejó de existir'
+    );
+  });
+
+  test('las páginas nuevas entran al sitemap', () => {
+    const sitemap = readFileSync(join(DIST, 'sitemap-0.xml'), 'utf8');
+    for (const ruta of ['/recursos/', '/preguntas/', '/novedades/']) {
+      assert.ok(
+        sitemap.includes(`byslogistics.com.co${ruta}`),
+        `${ruta} no está en el sitemap`
+      );
+    }
+    for (const p of fichasDePregunta().slice(0, 5)) {
+      assert.ok(
+        sitemap.includes(`byslogistics.com.co${p.route}`),
+        `${p.route} no está en el sitemap`
+      );
+    }
+  });
+});

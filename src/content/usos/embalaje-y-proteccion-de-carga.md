@@ -3,6 +3,7 @@ title: 'Bolsas inflables y absorbentes: cómo estibar y proteger la carga'
 description: 'Cómo evitar el corrimiento de carga y la humedad dentro del contenedor con bolsas inflables, absorbentes de humedad e infladoras.'
 order: 9
 sector: 'Comercio exterior'
+actualizado: 2026-08-13
 summary: 'La carga no siempre se pierde por robo: se pierde por moverse y por mojarse.'
 heroImage: ../../images/productos/air-bags-bolsas-inflables-para-carga.jpg
 heroImageAlt: 'Bolsa inflable para estibar carga en contenedor'

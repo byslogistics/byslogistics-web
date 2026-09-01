@@ -3,6 +3,7 @@ title: 'Precintos para carrotanques, válvulas y tapas de tanque'
 description: 'Cómo precintar válvulas, bocas de carga y tapas en el transporte de combustibles e hidrocarburos. Referencias y puntos de control.'
 order: 2
 sector: 'Combustibles e hidrocarburos'
+actualizado: 2026-08-22
 summary: 'En un carrotanque no se asegura una puerta, se aseguran varios puntos a la vez. Cuáles y con qué.'
 heroImage: ../../images/productos/precinto-rotor-ref-01.jpg
 heroImageAlt: 'Precinto rotor con guaya de acero para válvulas de carga'

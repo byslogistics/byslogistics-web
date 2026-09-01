@@ -3,6 +3,7 @@ title: 'Tulas y bolsas de seguridad para transporte de valores y documentos'
 description: 'Qué tula o bolsa de seguridad usar para trasladar efectivo, documentos y muestras, y cómo funciona el cierre que evidencia la apertura.'
 order: 3
 sector: 'Financiero'
+actualizado: 2026-08-13
 summary: 'Efectivo, documentos y muestras viajan en un empaque que no se puede abrir dos veces sin que se note.'
 heroImage: ../../images/productos/tula-seguridad-cremallera.jpg
 heroImageAlt: 'Tula de seguridad con cierre de cremallera y portadocumentos'

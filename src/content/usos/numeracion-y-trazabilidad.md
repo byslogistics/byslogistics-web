@@ -3,6 +3,7 @@ title: 'Numeración y trazabilidad: cómo funciona la cadena de custodia'
 description: 'Qué es la cadena de custodia en logística, cómo se registra la numeración de los precintos y qué hacer cuando un número no coincide.'
 order: 6
 sector: 'Guía general'
+actualizado: 2026-08-13
 summary: 'El precinto es la mitad del control. La otra mitad es el número anotado y quien lo verifica.'
 heroImage: ../../images/productos/precinto-correa-plana-42-cms.jpg
 heroImageAlt: 'Precinto plano con superficie para numeración y código de barras'

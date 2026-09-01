@@ -3,6 +3,7 @@ title: 'Precintos electrónicos y rastreo satelital de la carga'
 description: 'Qué aporta un precinto electrónico frente a uno convencional y cuándo conviene sumar rastreo satelital a la operación.'
 order: 10
 sector: 'Transporte de alto valor'
+actualizado: 2026-08-13
 summary: 'El precinto convencional prueba la apertura al llegar. El electrónico avisa cuando ocurre.'
 heroImage: ../../images/productos/precinto-electronico.jpg
 heroImageAlt: 'Precinto electrónico con rastreo satelital'

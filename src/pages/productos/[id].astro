@@ -7,6 +7,7 @@ import MainLayout from '@/layouts/MainLayout.astro';
 import Breadcrumb from '@components/ui/blocks/Breadcrumb.astro';
 import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import Icon from '@components/ui/icons/Icon.astro';
+import PreguntasDeLinea from '@components/ui/blocks/PreguntasDeLinea.astro';
 import { CONTACT, SITE } from '@data/constants';
 import { getReferencias } from '@utils/catalog';
 import { eventoDeListado } from '@utils/analytics';
@@ -218,6 +219,8 @@ const referenceCount = solucion.data.groups.reduce(
       </section>
     )
   }
+
+  <PreguntasDeLinea url={`/productos/${Astro.params.id}`} />
 
   <HeroSectionAlt
     title="Estamos Aquí Para Ayudarle, Contáctenos Ahora"

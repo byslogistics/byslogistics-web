@@ -1,0 +1,159 @@
+---
+import { getCollection } from 'astro:content';
+import MainLayout from '@/layouts/MainLayout.astro';
+import MainSection from '@components/ui/blocks/MainSection.astro';
+import Breadcrumb from '@components/ui/blocks/Breadcrumb.astro';
+import Icon from '@components/ui/icons/Icon.astro';
+import backdrop from '@images/backgrounds/precinto-tecnologia.jpg';
+import { SITE } from '@data/constants';
+import faqs from '@data/faqs.json';
+import { getPreguntas } from '@utils/preguntas';
+
+/**
+ * La puerta única a todo el material de consulta del sitio.
+ *
+ * Existe porque el menú tenía «Usos» y «FAQ's» por separado y ahora hay tres
+ * cosas que ofrecer, no dos: sumarlas al menú lo dejaba ilegible en el
+ * teléfono. Desde aquí se reparte a las tres.
+ *
+ * El orden en que se presentan no es casual, y responde a en qué punto está
+ * quien llega: primero las preguntas —para quien todavía no sabe qué necesita—,
+ * después las guías —para quien tiene el problema identificado— y al final las
+ * novedades, que son las que menos gente busca.
+ */
+const guias = (await getCollection('usos')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+const preguntas = await getPreguntas();
+const novedades = (await getCollection('novedades')).sort(
+  (a, b) => b.data.fecha.getTime() - a.data.fecha.getTime()
+);
+const preguntasRapidas = faqs.categories.reduce((n, c) => n + c.faqs.length, 0);
+
+const estantes = [
+  {
+    url: '/preguntas',
+    titulo: 'Preguntas frecuentes',
+    descripcion:
+      'Qué es cada tipo de precinto, en qué se diferencian y cuál conviene en cada caso. Respuestas completas, agrupadas por línea de producto.',
+    cuenta: `${preguntas.length} respuestas`,
+  },
+  {
+    url: '/usos',
+    titulo: 'Guías de uso',
+    descripcion:
+      'Aplicaciones completas: cómo precintar un carrotanque, qué llevar en una tula de recaudo, cómo asegurar un contenedor.',
+    cuenta: `${guias.length} guías`,
+  },
+  {
+    url: '/novedades',
+    titulo: 'Novedades',
+    descripcion:
+      'Cambios normativos, certificaciones y referencias nuevas en el catálogo. Lo único que lleva fecha.',
+    cuenta:
+      novedades.length === 1
+        ? '1 publicación'
+        : `${novedades.length} publicaciones`,
+  },
+];
+
+const pageTitle = `Recursos | ${SITE.title}`;
+const metaDescription =
+  'Preguntas frecuentes, guías de uso y novedades sobre precintos, etiquetas y control de carga. Todo el material de consulta de BYS Logistics.';
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'CollectionPage',
+      '@id': `${SITE.url}/recursos`,
+      url: `${SITE.url}/recursos`,
+      name: pageTitle,
+      description: metaDescription,
+      inLanguage: 'es-CO',
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE.url },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Recursos',
+          item: `${SITE.url}/recursos`,
+        },
+      ],
+    },
+  ],
+};
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={metaDescription}
+  customOgTitle="Recursos"
+  structuredData={structuredData}
+>
+  <MainSection
+    title="Recursos"
+    subTitle="Todo lo que conviene saber antes de elegir un precinto, una etiqueta o una bolsa de seguridad. Escrito por quien lleva quince años suministrándolos."
+    backdrop={backdrop}
+  />
+
+  <section class="mx-auto max-w-[85rem] px-10 pt-10 sm:px-14 lg:px-20">
+    <Breadcrumb items={[{ name: 'Inicio', url: '/' }, { name: 'Recursos' }]} />
+  </section>
+
+  <section class="mx-auto max-w-[85rem] px-10 py-12 sm:px-14 lg:px-20">
+    <ul class="grid gap-6 lg:grid-cols-3">
+      {
+        estantes.map(estante => (
+          <li>
+            <a
+              href={estante.url}
+              class="group hover:border-brand-400 dark:hover:border-brand-400 flex h-full flex-col rounded-2xl border border-neutral-300 bg-neutral-50 p-7 ring-zinc-500 outline-hidden transition duration-300 hover:-translate-y-1 hover:shadow-lg focus-visible:ring-3 dark:border-neutral-700 dark:bg-neutral-950 dark:ring-zinc-200"
+            >
+              <span class="text-brand-600 dark:text-brand-400 text-xs font-bold tracking-wide uppercase">
+                {estante.cuenta}
+              </span>
+              <h2 class="mt-2 text-xl font-bold text-balance text-neutral-800 dark:text-neutral-100">
+                {estante.titulo}
+              </h2>
+              <p class="mt-3 grow leading-relaxed text-neutral-600 dark:text-neutral-400">
+                {estante.descripcion}
+              </p>
+              <span class="text-brand-600 dark:text-brand-400 mt-5 inline-flex items-center gap-x-2 text-sm font-bold">
+                Entrar
+                <span class="transition-transform duration-300 group-hover:translate-x-1">
+                  <Icon name="arrowRight" />
+                </span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section
+    class="border-t border-neutral-300 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900"
+  >
+    <div class="mx-auto max-w-[85rem] px-10 py-14 sm:px-14 lg:px-20">
+      <div class="max-w-3xl">
+        <h2
+          class="text-2xl font-bold text-neutral-800 lg:text-3xl dark:text-neutral-100"
+        >
+          Dudas rápidas sobre pedidos y despachos
+        </h2>
+        <p class="mt-4 leading-relaxed text-neutral-600 dark:text-neutral-400">
+          Cantidades mínimas, tiempos de entrega, cobertura, facturación y
+          personalización: {preguntasRapidas} respuestas cortas en <a
+            href="/faq"
+            class="text-brand-700 dark:text-brand-400 font-bold hover:underline"
+            >preguntas frecuentes</a
+          >.
+        </p>
+      </div>
+    </div>
+  </section>
+</MainLayout>

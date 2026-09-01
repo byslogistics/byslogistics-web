@@ -7,7 +7,8 @@
       "faqs": [
         {
           "question": "¿Qué es un precinto de seguridad y para qué sirve?",
-          "answer": "Es un elemento diseñado para custodiar bienes y activos: evidencia cualquier intento de manipulación durante su uso y no puede retirarse sin dejar rastro. Se emplea para garantizar la trazabilidad y la cadena de custodia en operaciones de transporte y almacenamiento."
+          "answer": "Es un elemento diseñado para custodiar bienes y activos: evidencia cualquier intento de manipulación durante su uso y no puede retirarse sin dejar rastro. Se emplea para garantizar la trazabilidad y la cadena de custodia en operaciones de transporte y almacenamiento.",
+          "masEn": "/preguntas/precintos-de-seguridad/que-es-un-precinto-de-seguridad"
         },
         {
           "question": "¿Qué aporta un precinto a la cadena de suministro?",
@@ -19,7 +20,8 @@
         },
         {
           "question": "¿Qué tipos de precintos existen?",
-          "answer": "Por material son cinco. El plástico es el más usado en control logístico, inventarios, transporte y tulas de recaudo. El metálico resiste más y va donde el riesgo o las condiciones de operación son mayores. El de cable o guaya se adapta a distintos diámetros de cierre y suma resistencia. El de perno o botella es el de alta seguridad, certificado ISO/PAS 17712, para contenedores marítimos. Y el electrónico agrega monitoreo y rastreo satelital. En el catálogo esas familias se abren en once categorías, según la forma del cierre."
+          "answer": "Por material son cinco. El plástico es el más usado en control logístico, inventarios, transporte y tulas de recaudo. El metálico resiste más y va donde el riesgo o las condiciones de operación son mayores. El de cable o guaya se adapta a distintos diámetros de cierre y suma resistencia. El de perno o botella es el de alta seguridad, certificado ISO/PAS 17712, para contenedores marítimos. Y el electrónico agrega monitoreo y rastreo satelital. En el catálogo esas familias se abren en once categorías, según la forma del cierre.",
+          "masEn": "/preguntas/precintos-de-seguridad/tipos-de-precintos-que-existen"
         },
         {
           "question": "¿Qué tipos de productos manejan?",
@@ -27,23 +29,28 @@
         },
         {
           "question": "¿Qué diferencia hay entre un precinto plástico y uno metálico?",
-          "answer": "El plástico es más económico y se instala más rápido, así que es el habitual para volumen: canastillas, estibas, tulas de recaudo, trolleys de aerolínea, gavetas y despachos frecuentes. El metálico resiste mucho más el corte y la intemperie, y es el que corresponde en válvulas, medidores, surtidores, tapas de tanque y equipos industriales. Para la puerta de un contenedor marítimo el estándar es otro: el precinto botella o bolt seal certificado ISO/PAS 17712."
+          "answer": "El plástico es más económico y se instala más rápido, así que es el habitual para volumen: canastillas, estibas, tulas de recaudo, trolleys de aerolínea, gavetas y despachos frecuentes. El metálico resiste mucho más el corte y la intemperie, y es el que corresponde en válvulas, medidores, surtidores, tapas de tanque y equipos industriales. Para la puerta de un contenedor marítimo el estándar es otro: el precinto botella o bolt seal certificado ISO/PAS 17712.",
+          "masEn": "/preguntas/precintos-de-seguridad/diferencia-plastico-metalico-y-cable"
         },
         {
           "question": "¿Qué es un precinto botella o bolt seal?",
-          "answer": "Es un sello de alta seguridad con cuerpo de acero y cierre tipo perno y cápsula, diseñado para contenedores marítimos y operaciones de comercio exterior. Es el precinto que más se usa en exportación e importación porque resiste los intentos de apertura y es reconocido internacionalmente. Lo suministramos certificado bajo la norma ISO/PAS 17712, con logo, numeración consecutiva y código de barras."
+          "answer": "Es un sello de alta seguridad con cuerpo de acero y cierre tipo perno y cápsula, diseñado para contenedores marítimos y operaciones de comercio exterior. Es el precinto que más se usa en exportación e importación porque resiste los intentos de apertura y es reconocido internacionalmente. Lo suministramos certificado bajo la norma ISO/PAS 17712, con logo, numeración consecutiva y código de barras.",
+          "masEn": "/preguntas/precintos-botella/que-es-un-precinto-botella-o-bolt-seal"
         },
         {
           "question": "¿Qué es la norma ISO/PAS 17712 y por qué importa?",
-          "answer": "Es el estándar internacional que evalúa y clasifica los precintos de alta seguridad para contenedores marítimos. Certifica que el precinto cumple requisitos de resistencia física, identificación y desempeño, y es lo que navieras, autoridades aduaneras y operadores de comercio exterior suelen exigir en exportaciones e importaciones. Nuestros precintos botella certificados ISO/PAS 17712 se personalizan con logo, numeración y código de barras."
+          "answer": "Es el estándar internacional que evalúa y clasifica los precintos de alta seguridad para contenedores marítimos. Certifica que el precinto cumple requisitos de resistencia física, identificación y desempeño, y es lo que navieras, autoridades aduaneras y operadores de comercio exterior suelen exigir en exportaciones e importaciones. Nuestros precintos botella certificados ISO/PAS 17712 se personalizan con logo, numeración y código de barras.",
+          "masEn": "/preguntas/precintos-botella/que-es-la-norma-iso-pas-17712"
         },
         {
           "question": "¿Para qué sirven las etiquetas y cintas de seguridad?",
-          "answer": "Para asegurar superficies que no tienen un cierre mecánico donde poner un precinto: cajas, empaques, equipos o puertas de armario. Dejan evidencia visible ante cualquier intento de remoción —la leyenda VOID u OPENED queda impresa— y funcionan como sello de garantía o control de inventarios."
+          "answer": "Para asegurar superficies que no tienen un cierre mecánico donde poner un precinto: cajas, empaques, equipos o puertas de armario. Dejan evidencia visible ante cualquier intento de remoción —la leyenda VOID u OPENED queda impresa— y funcionan como sello de garantía o control de inventarios.",
+          "masEn": "/preguntas/etiquetas-y-cintas/que-son-las-etiquetas-y-cintas-de-seguridad"
         },
         {
           "question": "¿Qué tipos de etiquetas de seguridad existen?",
-          "answer": "Cinco, y se eligen por el tipo de evidencia que necesita. Las VOID dejan la palabra VOID o un patrón de seguridad al retirarlas; las OPENED muestran el mensaje de apertura; las No Transfer dejan la evidencia solo en la etiqueta y la superficie queda limpia, ideal para vehículos nuevos y puertas; las de cáscara de huevo se fragmentan y no pueden reutilizarse; y las holográficas ayudan a acreditar la autenticidad de un producto y son difíciles de reproducir."
+          "answer": "Cinco, y se eligen por el tipo de evidencia que necesita. Las VOID dejan la palabra VOID o un patrón de seguridad al retirarlas; las OPENED muestran el mensaje de apertura; las No Transfer dejan la evidencia solo en la etiqueta y la superficie queda limpia, ideal para vehículos nuevos y puertas; las de cáscara de huevo se fragmentan y no pueden reutilizarse; y las holográficas ayudan a acreditar la autenticidad de un producto y son difíciles de reproducir.",
+          "masEn": "/preguntas/etiquetas-y-cintas/tipos-void-opened-no-transfer-cascara-holografica"
         },
         {
           "question": "¿Qué son las tulas y bolsas de seguridad?",
@@ -55,7 +62,8 @@
         },
         {
           "question": "¿Qué es un precinto electrónico y qué puede detectar?",
-          "answer": "Es un dispositivo que combina el sellado de la carga con monitoreo y localización durante el trayecto, en lugar de verificar el sello solo al llegar. Según el modelo y la plataforma, permite conocer la ubicación en tiempo real, seguir la ruta, detectar aperturas o manipulaciones del precinto, identificar desviaciones y paradas no programadas y consultar el historial del recorrido. Se usa sobre todo en contenedores de importación y exportación y en mercancía de alto valor."
+          "answer": "Es un dispositivo que combina el sellado de la carga con monitoreo y localización durante el trayecto, en lugar de verificar el sello solo al llegar. Según el modelo y la plataforma, permite conocer la ubicación en tiempo real, seguir la ruta, detectar aperturas o manipulaciones del precinto, identificar desviaciones y paradas no programadas y consultar el historial del recorrido. Se usa sobre todo en contenedores de importación y exportación y en mercancía de alto valor.",
+          "masEn": "/preguntas/precintos-electronicos/que-es-un-precinto-electronico"
         }
       ]
     },
@@ -73,7 +81,8 @@
         },
         {
           "question": "¿Qué precintos usan las empresas de transporte de carga?",
-          "answer": "Rara vez uno solo: se combinan según el vehículo y el riesgo. Plásticos numerados en camiones y furgones de distribución, metálicos donde hace falta más resistencia, de cable o guaya en puntos de cierre con distintos diámetros, botella certificados ISO/PAS 17712 en contenedores marítimos y electrónicos con GPS cuando se necesita monitoreo en tiempo real. Lo mismo aplica a carrotanques, transporte multimodal y operaciones de cross docking."
+          "answer": "Rara vez uno solo: se combinan según el vehículo y el riesgo. Plásticos numerados en camiones y furgones de distribución, metálicos donde hace falta más resistencia, de cable o guaya en puntos de cierre con distintos diámetros, botella certificados ISO/PAS 17712 en contenedores marítimos y electrónicos con GPS cuando se necesita monitoreo en tiempo real. Lo mismo aplica a carrotanques, transporte multimodal y operaciones de cross docking.",
+          "masEn": "/preguntas/precintos-de-seguridad/precintos-para-transporte-de-carga"
         },
         {
           "question": "¿Qué nivel de seguridad necesito?",
@@ -81,7 +90,8 @@
         },
         {
           "question": "¿Cuándo conviene una guaya en lugar de un precinto plástico?",
-          "answer": "Cuando el punto de cierre tiene un orificio pequeño que el plástico no pasa, cuando hace falta más resistencia a la rotura, cuando el precinto queda expuesto a condiciones exigentes o cuando hay que identificar individualmente un equipo. Por eso la guaya es la habitual en carrotanques, válvulas, surtidores, medidores, balanzas, maquinaria y en el control de equipos sometidos a calibración o para trabajo en alturas, como arneses y eslingas."
+          "answer": "Cuando el punto de cierre tiene un orificio pequeño que el plástico no pasa, cuando hace falta más resistencia a la rotura, cuando el precinto queda expuesto a condiciones exigentes o cuando hay que identificar individualmente un equipo. Por eso la guaya es la habitual en carrotanques, válvulas, surtidores, medidores, balanzas, maquinaria y en el control de equipos sometidos a calibración o para trabajo en alturas, como arneses y eslingas.",
+          "masEn": "/preguntas/precintos-de-guaya/cuando-usar-guaya-en-lugar-de-plastico"
         },
         {
           "question": "¿Un precinto impide que roben la carga?",
@@ -115,7 +125,8 @@
         },
         {
           "question": "¿Qué información puede llevar un precinto personalizado?",
-          "answer": "Nombre de la empresa, logotipo, numeración consecutiva, código de barras, código QR, textos de seguridad e información específica de control interno, como la identificación de una sede o un proyecto. Qué combinación cabe depende de la referencia y de la superficie disponible, así que se define al cotizar."
+          "answer": "Nombre de la empresa, logotipo, numeración consecutiva, código de barras, código QR, textos de seguridad e información específica de control interno, como la identificación de una sede o un proyecto. Qué combinación cabe depende de la referencia y de la superficie disponible, así que se define al cotizar.",
+          "masEn": "/preguntas/precintos-de-seguridad/que-informacion-lleva-un-precinto-personalizado"
         },
         {
           "question": "¿Puedo elegir el color?",

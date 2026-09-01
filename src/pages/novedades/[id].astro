@@ -1,0 +1,176 @@
+---
+import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import MainLayout from '@/layouts/MainLayout.astro';
+import Breadcrumb from '@components/ui/blocks/Breadcrumb.astro';
+import Icon from '@components/ui/icons/Icon.astro';
+import { SITE } from '@data/constants';
+import { getCategorias, type Categoria } from '@utils/preguntas';
+
+/**
+ * Una novedad. Es lo único del sitio que lleva fecha de publicación.
+ *
+ * Aquí va lo que caduca —un cambio en lo que exigen las navieras, una
+ * certificación nueva, una referencia que entra al catálogo— y la fecha se
+ * enseña porque informa: saber que algo es de hace dos años cambia cómo se lee.
+ *
+ * Lo que NO va aquí es material que siga valiendo dentro de tres años. Eso es
+ * una guía de /usos o una pregunta de /preguntas, y esas se actualizan y
+ * conservan su posición en el buscador en vez de hundirse solas con la
+ * siguiente publicación.
+ */
+export const getStaticPaths: GetStaticPaths = async () => {
+  const novedades = await getCollection('novedades');
+  return novedades.map(novedad => ({
+    params: { id: novedad.id },
+    props: { novedad },
+  }));
+};
+
+interface Props {
+  novedad: CollectionEntry<'novedades'>;
+}
+
+const { novedad } = Astro.props;
+const { Content } = await render(novedad);
+
+const url = `${SITE.url}/novedades/${novedad.id}`;
+const pageTitle = `${novedad.data.title} | ${SITE.title}`;
+const iso = novedad.data.fecha.toISOString().slice(0, 10);
+const fechaLarga = novedad.data.fecha.toLocaleDateString('es-CO', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+
+const porUrl = await getCategorias();
+const categorias = novedad.data.categorias
+  .map(u => porUrl.get(u))
+  .filter((c): c is Categoria => c !== undefined);
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BlogPosting',
+      '@id': url,
+      headline: novedad.data.title,
+      description: novedad.data.description,
+      inLanguage: 'es-CO',
+      mainEntityOfPage: url,
+      datePublished: iso,
+      publisher: {
+        '@type': 'Organization',
+        name: SITE.legalName,
+        url: SITE.url,
+      },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE.url },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Novedades',
+          item: `${SITE.url}/novedades`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: novedad.data.title,
+          item: url,
+        },
+      ],
+    },
+  ],
+};
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={novedad.data.description}
+  customOgTitle={novedad.data.title}
+  structuredData={structuredData}
+>
+  <section class="mx-auto max-w-[85rem] px-10 pt-10 sm:px-14 lg:px-20">
+    <Breadcrumb
+      items={[
+        { name: 'Inicio', url: '/' },
+        { name: 'Novedades', url: '/novedades' },
+        { name: novedad.data.title },
+      ]}
+    />
+  </section>
+
+  <section class="mx-auto max-w-[85rem] px-10 py-10 sm:px-14 lg:px-20">
+    <div class="max-w-3xl">
+      <p
+        class="text-brand-700 dark:text-brand-400 text-sm font-bold tracking-wide uppercase"
+      >
+        <time datetime={iso}>{fechaLarga}</time>
+      </p>
+      <h1
+        class="mt-3 text-3xl font-bold text-balance text-neutral-800 lg:text-4xl dark:text-neutral-100"
+      >
+        {novedad.data.title}
+      </h1>
+      <p
+        class="mt-5 text-lg leading-relaxed text-pretty text-neutral-600 dark:text-neutral-400"
+      >
+        {novedad.data.description}
+      </p>
+    </div>
+
+    {
+      novedad.data.heroImage && (
+        <div class="mt-8 max-w-3xl">
+          <Image
+            class="aspect-[16/9] w-full rounded-2xl bg-white object-contain p-8"
+            src={novedad.data.heroImage}
+            alt={novedad.data.heroImageAlt ?? novedad.data.title}
+            widths={[480, 960]}
+            sizes="(min-width: 1024px) 48rem, 90vw"
+            loading="eager"
+          />
+        </div>
+      )
+    }
+  </section>
+
+  <section class="mx-auto max-w-[85rem] px-10 pb-16 sm:px-14 lg:px-20">
+    <div
+      class="prose prose-neutral dark:prose-invert prose-headings:font-bold prose-a:text-brand-700 dark:prose-a:text-brand-400 max-w-3xl"
+    >
+      <Content />
+    </div>
+  </section>
+
+  {
+    categorias.length > 0 && (
+      <section class="border-t border-neutral-300 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900">
+        <div class="mx-auto max-w-[85rem] px-10 py-14 sm:px-14 lg:px-20">
+          <h2 class="text-2xl font-bold text-neutral-800 lg:text-3xl dark:text-neutral-100">
+            Líneas relacionadas
+          </h2>
+          <ul class="mt-6 flex flex-wrap gap-3">
+            {categorias.map(categoria => (
+              <li>
+                <a
+                  href={categoria.url}
+                  class="hover:border-brand-400 dark:hover:border-brand-400 inline-flex items-center gap-x-2 rounded-full border border-neutral-300 bg-neutral-50 px-4 py-2 text-sm font-bold text-neutral-800 ring-zinc-500 outline-hidden transition focus-visible:ring-3 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100 dark:ring-zinc-200"
+                >
+                  {categoria.nombre}
+                  <Icon name="arrowRight" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+</MainLayout>

@@ -9,6 +9,7 @@ import ImagePlaceholder from '@components/ui/blocks/ImagePlaceholder.astro';
 import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
 import AddToQuoteBtn from '@components/ui/buttons/AddToQuoteBtn.astro';
 import Icon from '@components/ui/icons/Icon.astro';
+import PreguntasDeLinea from '@components/ui/blocks/PreguntasDeLinea.astro';
 import { getReferencias } from '@utils/catalog';
 import { SITE } from '@data/constants';
 import { eventoDeListado } from '@utils/analytics';
@@ -182,6 +183,8 @@ const referencias = (await getReferencias()).filter(
       </section>
     )
   }
+
+  <PreguntasDeLinea url={`/precintos/${Astro.params.id}`} />
 
   <HeroSectionAlt
     title="Estamos Aquí Para Ayudarle, Contáctenos Ahora"

@@ -55,6 +55,9 @@ const structuredData = {
       inLanguage: 'es-CO',
       mainEntityOfPage: url,
       about: guia.data.sector,
+      ...(guia.data.actualizado
+        ? { dateModified: guia.data.actualizado.toISOString().slice(0, 10) }
+        : {}),
       publisher: {
         '@type': 'Organization',
         name: SITE.legalName,
@@ -124,6 +127,25 @@ const structuredData = {
         >
           {guia.data.description}
         </p>
+        {
+          /* «Actualizado», no «publicado»: una guía no caduca, se revisa. Ver la
+             nota del campo en content.config.ts. */
+        }
+        {
+          guia.data.actualizado && (
+            <p class="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
+              Actualizado el{' '}
+              <time datetime={guia.data.actualizado.toISOString().slice(0, 10)}>
+                {guia.data.actualizado.toLocaleDateString('es-CO', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  timeZone: 'UTC',
+                })}
+              </time>
+            </p>
+          )
+        }
       </div>
 
       {

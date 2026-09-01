@@ -1,0 +1,300 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import MainLayout from '@/layouts/MainLayout.astro';
+import Breadcrumb from '@components/ui/blocks/Breadcrumb.astro';
+import Icon from '@components/ui/icons/Icon.astro';
+import { SITE } from '@data/constants';
+import {
+  getPreguntas,
+  getCategorias,
+  type Pregunta,
+  type Categoria,
+} from '@utils/preguntas';
+
+/**
+ * Una pregunta frecuente, con su página propia.
+ *
+ * Son las respuestas largas que escribió la dueña del negocio. Cada una
+ * responde a una búsqueda concreta —«qué es un bolt seal», «qué exige la
+ * ISO/PAS 17712»— y por eso tiene página, en lugar de ser un renglón más del
+ * acordeón de /faq: quien busca eso quiere una página sobre eso.
+ *
+ * NO LLEVAN FECHA VISIBLE, y es deliberado: este material no envejece. Lo que
+ * se publica es `dateModified`, que le dice al buscador que sigue vigente sin
+ * ponerle encima una fecha que dentro de un año la haga parecer vieja.
+ *
+ * Los datos estructurados van como un grafo de tres piezas —artículo, migas y
+ * FAQPage—, igual que en las guías de /usos. El FAQPage con una sola pregunta
+ * es lo que permite que la respuesta salga directamente en el buscador.
+ */
+export const getStaticPaths: GetStaticPaths = async () => {
+  const preguntas = await getPreguntas();
+  return preguntas.map(pregunta => ({
+    params: { familia: pregunta.familia.id, slug: pregunta.slug },
+    props: { pregunta },
+  }));
+};
+
+interface Props {
+  pregunta: Pregunta;
+}
+
+const { pregunta } = Astro.props;
+const { Content } = await render(pregunta.entrada);
+
+const url = `${SITE.url}${pregunta.url}`;
+const pageTitle = `${pregunta.title} | ${SITE.title}`;
+
+const porUrl = await getCategorias();
+const categorias = pregunta.categorias
+  .map(u => porUrl.get(u))
+  .filter((c): c is Categoria => c !== undefined);
+
+const todas = await getPreguntas();
+const relacionadas = pregunta.relacionadas
+  .map(slug =>
+    todas.find(p => p.familia.id === pregunta.familia.id && p.slug === slug)
+  )
+  .filter((p): p is Pregunta => p !== undefined);
+
+const guias = (await getCollection('usos')).filter(g =>
+  pregunta.guias.includes(g.id)
+);
+
+/*
+ * La respuesta que se publica como FAQPage es el texto del artículo, sin el
+ * marcado. Se toma del cuerpo en crudo porque es lo que la colección entrega:
+ * los datos estructurados piden texto plano, no HTML.
+ */
+const respuestaPlana = pregunta.entrada.body
+  ?.replace(/^#{1,6}\s+.*$/gm, '')
+  .replace(/[*_`>]/g, '')
+  .replace(/^-\s+/gm, '')
+  .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+  .split('\n')
+  .map(l => l.trim())
+  .filter(Boolean)
+  .join(' ')
+  .slice(0, 1200)
+  .trim();
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Article',
+      '@id': url,
+      headline: pregunta.title,
+      description: pregunta.description,
+      inLanguage: 'es-CO',
+      mainEntityOfPage: url,
+      about: pregunta.familia.title,
+      ...(pregunta.actualizado
+        ? { dateModified: pregunta.actualizado.toISOString().slice(0, 10) }
+        : {}),
+      publisher: {
+        '@type': 'Organization',
+        name: SITE.legalName,
+        url: SITE.url,
+      },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE.url },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Preguntas',
+          item: `${SITE.url}/preguntas`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: pregunta.familia.title,
+          item: `${SITE.url}/preguntas/${pregunta.familia.id}`,
+        },
+        { '@type': 'ListItem', position: 4, name: pregunta.title, item: url },
+      ],
+    },
+    ...(respuestaPlana
+      ? [
+          {
+            '@type': 'FAQPage',
+            mainEntity: [
+              {
+                '@type': 'Question',
+                name: pregunta.title,
+                acceptedAnswer: { '@type': 'Answer', text: respuestaPlana },
+              },
+            ],
+          },
+        ]
+      : []),
+  ],
+};
+
+const fechaLarga = pregunta.actualizado?.toLocaleDateString('es-CO', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<MainLayout
+  title={pageTitle}
+  customDescription={pregunta.description}
+  customOgTitle={pregunta.title}
+  structuredData={structuredData}
+>
+  <section class="mx-auto max-w-[85rem] px-10 pt-10 sm:px-14 lg:px-20">
+    <Breadcrumb
+      items={[
+        { name: 'Inicio', url: '/' },
+        { name: 'Preguntas', url: '/preguntas' },
+        {
+          name: pregunta.familia.title,
+          url: `/preguntas/${pregunta.familia.id}`,
+        },
+        { name: pregunta.title },
+      ]}
+    />
+  </section>
+
+  <section class="mx-auto max-w-[85rem] px-10 py-10 sm:px-14 lg:px-20">
+    <div class="max-w-3xl">
+      <a
+        href={`/preguntas/${pregunta.familia.id}`}
+        class="text-brand-700 dark:text-brand-400 text-sm font-bold tracking-wide uppercase ring-zinc-500 outline-hidden focus-visible:ring-3 dark:ring-zinc-200"
+      >
+        {pregunta.familia.title}
+      </a>
+      <h1
+        class="mt-3 text-3xl font-bold text-balance text-neutral-800 lg:text-4xl dark:text-neutral-100"
+      >
+        {pregunta.title}
+      </h1>
+      {
+        fechaLarga && (
+          <p class="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
+            Actualizado el{' '}
+            <time datetime={pregunta.actualizado!.toISOString().slice(0, 10)}>
+              {fechaLarga}
+            </time>
+          </p>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-[85rem] px-10 pb-16 sm:px-14 lg:px-20">
+    <div
+      class="prose prose-neutral dark:prose-invert prose-headings:font-bold prose-a:text-brand-700 dark:prose-a:text-brand-400 max-w-3xl"
+    >
+      <Content />
+    </div>
+  </section>
+
+  {
+    /* El puente al catálogo. Sin esto, una visita que llegó por búsqueda lee y
+       se va; con esto, termina en la línea que resuelve su problema. */
+  }
+  {
+    categorias.length > 0 && (
+      <section class="border-t border-neutral-300 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900">
+        <div class="mx-auto max-w-[85rem] px-10 py-16 sm:px-14 lg:px-20">
+          <h2 class="text-2xl font-bold text-neutral-800 lg:text-3xl dark:text-neutral-100">
+            Productos relacionados
+          </h2>
+
+          <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {categorias.map(categoria => (
+              <a
+                href={categoria.url}
+                class="group hover:border-brand-400 dark:hover:border-brand-400 flex flex-col overflow-hidden rounded-2xl border border-neutral-300 bg-neutral-50 ring-zinc-500 outline-hidden transition duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:ring-3 dark:border-neutral-700 dark:bg-neutral-950 dark:ring-zinc-200"
+              >
+                {categoria.imagen && (
+                  <div class="flex aspect-[5/3] items-center justify-center bg-white">
+                    <Image
+                      src={categoria.imagen}
+                      alt={categoria.imagenAlt ?? categoria.nombre}
+                      class="h-full w-full object-contain p-5 transition-transform duration-500 group-hover:scale-105"
+                      widths={[320, 480]}
+                      sizes="(min-width: 1024px) 24rem, 90vw"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+                <div class="flex grow flex-col p-5">
+                  <h3 class="font-bold text-neutral-800 dark:text-neutral-100">
+                    {categoria.nombre}
+                  </h3>
+                  <p class="mt-2 grow text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                    {categoria.descripcion}
+                  </p>
+                  <span class="text-brand-600 dark:text-brand-400 mt-4 inline-flex items-center gap-x-2 text-sm font-bold">
+                    Ver referencias
+                    <span class="transition-transform duration-300 group-hover:translate-x-1">
+                      <Icon name="arrowRight" />
+                    </span>
+                  </span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    (relacionadas.length > 0 || guias.length > 0) && (
+      <section class="mx-auto max-w-[85rem] px-10 py-16 sm:px-14 lg:px-20">
+        <div class="grid gap-12 lg:grid-cols-2">
+          {relacionadas.length > 0 && (
+            <div>
+              <h2 class="text-xl font-bold text-neutral-800 lg:text-2xl dark:text-neutral-100">
+                Otras preguntas de {pregunta.familia.title.toLowerCase()}
+              </h2>
+              <ul class="mt-5 flex flex-col gap-3">
+                {relacionadas.map(otra => (
+                  <li>
+                    <a
+                      href={otra.url}
+                      class="text-brand-700 dark:text-brand-400 ring-zinc-500 outline-hidden hover:underline focus-visible:ring-3 dark:ring-zinc-200"
+                    >
+                      {otra.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {guias.length > 0 && (
+            <div>
+              <h2 class="text-xl font-bold text-neutral-800 lg:text-2xl dark:text-neutral-100">
+                Guías que amplían el tema
+              </h2>
+              <ul class="mt-5 flex flex-col gap-3">
+                {guias.map(guia => (
+                  <li>
+                    <a
+                      href={`/usos/${guia.id}`}
+                      class="text-brand-700 dark:text-brand-400 ring-zinc-500 outline-hidden hover:underline focus-visible:ring-3 dark:ring-zinc-200"
+                    >
+                      {guia.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
+</MainLayout>

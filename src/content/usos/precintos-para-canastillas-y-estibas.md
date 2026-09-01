@@ -3,6 +3,7 @@ title: 'Precintos para canastillas, estibas y carga paletizada'
 description: 'Cómo asegurar canastillas, estibas y carga paletizada en alimentos y distribución: precintos de correa, espiral, zuncho y dado.'
 order: 7
 sector: 'Alimentos y distribución'
+actualizado: 2026-08-13
 summary: 'Control por volumen: muchos puntos, cada día, con un costo por unidad que tiene que cerrar.'
 heroImage: ../../images/productos/precinto-zuncho-paleta.jpg
 heroImageAlt: 'Precinto de zuncho para carga paletizada'

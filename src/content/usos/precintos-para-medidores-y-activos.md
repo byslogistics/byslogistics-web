@@ -3,6 +3,7 @@ title: 'Precintos y chapas para medidores, tableros y activos fijos'
 description: 'Cómo asegurar e identificar medidores, tableros, equipos y herramienta con chapas, placas y precintos de ancla numerados.'
 order: 8
 sector: 'Servicios públicos e industria'
+actualizado: 2026-08-13
 summary: 'Aquí el activo no viaja: cambia de responsable. El control es de identificación, no de ruta.'
 heroImage: ../../images/productos/chapa-de-seguridad-para-medidor.jpg
 heroImageAlt: 'Chapa de seguridad para medidor'

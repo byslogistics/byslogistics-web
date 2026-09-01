@@ -269,6 +269,16 @@ const usosCollection = defineCollection({
       order: z.number(),
       /** Sector al que pertenece la aplicación, para agrupar en el índice. */
       sector: z.string(),
+      /**
+       * Cuándo se revisó por última vez.
+       *
+       * NO es la fecha de publicación, y la diferencia importa. Una guía no
+       * caduca: se revisa. Publicarla como `dateModified` le dice al buscador
+       * que el contenido sigue vigente sin tener que escribir una página nueva
+       * —que empezaría de cero— y sin ponerle a la actual una fecha que la haga
+       * parecer vieja el año que viene.
+       */
+      actualizado: z.coerce.date().optional(),
       /** Resumen de una línea para la tarjeta del índice. */
       summary: z.string(),
       heroImage: image().optional(),
@@ -299,8 +309,92 @@ const usosCollection = defineCollection({
     }),
 });
 
+/**
+ * Preguntas frecuentes con página propia, agrupadas por familia.
+ *
+ * Cada archivo en src/content/preguntas/<familia>/ genera su propia página en
+ * /preguntas/<familia>/<pregunta>.
+ *
+ * POR QUÉ TIENEN PÁGINA PROPIA Y NO SON UN RENGLÓN MÁS DE /faq. Son las
+ * respuestas largas que escribió la dueña, y responden a una búsqueda concreta
+ * cada una: quien escribe «qué es un bolt seal» quiere una página sobre eso, no
+ * un acordeón con otras cuarenta preguntas. /faq se queda con la respuesta
+ * corta y enlaza aquí; las dos se necesitan y no compiten.
+ *
+ * POR QUÉ NO LLEVAN FECHA DE PUBLICACIÓN. Este material no envejece: qué es la
+ * norma ISO/PAS 17712 valdrá lo mismo dentro de tres años. Una fecha visible
+ * solo conseguiría que pareciera viejo. Lo que sí llevan es `actualizado`, que
+ * es otra cosa —ver la nota en la colección de usos.
+ */
+const preguntasCollection = defineCollection({
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: './src/content/preguntas',
+  }),
+  schema: () =>
+    z.object({
+      title: z.string(),
+      /** Metadescripción. Conviene que quepa en 160 caracteres. */
+      description: z.string(),
+      /** Familia a la que pertenece; ver FAMILIAS en src/data_files/preguntas.ts. */
+      familia: z.string(),
+      /** Orden dentro de su familia. */
+      order: z.number(),
+      actualizado: z.coerce.date().optional(),
+      /**
+       * Las líneas de producto de las que habla, por su URL.
+       *
+       * De aquí salen LOS DOS SENTIDOS del enlace: el bloque «productos
+       * relacionados» de esta página y el bloque «preguntas frecuentes» de la
+       * página de esa línea (ver `preguntasPorCategoria` en utils/preguntas.ts).
+       * Declararlo una vez y derivar el resto es lo que evita que las dos
+       * listas se desincronicen, que es lo que siempre termina pasando cuando
+       * se mantienen a mano.
+       */
+      categorias: z.array(z.string()).default([]),
+      /** Guías de /usos que amplían el tema, por su id. */
+      guias: z.array(z.string()).default([]),
+      /** Otras preguntas de la misma familia, por su nombre de archivo. */
+      relacionadas: z.array(z.string()).default([]),
+    }),
+});
+
+/**
+ * Novedades: lo único del sitio que sí lleva fecha.
+ *
+ * Aquí va lo que caduca —un cambio en lo que exigen las navieras, una
+ * certificación nueva, una referencia que entra al catálogo— y por eso la fecha
+ * se publica: saber que algo es de hace dos años cambia cómo se lee.
+ *
+ * DEBE SER LA SECCIÓN MÁS PEQUEÑA DEL SITIO. Si crece más que las guías o las
+ * preguntas, es señal de que se está publicando como noticia algo que debería
+ * ser una guía —y una guía se actualiza y conserva su posición, mientras que
+ * una noticia se hunde sola en cuanto se publica la siguiente.
+ */
+const novedadesCollection = defineCollection({
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: './src/content/novedades',
+  }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      /** Fecha de publicación. Aquí sí se enseña. */
+      fecha: z.coerce.date(),
+      /** Una línea para la tarjeta del listado. */
+      resumen: z.string(),
+      heroImage: image().optional(),
+      heroImageAlt: z.string().optional(),
+      /** Líneas de producto que toca, por su URL. */
+      categorias: z.array(z.string()).default([]),
+    }),
+});
+
 export const collections = {
   soluciones: solucionesCollection,
   precintos: precintosCollection,
   usos: usosCollection,
+  preguntas: preguntasCollection,
+  novedades: novedadesCollection,
 };

@@ -10,9 +10,12 @@ const navBarLinks = [
   { name: 'Catálogo', url: '/catalogo' },
   { name: 'Precintos', url: '/precintos' },
   { name: 'Productos', url: '/productos' },
-  { name: 'Usos', url: '/usos' },
+  // «Recursos» reemplaza a «Usos» y «FAQ's», que estaban por separado.
+  // Ahora hay tres cosas que ofrecer —preguntas, guías y novedades— y sumarlas
+  // al menú lo dejaba ilegible en el teléfono; /recursos reparte a las tres.
+  // Las dos páginas viejas siguen publicadas y enlazadas: están indexadas.
+  { name: 'Recursos', url: '/recursos' },
   { name: 'Nosotros', url: '/nosotros' },
-  { name: "FAQ's", url: '/faq' },
   { name: 'Contacto', url: '/contacto' },
 ];
 // An array of links for footer
@@ -34,11 +37,18 @@ const footerLinks = [
     ],
   },
   {
+    section: 'Recursos',
+    links: [
+      { name: 'Preguntas frecuentes', url: '/preguntas' },
+      { name: 'Guías de uso', url: '/usos' },
+      { name: 'Novedades', url: '/novedades' },
+      { name: 'Dudas sobre pedidos', url: '/faq' },
+    ],
+  },
+  {
     section: 'Empresa',
     links: [
       { name: 'Nosotros', url: '/nosotros' },
-      { name: 'Usos y sectores', url: '/usos' },
-      { name: 'Preguntas frecuentes', url: '/faq' },
       { name: 'Contacto', url: '/contacto' },
     ],
   },

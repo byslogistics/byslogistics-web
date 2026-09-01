@@ -3,6 +3,7 @@ title: 'Cómo elegir un precinto de seguridad: guía práctica'
 description: 'Criterios para escoger entre precintos de guaya, botella, correa dentada, tubular o rotor según el punto a asegurar, el riesgo y el nivel de seguridad.'
 order: 5
 sector: 'Guía general'
+actualizado: 2026-08-22
 summary: 'Once categorías y una sola pregunta que las ordena: qué está asegurando y contra qué.'
 heroImage: ../../images/productos/precinto-correa-dentada-doble-cierre-35-cms.jpg
 heroImageAlt: 'Precinto de correa dentada con doble cierre'

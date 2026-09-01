@@ -23,6 +23,8 @@ const SubHeading = headingLevel === 'h1' ? 'h2' : 'h3';
 interface Faq {
   question: string;
   answer: string;
+  /** Ruta a la respuesta larga en /preguntas, cuando la hay. */
+  masEn?: string;
 }
 
 interface FaqCategory {
