@@ -1,5 +1,6 @@
 ---
 title: '¿Para qué sirven los precintos y sellos de seguridad?'
+tituloSeo: 'Para qué sirven los precintos de seguridad'
 description: 'Los precintos y sellos de seguridad tienen una función muy sencilla pero fundamental: ayudarte a detectar cualquier intento de apertura o manipulación no…'
 familia: 'precintos-de-seguridad'
 order: 9

@@ -1,5 +1,6 @@
 ---
 title: '¿Qué ventajas ofrecen los precintos plásticos numerados?'
+tituloSeo: 'Ventajas de los precintos plásticos numerados'
 description: 'Los precintos plásticos numerados permiten controlar mercancías, activos y operaciones mediante una identificación única que facilita el seguimiento…'
 familia: 'precintos-plasticos'
 order: 5

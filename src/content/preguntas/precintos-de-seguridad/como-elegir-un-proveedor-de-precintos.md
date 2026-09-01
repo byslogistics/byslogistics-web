@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo elegir un proveedor confiable de precintos y sellos de seguridad?'
+tituloSeo: 'Cómo elegir un proveedor de precintos'
 description: 'Elegir proveedor va más allá de comparar precios: un precinto barato que no se puede personalizar ni llega a tiempo termina costándole más a la operación.'
 familia: 'precintos-de-seguridad'
 order: 22

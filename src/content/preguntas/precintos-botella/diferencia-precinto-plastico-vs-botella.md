@@ -1,5 +1,6 @@
 ---
 title: '¿Qué diferencia existe entre un precinto plástico y un precinto botella?'
+tituloSeo: 'Precinto plástico vs. precinto botella'
 description: 'Aunque ambos son dispositivos diseñados para evidenciar manipulaciones no autorizadas, los precintos plásticos y los precintos botella están orientados…'
 familia: 'precintos-botella'
 order: 2

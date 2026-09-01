@@ -1,5 +1,6 @@
 ---
 title: '¿Qué es la norma ISO/PAS 17712 y por qué es importante?'
+tituloSeo: 'Qué es la norma ISO/PAS 17712'
 description: 'La norma ISO/PAS 17712 es un estándar internacional utilizado para evaluar y clasificar precintos de alta seguridad destinados principalmente a contenedores…'
 familia: 'precintos-botella'
 order: 5

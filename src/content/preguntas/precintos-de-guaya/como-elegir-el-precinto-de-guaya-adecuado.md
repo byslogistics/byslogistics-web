@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo elegir el precinto de cable o guaya adecuado según el nivel de seguridad y la aplicación?'
+tituloSeo: 'Cómo elegir el precinto de guaya adecuado'
 description: 'Para elegir correctamente un precinto de cable o guaya no basta con buscar el modelo más resistente.'
 familia: 'precintos-de-guaya'
 order: 1

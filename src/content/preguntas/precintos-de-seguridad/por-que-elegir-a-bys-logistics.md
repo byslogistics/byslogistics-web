@@ -1,5 +1,6 @@
 ---
 title: '¿Por qué elegir a BYS Logistics como proveedor de precintos de seguridad?'
+tituloSeo: 'Por qué elegir a BYS Logistics'
 description: 'No existe un único precinto para todas las aplicaciones: un contenedor marítimo, una válvula, una tula de recaudo y un carrotanque tienen necesidades distintas.'
 familia: 'precintos-de-seguridad'
 order: 21

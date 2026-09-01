@@ -1,5 +1,6 @@
 ---
 title: '¿Cuál es la diferencia entre un precinto de seguridad y un sello de seguridad?'
+tituloSeo: 'Precinto, sello o marchamo: diferencias'
 description: 'En la práctica, no existe una diferencia técnica entre un precinto de seguridad y un sello de seguridad.'
 familia: 'precintos-de-seguridad'
 order: 10

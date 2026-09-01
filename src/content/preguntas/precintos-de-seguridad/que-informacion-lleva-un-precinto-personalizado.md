@@ -1,5 +1,6 @@
 ---
 title: '¿Qué información puede llevar un precinto de seguridad personalizado?'
+tituloSeo: 'Qué información lleva un precinto personalizado'
 description: 'La personalización permite convertir un precinto en una herramienta mucho más efectiva de control y trazabilidad.'
 familia: 'precintos-de-seguridad'
 order: 15

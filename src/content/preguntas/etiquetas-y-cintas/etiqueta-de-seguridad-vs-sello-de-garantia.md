@@ -1,5 +1,6 @@
 ---
 title: '¿Qué diferencia existe entre una etiqueta de seguridad, un sello de garantía y una etiqueta convencional?'
+tituloSeo: 'Etiqueta de seguridad vs. sello de garantía'
 description: 'Aunque visualmente pueden parecer productos similares, una etiqueta de seguridad, un sello de garantía y una etiqueta convencional cumplen funciones diferentes.'
 familia: 'etiquetas-y-cintas'
 order: 8

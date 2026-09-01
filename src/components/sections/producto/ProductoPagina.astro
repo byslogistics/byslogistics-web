@@ -26,19 +26,11 @@ const url = `${SITE.url}${referencia.url}`;
 const pageTitle = `${referencia.name} | ${SITE.title}`;
 
 /*
- * La metadescripción sale de la descripción de la referencia SOLO cuando es
- * una frase. En el catálogo, varias referencias usan ese campo como nota de
- * una palabra —"Azul.", "Rojo.", "Para bolsa Re-Use."—, que distingue una
- * medida de otra en un listado pero no le dice nada a quien la encuentra en un
- * buscador. Por debajo de cuarenta caracteres se arma una frase con el nombre
- * y la categoría, que siempre dice algo.
+ * Viene calculada del catálogo, no de `referencia.description`: allá se recorta
+ * a lo que un buscador enseña y se comprueba que no haya dos fichas con la
+ * misma, cosa que desde aquí —viendo una sola referencia— no se puede saber.
  */
-const metaDescription =
-  referencia.description && referencia.description.length >= 40
-    ? referencia.description
-    : // Sin punto tras la razón social: ya termina en uno («S.A.S.») y se veían
-      // dos seguidos en la metadescripción de las 115 fichas.
-      `${referencia.name}: referencia de ${referencia.group.toLowerCase()} de ${SITE.legalName} Consulte especificaciones y usos, y cotice en línea o por WhatsApp.`;
+const metaDescription = referencia.metaDescription;
 
 /*
  * Product SIN `offers`. Este sitio no publica precios —se cotizan según

@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo funcionan los sellos plásticos de seguridad?'
+tituloSeo: 'Cómo funcionan los sellos plásticos'
 description: 'Los sellos plásticos de seguridad funcionan mediante un sistema de cierre irreversible que permite asegurar puertas, compartimientos, cajas o activos…'
 familia: 'precintos-plasticos'
 order: 2

@@ -1,5 +1,6 @@
 ---
 title: '¿Qué tipos de precintos o sellos de seguridad existen?'
+tituloSeo: 'Tipos de precintos de seguridad'
 description: 'Actualmente existen diferentes tipos de precintos y sellos de seguridad diseñados para aplicaciones específicas.'
 familia: 'precintos-de-seguridad'
 order: 19

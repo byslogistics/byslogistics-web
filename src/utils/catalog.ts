@@ -1,6 +1,7 @@
 import { getCollection } from 'astro:content';
-import { normalize, slugify } from '@utils/text';
+import { normalize, recortar, slugify } from '@utils/text';
 import { FICHA_POR_FAMILIA } from '@data/fichas';
+import { SITE } from '@data/constants';
 
 /**
  * Aplana las dos colecciones de contenido en una sola lista de referencias.
@@ -111,10 +112,24 @@ export interface Referencia {
    * minúscula.
    */
   search: string;
+  /**
+   * La descripción que se publica en la etiqueta `<meta>`, ya recortada y
+   * distinta de la de cualquier otra referencia.
+   *
+   * No es `description`: esa es el párrafo entero que se lee en la ficha, de
+   * trescientos o cuatrocientos caracteres. Se calcula aquí y no en la
+   * plantilla porque hacerla ÚNICA exige ver el catálogo completo —hay
+   * descripciones que la dueña escribió una vez para las dieciséis medidas de
+   * una etiqueta—, y una plantilla solo ve su propia referencia.
+   */
+  metaDescription: string;
 }
 
 /** Lo que el catálogo con filtros necesita de cada referencia. */
-export type CatalogItem = Omit<Referencia, 'ficha' | 'groupUrl'>;
+export type CatalogItem = Omit<
+  Referencia,
+  'ficha' | 'groupUrl' | 'metaDescription'
+>;
 
 export interface CatalogFacet {
   id: string;
@@ -258,6 +273,63 @@ function resolverFicha(
 }
 
 /**
+ * Escribe la metadescripción de cada referencia, ya recortada y sin repetirse.
+ *
+ * Dos motivos para hacerlo aquí y no en la plantilla de la ficha:
+ *
+ * 1. LARGO. La descripción comercial es el párrafo entero que se lee en la
+ *    página —tres o cuatro líneas—, y un buscador solo enseña unos ciento
+ *    sesenta caracteres: publicada tal cual sale cortada a media palabra en
+ *    los resultados.
+ * 2. REPETIDAS. La dueña escribió una sola descripción para las dieciséis
+ *    medidas de la etiqueta holograma, y otra para las diez del precinto
+ *    OPENED, que es lo correcto en el catálogo —son el mismo producto en
+ *    distintos tamaños— pero deja dieciséis páginas diciéndole lo mismo al
+ *    buscador. Cuando un texto le toca a más de una referencia, se le antepone
+ *    el nombre, que es justo lo que las distingue.
+ *
+ * Ninguna de las dos cosas se puede resolver en la plantilla: una plantilla
+ * solo ve su propia referencia y no sabe con quién comparte descripción.
+ */
+function ponerMetaDescripciones(referencias: Referencia[]): void {
+  /*
+   * La descripción sirve de metadescripción SOLO cuando es una frase. Algunas
+   * referencias usan ese campo como nota suelta —«Caja por 5.000 unidades.»,
+   * «Colores: amarillo, azul, rojo, verde y blanco.»—, que distingue una
+   * medida de otra en un listado pero no le dice nada a quien la encuentra en
+   * un buscador. Por debajo del mínimo se arma una frase con el nombre y la
+   * categoría, que siempre dice algo.
+   *
+   * El mínimo son sesenta caracteres porque ahí está el corte real del
+   * catálogo: las dos notas miden 24 y 46, y la descripción de verdad más
+   * corta pasa de 75. Un buscador tampoco enseña de buena gana una
+   * metadescripción de cuarenta caracteres.
+   */
+  const MINIMO_DESCRIPCION = 60;
+  const base = referencias.map(referencia =>
+    referencia.description &&
+    referencia.description.length >= MINIMO_DESCRIPCION
+      ? referencia.description
+      : // Sin punto tras la razón social: ya termina en uno («S.A.S.») y se
+        // veían dos seguidos.
+        `${referencia.name}: referencia de ${referencia.group.toLowerCase()} de ${SITE.legalName} Consulte especificaciones y usos, y cotice en línea o por WhatsApp.`
+  );
+
+  const repetidas = new Set(
+    base.filter((texto, i) => base.indexOf(texto) !== i)
+  );
+
+  referencias.forEach((referencia, i) => {
+    const texto = base[i];
+    const distinguible =
+      repetidas.has(texto) && !texto.startsWith(referencia.name)
+        ? `${referencia.name}. ${texto}`
+        : texto;
+    referencia.metaDescription = recortar(distinguible);
+  });
+}
+
+/**
  * Todas las referencias del sitio, con su ficha resuelta y su URL propia.
  *
  * El slug se hace único DENTRO de su categoría, no del sitio entero: dos
@@ -280,7 +352,10 @@ export async function getReferencias(): Promise<Referencia[]> {
   };
 
   const push = (
-    datos: Omit<Referencia, 'id' | 'slug' | 'url' | 'search' | 'ficha'>,
+    datos: Omit<
+      Referencia,
+      'id' | 'slug' | 'url' | 'search' | 'ficha' | 'metaDescription'
+    >,
     producto: any,
     defectos: Defectos
   ) => {
@@ -309,6 +384,9 @@ export async function getReferencias(): Promise<Referencia[]> {
           .filter(Boolean)
           .join(' ')
       ),
+      // La pone `ponerMetaDescripciones` al final, cuando ya se puede ver
+      // cuáles se repiten. Aquí todavía no hay con qué compararla.
+      metaDescription: '',
     });
   };
 
@@ -370,6 +448,7 @@ export async function getReferencias(): Promise<Referencia[]> {
     }
   }
 
+  ponerMetaDescripciones(referencias);
   return referencias;
 }
 
@@ -408,7 +487,12 @@ export async function getRutasDeProducto(base: '/precintos' | '/productos') {
 export async function getCatalog(): Promise<CatalogItem[]> {
   const referencias = await getReferencias();
   return referencias.map(
-    ({ ficha: _ficha, groupUrl: _groupUrl, ...item }) => item
+    ({
+      ficha: _ficha,
+      groupUrl: _groupUrl,
+      metaDescription: _metaDescription,
+      ...item
+    }) => item
   );
 }
 

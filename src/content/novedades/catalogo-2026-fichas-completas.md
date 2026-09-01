@@ -1,5 +1,5 @@
 ---
-title: 'El catálogo 2026, con ficha completa en cada referencia'
+title: 'Catálogo 2026: ficha completa en cada referencia'
 description: 'Las 118 referencias del catálogo pasan a tener material, medidas, colores, cantidad mínima, presentación y preguntas frecuentes propias.'
 fecha: 2026-09-01
 resumen: 'Cada referencia del catálogo tiene ahora su ficha técnica completa y su nombre comercial.'

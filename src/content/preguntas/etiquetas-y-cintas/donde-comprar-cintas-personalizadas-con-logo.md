@@ -1,5 +1,6 @@
 ---
 title: '¿Dónde comprar cintas de seguridad personalizadas con logo en Colombia?'
+tituloSeo: 'Cintas de seguridad personalizadas con logo'
 description: 'Las cintas de seguridad personalizadas con logo son una excelente alternativa para empresas que necesitan proteger cajas, paquetes y embalajes y, al mismo…'
 familia: 'etiquetas-y-cintas'
 order: 6

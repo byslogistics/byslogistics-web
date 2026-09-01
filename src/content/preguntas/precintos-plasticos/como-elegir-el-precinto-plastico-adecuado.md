@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo elegir el precinto plástico adecuado para mi operación?'
+tituloSeo: 'Cómo elegir el precinto plástico adecuado'
 description: 'Elegir el precinto plástico correcto es fundamental para garantizar la seguridad, la trazabilidad y la eficiencia de una operación logística.'
 familia: 'precintos-plasticos'
 order: 1

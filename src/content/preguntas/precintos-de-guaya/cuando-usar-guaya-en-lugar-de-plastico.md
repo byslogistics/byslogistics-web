@@ -1,5 +1,6 @@
 ---
 title: '¿Cuándo utilizar un precinto de cable o guaya en lugar de un precinto plástico?'
+tituloSeo: 'Cuándo usar guaya en lugar de plástico'
 description: 'Un precinto de cable o guaya resulta especialmente conveniente cuando la operación requiere mayor resistencia o seguridad, cuando el punto de instalación…'
 familia: 'precintos-de-guaya'
 order: 2

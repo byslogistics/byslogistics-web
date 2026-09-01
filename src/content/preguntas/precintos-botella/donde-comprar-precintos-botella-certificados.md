@@ -1,5 +1,6 @@
 ---
 title: '¿Dónde comprar precintos botella certificados ISO/PAS 17712 en Colombia?'
+tituloSeo: 'Precintos botella certificados en Colombia'
 description: 'Si su empresa realiza exportaciones, importaciones o transporte de contenedores marítimos, es fundamental adquirir precintos botella certificados…'
 familia: 'precintos-botella'
 order: 3

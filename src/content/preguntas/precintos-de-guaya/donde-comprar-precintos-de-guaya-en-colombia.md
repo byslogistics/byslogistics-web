@@ -1,5 +1,6 @@
 ---
 title: '¿Dónde comprar precintos de cable o guaya en Colombia?'
+tituloSeo: 'Precintos de guaya en Colombia'
 description: 'Para comprar precintos de cable o guaya en Colombia, es importante elegir un proveedor que no solo ofrezca diferentes referencias, sino que pueda orientar…'
 familia: 'precintos-de-guaya'
 order: 4

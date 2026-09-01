@@ -1,5 +1,6 @@
 ---
 title: '¿Qué ventajas ofrece un precinto electrónico frente a un precinto de seguridad convencional?'
+tituloSeo: 'Precinto electrónico vs. convencional'
 description: 'La principal diferencia está en la visibilidad durante el recorrido.'
 familia: 'precintos-electronicos'
 order: 6

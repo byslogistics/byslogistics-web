@@ -1,5 +1,6 @@
 ---
 title: '¿Qué industrias y sectores utilizan precintos plásticos de seguridad?'
+tituloSeo: 'Industrias que usan precintos plásticos'
 description: 'Los precintos plásticos de seguridad son utilizados por empresas que necesitan controlar accesos, proteger activos y mejorar la trazabilidad de sus operaciones.'
 familia: 'precintos-plasticos'
 order: 3

@@ -1,5 +1,6 @@
 ---
 title: '¿En qué tipos de transporte y mercancías se recomienda utilizar precintos electrónicos?'
+tituloSeo: 'Cuándo usar precintos electrónicos'
 description: 'Los precintos electrónicos se recomiendan principalmente en operaciones donde no es suficiente saber que la mercancía salió sellada y llegó a su destino, sino…'
 familia: 'precintos-electronicos'
 order: 4

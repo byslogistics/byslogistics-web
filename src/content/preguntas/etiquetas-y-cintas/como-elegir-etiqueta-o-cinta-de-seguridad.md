@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo elegir el tipo de etiqueta o cinta de seguridad adecuado para cada aplicación?'
+tituloSeo: 'Cómo elegir una etiqueta o cinta de seguridad'
 description: 'Para elegir correctamente una etiqueta o cinta de seguridad, primero debe definirse qué se quiere proteger y qué tipo de evidencia se necesita obtener en caso…'
 familia: 'etiquetas-y-cintas'
 order: 2

@@ -1,5 +1,6 @@
 ---
 title: '¿Qué es un precinto plástico de seguridad y para qué sirve?'
+tituloSeo: 'Qué es un precinto plástico de seguridad'
 description: 'Un precinto plástico de seguridad es un dispositivo diseñado para controlar accesos y evidenciar cualquier intento de apertura o manipulación no autorizada.'
 familia: 'precintos-plasticos'
 order: 4

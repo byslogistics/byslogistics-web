@@ -1,5 +1,6 @@
 ---
 title: '¿Dónde comprar etiquetas y cintas de seguridad en Colombia?'
+tituloSeo: 'Etiquetas y cintas de seguridad en Colombia'
 description: 'Para comprar etiquetas y cintas de seguridad en Colombia, es importante elegir un proveedor que conozca las diferentes tecnologías disponibles y pueda…'
 familia: 'etiquetas-y-cintas'
 order: 7

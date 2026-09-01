@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo detecta un precinto electrónico intentos de apertura o manipulación de la carga?'
+tituloSeo: 'Cómo detecta aperturas y manipulación'
 description: 'Un precinto electrónico agrega una capa adicional de control porque, además de sellar el punto de acceso, puede registrar o generar información relacionada…'
 familia: 'precintos-electronicos'
 order: 2

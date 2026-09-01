@@ -334,6 +334,17 @@ const preguntasCollection = defineCollection({
   schema: () =>
     z.object({
       title: z.string(),
+      /**
+       * El `<title>` de la pestaña y del resultado de búsqueda, cuando la
+       * pregunta entera no cabe.
+       *
+       * `title` es la pregunta tal como la escribió la dueña: encabeza la
+       * página y es lo que se publica como FAQPage, así que ahí va completa.
+       * Pero un buscador solo enseña unos sesenta caracteres del título, y
+       * varias de estas preguntas pasan de cien: publicadas enteras se cortan
+       * justo donde estaba la palabra que importaba. Aquí va el núcleo.
+       */
+      tituloSeo: z.string().optional(),
       /** Metadescripción. Conviene que quepa en 160 caracteres. */
       description: z.string(),
       /** Familia a la que pertenece; ver FAMILIAS en src/data_files/preguntas.ts. */

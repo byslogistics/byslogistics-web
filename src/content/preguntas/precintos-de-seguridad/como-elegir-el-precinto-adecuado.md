@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo elegir el precinto de seguridad adecuado para mi empresa?'
+tituloSeo: 'Cómo elegir el precinto adecuado'
 description: 'Elegir el precinto de seguridad adecuado depende del nivel de riesgo de la operación, el tipo de activo que desea proteger y los requisitos de control…'
 familia: 'precintos-de-seguridad'
 order: 2

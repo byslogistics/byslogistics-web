@@ -1,5 +1,6 @@
 ---
 title: '¿Qué tipos de etiquetas de seguridad existen: VOID, OPENED, No Transfer, cáscara de huevo y holográficas?'
+tituloSeo: 'Tipos de etiquetas de seguridad: VOID y OPENED'
 description: 'No todas las etiquetas de seguridad funcionan de la misma manera.'
 familia: 'etiquetas-y-cintas'
 order: 11

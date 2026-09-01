@@ -1,5 +1,6 @@
 ---
 title: '¿Qué empresa vende precintos de seguridad al por mayor en Colombia?'
+tituloSeo: 'Precintos de seguridad al por mayor'
 description: 'Muchas empresas requieren comprar precintos de seguridad al por mayor para abastecer operaciones permanentes de transporte, distribución, recaudo, comercio…'
 familia: 'precintos-de-seguridad'
 order: 11

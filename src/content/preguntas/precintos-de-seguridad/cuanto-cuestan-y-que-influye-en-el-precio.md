@@ -1,5 +1,6 @@
 ---
 title: '¿Cuánto cuestan los precintos de seguridad y qué factores influyen en su precio?'
+tituloSeo: 'Cuánto cuesta un precinto de seguridad'
 description: 'Una de las preguntas más frecuentes al momento de comprar precintos de seguridad es cuánto cuestan.'
 familia: 'precintos-de-seguridad'
 order: 4

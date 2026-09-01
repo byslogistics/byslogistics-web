@@ -1,5 +1,6 @@
 ---
 title: '¿Qué industrias utilizan precintos y sellos de seguridad?'
+tituloSeo: 'Industrias que usan precintos de seguridad'
 description: 'Los precintos y sellos de seguridad son utilizados por organizaciones de prácticamente todos los sectores económicos.'
 familia: 'precintos-de-seguridad'
 order: 8

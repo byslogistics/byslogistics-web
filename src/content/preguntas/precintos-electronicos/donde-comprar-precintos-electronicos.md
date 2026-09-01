@@ -1,5 +1,6 @@
 ---
 title: '¿Dónde comprar precintos electrónicos para rastreo de mercancías en Colombia?'
+tituloSeo: 'Precintos electrónicos en Colombia'
 description: 'Para comprar precintos electrónicos en Colombia, es importante buscar un proveedor que no solo suministre el dispositivo, sino que pueda orientar a la empresa…'
 familia: 'precintos-electronicos'
 order: 5

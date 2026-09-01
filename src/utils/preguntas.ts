@@ -25,6 +25,8 @@ export interface Pregunta {
   slug: string;
   familia: Familia;
   title: string;
+  /** El `<title>` de la página. La pregunta entera si cabe; si no, su núcleo. */
+  tituloSeo: string;
   description: string;
   url: string;
   order: number;
@@ -60,6 +62,7 @@ function aPregunta(entrada: CollectionEntry<'preguntas'>): Pregunta | null {
     slug,
     familia,
     title: entrada.data.title,
+    tituloSeo: entrada.data.tituloSeo ?? entrada.data.title,
     description: entrada.data.description,
     url: `/preguntas/${familia.id}/${slug}`,
     order: entrada.data.order,

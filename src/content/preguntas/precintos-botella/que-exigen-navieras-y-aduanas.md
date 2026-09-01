@@ -1,5 +1,6 @@
 ---
 title: '¿Qué precintos exigen las navieras, las autoridades aduaneras y los operadores de comercio exterior?'
+tituloSeo: 'Qué precintos exigen navieras y aduanas'
 description: 'Las navieras, las autoridades aduaneras y los operadores de comercio exterior buscan garantizar la integridad de la carga durante todo el proceso…'
 familia: 'precintos-botella'
 order: 7

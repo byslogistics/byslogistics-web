@@ -37,7 +37,13 @@ interface Props {
 const { familia, preguntas } = Astro.props;
 
 const url = `${SITE.url}/preguntas/${familia.id}`;
-const pageTitle = `${familia.title} | Preguntas frecuentes | ${SITE.title}`;
+/*
+ * Sin «| Preguntas frecuentes» en medio: con la línea de producto y la marca,
+ * el título se iba a setenta caracteres y el buscador lo cortaba. Lo que gana
+ * el clic aquí es el nombre de la línea, y que esto son preguntas ya lo dicen
+ * la URL, el encabezado y la metadescripción.
+ */
+const pageTitle = `${familia.title} | ${SITE.title}`;
 
 const porUrl = await getCategorias();
 const categorias = familia.categorias

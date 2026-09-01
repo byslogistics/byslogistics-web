@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo proteger un contenedor marítimo contra manipulaciones y robos?'
+tituloSeo: 'Cómo proteger un contenedor marítimo'
 description: 'La protección de un contenedor marítimo comienza mucho antes de que la mercancía llegue al puerto.'
 familia: 'precintos-botella'
 order: 1

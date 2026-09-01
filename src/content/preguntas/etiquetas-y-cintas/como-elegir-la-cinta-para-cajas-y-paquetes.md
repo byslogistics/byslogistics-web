@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo elegir la cinta de seguridad adecuada para cajas y paquetes?'
+tituloSeo: 'Cómo elegir la cinta para cajas y paquetes'
 description: 'La elección de una cinta de seguridad para cajas y paquetes debe considerar mucho más que el tamaño del rollo o su apariencia.'
 familia: 'etiquetas-y-cintas'
 order: 3

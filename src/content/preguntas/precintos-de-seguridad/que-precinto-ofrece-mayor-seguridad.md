@@ -1,6 +1,7 @@
 ---
 title: '¿Qué tipo de precinto ofrece mayor nivel de seguridad?'
-description: 'La respuesta depende del tipo de aplicación.'
+tituloSeo: 'Qué precinto ofrece mayor seguridad'
+description: 'La respuesta depende de la aplicación: para transporte de carga, el precinto botella certificado bajo la norma ISO/PAS 17712 es de los de mayor seguridad.'
 familia: 'precintos-de-seguridad'
 order: 17
 actualizado: 2026-09-01

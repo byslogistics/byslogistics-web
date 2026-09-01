@@ -1,5 +1,6 @@
 ---
 title: '¿Dónde comprar precintos o sellos de seguridad en Colombia?'
+tituloSeo: 'Dónde comprar precintos en Colombia'
 description: 'Al momento de comprar precintos o sellos de seguridad es importante elegir un proveedor que no solo ofrezca disponibilidad de producto, sino también asesoría…'
 familia: 'precintos-de-seguridad'
 order: 6

@@ -1,5 +1,6 @@
 ---
 title: '¿Qué precintos se utilizan para proteger mercancías durante el transporte?'
+tituloSeo: 'Precintos para proteger mercancía en ruta'
 description: 'La protección de mercancías durante el transporte requiere soluciones que permitan detectar rápidamente cualquier intento de apertura o manipulación no…'
 familia: 'precintos-de-seguridad'
 order: 12

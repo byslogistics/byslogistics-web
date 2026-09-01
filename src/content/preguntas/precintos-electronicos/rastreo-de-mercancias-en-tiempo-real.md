@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo permiten los precintos electrónicos rastrear mercancías en tiempo real?'
+tituloSeo: 'Rastreo de mercancías en tiempo real'
 description: 'Una de las principales ventajas de los precintos electrónicos es la posibilidad de conocer la ubicación de la mercancía durante su recorrido.'
 familia: 'precintos-electronicos'
 order: 8

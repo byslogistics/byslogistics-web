@@ -1,5 +1,6 @@
 ---
 title: '¿Para qué se utilizan las etiquetas de seguridad en el control de activos, garantías y autenticidad de productos?'
+tituloSeo: 'Etiquetas de seguridad para control de activos'
 description: 'Las etiquetas de seguridad no se utilizan únicamente para proteger cajas, empaques o puertas.'
 familia: 'etiquetas-y-cintas'
 order: 5

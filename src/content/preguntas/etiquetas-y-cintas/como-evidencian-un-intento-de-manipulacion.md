@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo evidencian las etiquetas y cintas de seguridad un intento de apertura, retiro o manipulación?'
+tituloSeo: 'Cómo evidencian un intento de manipulación'
 description: 'La principal función de una etiqueta o cinta de seguridad es hacer que una apertura o manipulación no autorizada deje una evidencia que pueda ser identificada…'
 familia: 'etiquetas-y-cintas'
 order: 4

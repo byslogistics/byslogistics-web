@@ -1,5 +1,6 @@
 ---
 title: '¿Qué precinto o sello de seguridad se usa en válvulas, medidores y surtidores de combustible?'
+tituloSeo: 'Sellos para válvulas, medidores y surtidores'
 description: 'Las válvulas, los medidores de agua, energía o gas y los surtidores de combustible normalmente utilizan sellos de seguridad tipo rotor o tipo mariposa.'
 familia: 'precintos-de-seguridad'
 order: 18

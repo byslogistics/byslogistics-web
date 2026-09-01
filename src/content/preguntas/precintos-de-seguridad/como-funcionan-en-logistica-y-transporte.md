@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo funcionan los precintos de seguridad en logística y transporte?'
+tituloSeo: 'Precintos en logística y transporte'
 description: 'Los precintos de seguridad funcionan como un sistema de control que permite verificar si una mercancía, vehículo o activo ha sido manipulado…'
 familia: 'precintos-de-seguridad'
 order: 3

@@ -1,5 +1,6 @@
 ---
 title: '¿Cuál es la diferencia entre un precinto plástico, un precinto metálico y un precinto de cable?'
+tituloSeo: 'Precinto plástico, metálico o de cable'
 description: 'Aunque todos los precintos de seguridad tienen el mismo objetivo principal —evidenciar intentos de manipulación no autorizada— cada tipo ha sido diseñado…'
 familia: 'precintos-de-seguridad'
 order: 5

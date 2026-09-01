@@ -45,7 +45,7 @@ const { pregunta } = Astro.props;
 const { Content } = await render(pregunta.entrada);
 
 const url = `${SITE.url}${pregunta.url}`;
-const pageTitle = `${pregunta.title} | ${SITE.title}`;
+const pageTitle = `${pregunta.tituloSeo} | ${SITE.title}`;
 
 const porUrl = await getCategorias();
 const categorias = pregunta.categorias

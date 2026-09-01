@@ -1,5 +1,6 @@
 ---
 title: '¿Qué es un precinto de cable o guaya y para qué sirve?'
+tituloSeo: 'Qué es un precinto de cable o guaya'
 description: 'Un precinto de cable o guaya es un sello de seguridad que utiliza un cable metálico flexible unido a un mecanismo de bloqueo para controlar accesos…'
 familia: 'precintos-de-guaya'
 order: 6

@@ -1,5 +1,6 @@
 ---
 title: '¿Qué es un precinto botella o bolt seal y para qué se utiliza?'
+tituloSeo: 'Qué es un precinto botella o bolt seal'
 description: 'Un precinto botella, también conocido internacionalmente como bolt seal, es un sello de seguridad de alta resistencia diseñado para proteger contenedores…'
 familia: 'precintos-botella'
 order: 6

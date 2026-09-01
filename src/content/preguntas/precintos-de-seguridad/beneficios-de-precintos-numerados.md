@@ -1,5 +1,6 @@
 ---
 title: '¿Cuáles son los beneficios de utilizar precintos de seguridad numerados?'
+tituloSeo: 'Beneficios de los precintos numerados'
 description: 'Los precintos de seguridad numerados son una de las soluciones más utilizadas por empresas de transporte, logística, industria, salud y comercio exterior…'
 familia: 'precintos-de-seguridad'
 order: 1

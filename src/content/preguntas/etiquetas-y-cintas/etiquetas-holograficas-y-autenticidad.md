@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo ayudan las etiquetas holográficas de seguridad a garantizar la autenticidad y originalidad de un producto?'
+tituloSeo: 'Etiquetas holográficas y autenticidad'
 description: 'Las etiquetas holográficas de seguridad incorporan elementos visuales que permiten identificar y diferenciar un producto, ayudando a las empresas a fortalecer…'
 familia: 'etiquetas-y-cintas'
 order: 9

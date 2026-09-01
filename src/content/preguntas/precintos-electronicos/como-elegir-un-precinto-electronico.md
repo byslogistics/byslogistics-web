@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo elegir un precinto electrónico para monitoreo y trazabilidad de mercancías?'
+tituloSeo: 'Cómo elegir un precinto electrónico'
 description: 'Para elegir correctamente un precinto electrónico primero debe definirse qué información necesita conocer la empresa durante el transporte.'
 familia: 'precintos-electronicos'
 order: 3

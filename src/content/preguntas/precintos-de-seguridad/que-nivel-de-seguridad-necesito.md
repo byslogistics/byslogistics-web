@@ -1,5 +1,6 @@
 ---
 title: '¿Qué nivel de seguridad necesito para proteger mi mercancía o activo?'
+tituloSeo: 'Qué nivel de seguridad necesito'
 description: 'No todas las operaciones requieren el mismo nivel de seguridad.'
 familia: 'precintos-de-seguridad'
 order: 16

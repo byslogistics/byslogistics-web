@@ -1,5 +1,6 @@
 ---
 title: '¿Qué diferencia existe entre un precinto de cable o guaya, un precinto plástico y un precinto botella?'
+tituloSeo: 'Guaya, precinto plástico o botella: diferencias'
 description: 'Los tres tipos de precintos permiten controlar accesos y evidenciar manipulaciones, pero no están diseñados para las mismas aplicaciones ni ofrecen el mismo…'
 familia: 'precintos-de-guaya'
 order: 3

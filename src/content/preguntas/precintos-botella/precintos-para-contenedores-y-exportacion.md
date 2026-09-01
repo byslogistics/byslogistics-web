@@ -1,5 +1,6 @@
 ---
 title: '¿Qué precintos utilizan los contenedores marítimos y las operaciones de exportación?'
+tituloSeo: 'Precintos para contenedores y exportación'
 description: 'Los contenedores marítimos y las operaciones de exportación requieren soluciones de seguridad capaces de resistir intentos de manipulación y cumplir…'
 familia: 'precintos-botella'
 order: 4

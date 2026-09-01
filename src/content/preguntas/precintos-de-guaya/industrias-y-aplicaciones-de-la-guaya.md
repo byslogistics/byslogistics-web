@@ -1,5 +1,6 @@
 ---
 title: '¿Qué industrias y aplicaciones utilizan precintos de cable o guaya?'
+tituloSeo: 'Industrias que usan precintos de guaya'
 description: 'Los precintos de cable o guaya se utilizan en sectores donde se necesita combinar seguridad, resistencia, trazabilidad y facilidad de instalación…'
 familia: 'precintos-de-guaya'
 order: 5

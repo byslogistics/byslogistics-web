@@ -310,6 +310,88 @@ describe('metadatos de cada página', () => {
     }
   });
 
+  /*
+   * Las metadescripciones de las fichas se calculan en getReferencias (ver
+   * `ponerMetaDescripciones` en utils/catalog.ts), no en la plantilla. Estos
+   * dos tests son la razón: la plantilla las sacaba tal cual del catálogo
+   * comercial y quedaban ciento diez fichas con párrafos de trescientos
+   * caracteres, y treinta y una repitiendo la misma —las dieciséis medidas de
+   * la etiqueta holograma comparten descripción, y las diez del precinto
+   * OPENED también—.
+   */
+  test('la metadescripción de cada ficha cabe en un resultado de búsqueda', () => {
+    const fichas = pages().filter(p =>
+      /^\/(precintos|productos)\/[^/]+\/[^/]+\/$/.test(p.route)
+    );
+    assert.ok(fichas.length > 100, `solo ${fichas.length} fichas`);
+
+    for (const p of fichas) {
+      const desc = p.html.match(
+        /<meta content="([^"]*)" name="description"/
+      )?.[1];
+      assert.ok(
+        desc.length >= 50 && desc.length <= 160,
+        `${p.route}: metadescripción de ${desc.length} caracteres`
+      );
+      assert.doesNotMatch(
+        desc,
+        /(^|\s)(de|del|para|con|en|por|la|el|los|las|y|o|que|su|sus|como)\s*…$/i,
+        `${p.route}: la metadescripción termina colgando`
+      );
+    }
+  });
+
+  test('no hay dos fichas con la misma metadescripción', () => {
+    /*
+     * Salvo una: la dueña llamó igual a dos referencias distintas del catálogo
+     * —«Cinta de Seguridad VOID 50 m x 5 cm», la de rollo entero y la
+     * troquelada— y les puso la misma descripción. Con el mismo nombre y el
+     * mismo texto no hay dato con el que distinguirlas, y ponerles uno sería
+     * inventarle al catálogo algo que no dice. Se deja constancia aquí para
+     * que el día que se renombre una, este test lo note.
+     */
+    const CONOCIDA = 'Cinta de Seguridad VOID 50 m x 5 cm.';
+
+    const vistas = new Map();
+    for (const p of pages().filter(x =>
+      /^\/(precintos|productos)\/[^/]+\/[^/]+\/$/.test(x.route)
+    )) {
+      const desc = p.html.match(
+        /<meta content="([^"]*)" name="description"/
+      )[1];
+      const previa = vistas.get(desc);
+      if (previa) {
+        assert.ok(
+          desc.startsWith(CONOCIDA),
+          `${p.route} y ${previa} publican la misma metadescripción`
+        );
+      } else {
+        vistas.set(desc, p.route);
+      }
+    }
+  });
+
+  test('el título de cada pregunta cabe en un resultado de búsqueda', () => {
+    // La pregunta entera encabeza la página y se publica como FAQPage; en el
+    // <title> va `tituloSeo`, que es su núcleo (ver content.config.ts).
+    const preguntas = pages().filter(p =>
+      /^\/preguntas\/[^/]+\/[^/]+\/$/.test(p.route)
+    );
+    assert.ok(preguntas.length > 50, `solo ${preguntas.length} preguntas`);
+
+    for (const p of preguntas) {
+      // Se mide el título como lo lee una persona, no como viaja: en el HTML
+      // la «&» de la marca va escapada y son cuatro caracteres más.
+      const title = p.html
+        .match(/<title>([^<]*)<\/title>/)[1]
+        .replace(/&amp;/g, '&');
+      assert.ok(
+        title.length <= 65,
+        `${p.route}: título de ${title.length} caracteres — ${title}`
+      );
+    }
+  });
+
   test('las páginas de producto llevan datos estructurados', () => {
     const p = pages().find(x => x.route === '/productos/cajas-de-seguridad/');
     assert.match(p.html, /application\/ld\+json/);

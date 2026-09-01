@@ -1,5 +1,6 @@
 ---
 title: '¿Qué nivel de seguridad y resistencia ofrecen los precintos de cable o guaya?'
+tituloSeo: 'Seguridad y resistencia del precinto de guaya'
 description: 'Los precintos de cable o guaya son una excelente alternativa cuando una operación necesita mayor resistencia y seguridad que la ofrecida por un precinto…'
 familia: 'precintos-de-guaya'
 order: 7

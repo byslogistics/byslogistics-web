@@ -1,5 +1,6 @@
 ---
 title: '¿Qué se puede personalizar en un precinto: logo, numeración y código de barras?'
+tituloSeo: 'Personalización: logo, numeración y código'
 description: 'La personalización dificulta la falsificación y mejora la trazabilidad: cada precinto queda asociado a una empresa y a una operación concreta.'
 familia: 'precintos-de-seguridad'
 order: 23

@@ -1,5 +1,6 @@
 ---
 title: '¿Quién es Business & Supplies Logistics y qué vende?'
+tituloSeo: 'Quiénes somos y qué vendemos'
 description: 'Proveedor colombiano de precintos, sellos y soluciones de seguridad para empresas, con más de 15 años suministrando a operaciones logísticas e industriales.'
 familia: 'precintos-de-seguridad'
 order: 24

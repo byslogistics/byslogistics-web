@@ -1,5 +1,6 @@
 ---
 title: '¿Qué alertas y eventos puede detectar un precinto electrónico durante el transporte?'
+tituloSeo: 'Alertas y eventos durante el transporte'
 description: 'Los precintos electrónicos permiten llevar el control de la carga más allá de conocer simplemente su ubicación.'
 familia: 'precintos-electronicos'
 order: 1

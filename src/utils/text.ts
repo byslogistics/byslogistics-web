@@ -91,3 +91,95 @@ export function traducirBusqueda(escrito: string): {
 
   return { termino, cambios };
 }
+
+/**
+ * Palabras con las que una metadescripción no puede terminar: cortar en «de»
+ * o en «para» deja la frase colgando y se lee como si la página estuviera rota.
+ */
+const COLGANTES = new Set([
+  'a',
+  'al',
+  'ante',
+  'bajo',
+  'con',
+  'contra',
+  'de',
+  'del',
+  'desde',
+  'donde',
+  'durante',
+  'en',
+  'entre',
+  'hacia',
+  'hasta',
+  'la',
+  'las',
+  'lo',
+  'los',
+  'o',
+  'para',
+  'por',
+  'que',
+  'se',
+  'segun',
+  'sin',
+  'sobre',
+  'su',
+  'sus',
+  'tras',
+  'un',
+  'una',
+  'y',
+  'e',
+  'como',
+  'cuando',
+  'mediante',
+]);
+
+/**
+ * Recorta un texto a lo que un buscador llega a mostrar.
+ *
+ * Google corta la metadescripción alrededor de los 160 caracteres, y las
+ * descripciones del catálogo comercial son párrafos de trescientos o
+ * cuatrocientos: publicadas enteras salen cortadas a media palabra en los
+ * resultados, que es peor que una frase más corta y completa.
+ *
+ * Se corta en una palabra con contenido y se cierra con puntos suspensivos
+ * solo si de verdad quedó algo fuera.
+ */
+export function recortar(texto: string, limite = 160): string {
+  const limpio = texto.trim().replace(/\s+/g, ' ');
+  if (limpio.length <= limite) return limpio;
+
+  /*
+   * Cortar en un punto se lee mejor que cortar a media frase, así que se cogen
+   * frases enteras mientras quepan. Pero solo sirve si con eso se llena la
+   * metadescripción: parar en el PRIMER punto devolvía «Precinto o sello de
+   * seguridad de guaya Ref.» —el punto de la abreviatura, no el de la frase—
+   * en las cinco fichas de guaya, y «Cinta de Seguridad VOID 50 m x 5 cm.» en
+   * las que llevan el nombre delante. Por debajo del mínimo se prefiere
+   * recortar por palabras, que al menos dice algo.
+   */
+  const minimo = Math.round(limite * 0.55);
+  let frases = '';
+  for (const frase of limpio.split(/(?<=\.)\s/)) {
+    const candidato = frases ? `${frases} ${frase}` : frase;
+    if (candidato.length > limite) break;
+    frases = candidato;
+  }
+  if (frases.length >= minimo) return frases;
+
+  const palabras = limpio
+    .slice(0, limite - 1)
+    .split(' ')
+    .slice(0, -1);
+  while (
+    palabras.length > 1 &&
+    COLGANTES.has(
+      normalize(palabras[palabras.length - 1]).replace(/[.,;:]/g, '')
+    )
+  ) {
+    palabras.pop();
+  }
+  return palabras.join(' ').replace(/[.,;:]$/, '') + '…';
+}

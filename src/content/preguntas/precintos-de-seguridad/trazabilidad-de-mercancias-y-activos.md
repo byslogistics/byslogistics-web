@@ -1,5 +1,6 @@
 ---
 title: '¿Cómo ayudan los precintos de seguridad a mejorar la trazabilidad de mercancías y activos?'
+tituloSeo: 'Precintos y trazabilidad de mercancías'
 description: 'La trazabilidad consiste en poder conocer y verificar qué ocurrió con una mercancía, vehículo o activo durante todo su recorrido.'
 familia: 'precintos-de-seguridad'
 order: 20

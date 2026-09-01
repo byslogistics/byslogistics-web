@@ -1,5 +1,6 @@
 ---
 title: '¿Para qué sirven las cintas de seguridad en cajas, paquetes, domicilios y mercancías?'
+tituloSeo: 'Cintas de seguridad para cajas y domicilios'
 description: 'Las cintas de seguridad están diseñadas para proteger cajas, paquetes, embalajes y mercancías, dejando una evidencia visible cuando alguien intenta abrirlas…'
 familia: 'etiquetas-y-cintas'
 order: 1

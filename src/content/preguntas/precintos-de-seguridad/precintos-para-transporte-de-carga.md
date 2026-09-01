@@ -1,5 +1,6 @@
 ---
 title: '¿Qué precintos utilizan las empresas de transporte de carga?'
+tituloSeo: 'Precintos para transporte de carga'
 description: 'Las empresas de transporte de carga utilizan diferentes tipos de precintos de seguridad dependiendo del vehículo, la mercancía transportada y el nivel…'
 familia: 'precintos-de-seguridad'
 order: 13

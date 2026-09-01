@@ -1,5 +1,6 @@
 ---
 title: '¿Qué son las etiquetas y cintas de seguridad y para qué sirven?'
+tituloSeo: 'Qué son las etiquetas y cintas de seguridad'
 description: 'Las etiquetas y cintas de seguridad son soluciones diseñadas para dejar evidencia visible cuando una superficie, producto, caja, paquete o punto de acceso ha…'
 familia: 'etiquetas-y-cintas'
 order: 10

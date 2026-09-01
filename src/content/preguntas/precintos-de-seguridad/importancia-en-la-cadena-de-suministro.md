@@ -1,5 +1,6 @@
 ---
 title: '¿Por qué son importantes los precintos de seguridad en la cadena de suministro?'
+tituloSeo: 'Precintos en la cadena de suministro'
 description: 'La cadena de suministro involucra múltiples procesos y actores: fabricantes, transportadores, operadores logísticos, centros de distribución, puertos, aduanas…'
 familia: 'precintos-de-seguridad'
 order: 7
