@@ -70,8 +70,8 @@ const RUTAS_ESPERADAS = [
   '/precintos/precintos-de-guaya/',
   // Fichas de referencia: una de precintos y una de otra familia, que es lo
   // que exige que la plantilla no quedara atada a los atributos de un precinto.
-  '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/',
-  '/productos/tulas-y-bolsas-de-seguridad/tula-de-seguridad-30-x-40-cms/',
+  '/precintos/precintos-de-correa-dentada/precinto-correa-doble-dentado-38-cm/',
+  '/productos/tulas-y-bolsas-de-seguridad/tula-de-seguridad-30-x-40-cm/',
   '/productos/',
   '/productos/precintos-de-seguridad/',
   '/productos/etiquetas-y-cintas-de-seguridad/',
@@ -159,7 +159,7 @@ describe('ficha de producto', () => {
     const categoria = unaFicha('/precintos/precintos-de-correa-dentada/');
     assert.match(
       categoria,
-      /href="\/precintos\/precintos-de-correa-dentada\/precinto-doble-dentado-38-cms"/,
+      /href="\/precintos\/precintos-de-correa-dentada\/precinto-correa-doble-dentado-38-cm"/,
       'la tarjeta de la categoría sigue sin enlazar a la referencia'
     );
   });
@@ -175,14 +175,17 @@ describe('ficha de producto', () => {
 
   test('el botón de WhatsApp lleva el nombre de la referencia', () => {
     const html = unaFicha(
-      '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/'
+      '/precintos/precintos-de-correa-dentada/precinto-correa-doble-dentado-38-cm/'
     );
-    assert.match(html, /wa\.me\/\d+\?text=[^"]*Precinto%20Doble%20Dentado/);
+    assert.match(
+      html,
+      /wa\.me\/\d+\?text=[^"]*Precinto%20Correa%20Doble%20Dentado/
+    );
   });
 
   test('la ficha ofrece el cotizador del sitio, no un formulario nuevo', () => {
     const html = unaFicha(
-      '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/'
+      '/precintos/precintos-de-correa-dentada/precinto-correa-doble-dentado-38-cm/'
     );
     assert.match(html, /data-quote-add="/);
   });
@@ -193,9 +196,12 @@ describe('ficha de producto', () => {
    * es peor que no tener la sección.
    */
   test('los bloques sin datos no se pintan', () => {
-    // Los precintos de botella todavía no tienen plantilla de categoría.
+    // Los pines de seguridad son de las pocas referencias que el catálogo
+    // comercial todavía no describe: ni colores, ni mínimo, ni usos. Sirven
+    // justo para eso —comprobar que una ficha a medias no enseña encabezados
+    // vacíos—, y hay que cambiarla el día que se llenen.
     const html = unaFicha(
-      '/precintos/precintos-de-botella/precinto-botella-one-seal/'
+      '/precintos/precintos-metalicos-y-accesorios/pines-de-seguridad/'
     );
     for (const bloque of [
       'Colores disponibles',
@@ -216,7 +222,7 @@ describe('ficha de producto', () => {
    */
   test('la plantilla de la categoría llega a todas sus referencias', () => {
     const html = unaFicha(
-      '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/'
+      '/precintos/precintos-de-correa-dentada/precinto-correa-doble-dentado-38-cm/'
     );
     for (const bloque of [
       'Colores disponibles',
@@ -230,7 +236,7 @@ describe('ficha de producto', () => {
       assert.ok(html.includes(bloque), `la referencia no heredó "${bloque}"`);
     }
     // Su longitud sí la sabe —la dice su nombre—, la resistencia todavía no.
-    assert.ok(html.includes('380 mm'), 'perdió su propia longitud');
+    assert.ok(html.includes('38 cm'), 'perdió su propia longitud');
     assert.ok(
       html.includes('Consúltenos'),
       'un atributo sin valor debe invitar a consultarlo, no desaparecer'
@@ -239,13 +245,13 @@ describe('ficha de producto', () => {
 
   test('la referencia de ejemplo no deja ningún atributo pendiente', () => {
     const html = unaFicha(
-      '/precintos/precintos-de-correa-dentada/precinto-dentado-doble-cierre-35-cms/'
+      '/precintos/precintos-de-correa-dentada/precinto-correa-dentada-doble-cierre-35-cm/'
     );
     assert.ok(
       !html.includes('Consúltenos'),
       'la ficha de ejemplo tiene que estar completa'
     );
-    for (const dato of ['7,6 mm', '35 x 20 mm', '18 kgf', 'Más vendido']) {
+    for (const dato of ['8 mm', '4,3 x 2,8 cm', '18 kgf', 'Más vendido']) {
       assert.ok(html.includes(dato), `falta ${dato}`);
     }
   });
@@ -263,7 +269,7 @@ describe('ficha de producto', () => {
 
   test('la ficha se declara como Product, y sin precio', () => {
     const html = unaFicha(
-      '/precintos/precintos-de-correa-dentada/precinto-doble-dentado-38-cms/'
+      '/precintos/precintos-de-correa-dentada/precinto-correa-doble-dentado-38-cm/'
     );
     assert.match(html, /"@type":"Product"/);
     // El sitio no publica precios: declarar una oferta sin importe sería
@@ -623,7 +629,7 @@ describe('medición', () => {
     const p = pages().find(
       x =>
         x.route ===
-        '/productos/tulas-y-bolsas-de-seguridad/tula-de-seguridad-30-x-40-cms/'
+        '/productos/tulas-y-bolsas-de-seguridad/tula-de-seguridad-30-x-40-cm/'
     );
     assert.match(p.html, /"?tipo"?:"producto"/);
     assert.match(p.html, /Tula de Seguridad 30 x 40/i);
@@ -636,19 +642,19 @@ describe('medición', () => {
 });
 
 describe('catálogo', () => {
-  test('publica las 115 referencias del listado', () => {
+  test('publica las 116 referencias del listado', () => {
     const p = pages().find(x => x.route === '/catalogo/');
     // Solo las tarjetas: el atributo también aparece dentro del selector del
     // script de filtrado, y contarlo daría uno de más.
     const count = (p.html.match(/<article[^>]*data-catalog-item/g) ?? [])
       .length;
-    assert.equal(count, 115, `se esperaban 115 referencias, hay ${count}`);
+    assert.equal(count, 116, `se esperaban 116 referencias, hay ${count}`);
   });
 
   test('cada referencia se puede añadir a la cotización', () => {
     const p = pages().find(x => x.route === '/catalogo/');
     const adds = (p.html.match(/data-quote-add="/g) ?? []).length;
-    assert.equal(adds, 115);
+    assert.equal(adds, 116);
   });
 
   test('los identificadores de referencia no se repiten', () => {
@@ -670,14 +676,32 @@ describe('catálogo', () => {
      * devolvería los cuarenta y nueve precintos del catálogo. La búsqueda
      * seguiría "funcionando", que es lo que hace que nadie se entere.
      */
+    /*
+     * Se mira contra los NOMBRES de las referencias y de sus categorías, no
+     * contra el índice de búsqueda entero.
+     *
+     * El índice incluye también la descripción, y desde que el catálogo trae
+     * las descripciones de la dueña esa prosa usa con naturalidad las mismas
+     * palabras que aquí se traducen: «sello de seguridad tipo rotor»,
+     * «adhesivo tamper evident», «cable de acero». Medir contra el índice
+     * entero prohibiría casi cualquier sinónimo útil por aparecer suelto en
+     * un párrafo, que no es lo que la regla protege: lo que estropea una
+     * búsqueda es traducir una palabra con la que el catálogo NOMBRA algo.
+     */
     const p = pages().find(x => x.route === '/catalogo/');
-    const indices = [...p.html.matchAll(/data-search="([^"]*)"/g)].map(
-      m => m[1]
-    );
-    assert.ok(indices.length > 100, 'no se leyeron los índices del catálogo');
+    const sinTildes = s =>
+      s
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    const nombres = [
+      ...[...p.html.matchAll(/data-quote-name="([^"]*)"/g)].map(m => m[1]),
+      ...[...p.html.matchAll(/data-quote-group="([^"]*)"/g)].map(m => m[1]),
+    ].map(sinTildes);
+    assert.ok(nombres.length > 100, 'no se leyeron los nombres del catálogo');
 
     const enElCatalogo = palabra =>
-      indices.some(indice => indice.includes(palabra));
+      nombres.some(nombre => nombre.includes(palabra));
 
     for (const entrada of sinonimos()) {
       for (const palabra of entrada.escribe) {
