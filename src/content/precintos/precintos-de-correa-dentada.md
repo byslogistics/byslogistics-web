@@ -301,8 +301,6 @@ products:
       - 'Bolsa x 100 unidades'
       - 'Caja máster x 1.000 unidades'
     faq:
-      - question: '¿Qué resistencia a la tensión tiene?'
-        answer: 'Resiste unos 18 kgf de tensión, suficiente para asegurar puertas de furgón, tulas, canastillas y cajas sin que ceda en ruta. Recuerde que un precinto no es un candado: su función es evidenciar la apertura, no impedirla.'
       - question: '¿Para qué sirven los Precinto de Correa Dentada?'
         answer: 'Sirve para asegurar y controlar medios de transporte de carga y elementos que requieren custodia, facilitando la identificación de posibles aperturas o manipulaciones.'
       - question: '¿Qué ventaja ofrece el sistema de doble dentado?'
