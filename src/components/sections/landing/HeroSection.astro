@@ -88,10 +88,15 @@ interface Props {
   >
     {
       /*
-        El titular, la frase y los botones entran escalonados al cargar. El
-        hero era lo único que se quedaba quieto mientras el resto de la página
-        aparecía al pasar por delante, y eso se notaba justo donde peor: en la
-        primera pantalla.
+        El titular, la frase y los botones entran escalonados desde la
+        izquierda al cargar. El hero era lo único que se quedaba quieto
+        mientras el resto de la página aparecía al pasar por delante, y eso se
+        notaba justo donde peor: en la primera pantalla.
+
+        Es EL MISMO gesto que el cierre de la portada —misma duración, misma
+        curva, mismo escalón y mismo recorrido—, que es el que la clienta
+        señaló como el bueno. Que se vea igual arriba y abajo no es casualidad:
+        los números se escriben una vez, en global.css.
 
         `data-anim-entrada` y no la cascada del resto del sitio, porque esto se
         ve SIN hacer scroll. La cascada la revela un observador de JavaScript, y
@@ -105,7 +110,7 @@ interface Props {
         antes y se queda.
       */
     }
-    <div class="max-w-2xl" data-anim-entrada>
+    <div class="max-w-2xl" data-anim-entrada="izquierda">
       {
         /* About Fragment: https://docs.astro.build/en/basics/astro-syntax/#fragments */
       }

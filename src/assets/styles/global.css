@@ -231,10 +231,10 @@
    */
   .anim-js [data-anim-cascada] > * {
     opacity: 0;
-    transform: var(--anim-desde, translate3d(0, 1.5rem, 0));
+    transform: var(--anim-desde, translate3d(0, 1.75rem, 0));
     transition:
-      opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1) var(--anim-retraso, 0ms),
-      transform 0.65s cubic-bezier(0.22, 1, 0.36, 1) var(--anim-retraso, 0ms);
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--anim-retraso, 0ms),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--anim-retraso, 0ms);
   }
 
   .anim-js [data-anim-cascada].anim-dentro > * {
@@ -242,46 +242,49 @@
     transform: none;
   }
 
-  /* El escalón: 90 ms entre hermanos. Menos y no se percibe como orden; más y
-     el último renglón llega cuando ya se dejó de mirar. A partir del décimo se
-     dejan de escalonar: una lista de veinte entraría durante dos segundos. */
+  /* El escalón son los mismos 80 ms de `data-anim-retraso`, que es lo que usa
+     el cierre de la portada. A partir del octavo hermano se deja de escalonar:
+     una lista de veinte entraría durante casi dos segundos. */
   .anim-js [data-anim-cascada] > *:nth-child(2) {
-    --anim-retraso: 90ms;
+    --anim-retraso: 80ms;
   }
   .anim-js [data-anim-cascada] > *:nth-child(3) {
-    --anim-retraso: 180ms;
+    --anim-retraso: 160ms;
   }
   .anim-js [data-anim-cascada] > *:nth-child(4) {
-    --anim-retraso: 270ms;
+    --anim-retraso: 240ms;
   }
   .anim-js [data-anim-cascada] > *:nth-child(5) {
-    --anim-retraso: 360ms;
+    --anim-retraso: 320ms;
   }
   .anim-js [data-anim-cascada] > *:nth-child(6) {
-    --anim-retraso: 450ms;
+    --anim-retraso: 400ms;
   }
   .anim-js [data-anim-cascada] > *:nth-child(7) {
-    --anim-retraso: 540ms;
+    --anim-retraso: 480ms;
   }
   .anim-js [data-anim-cascada] > *:nth-child(n + 8) {
-    --anim-retraso: 630ms;
+    --anim-retraso: 560ms;
   }
 
   /* La cascada también puede entrar de lado, como la del cierre de la
-     portada: se le pasa la dirección al contenedor. */
+     portada: se le pasa la dirección al contenedor. El recorrido es el mismo
+     2,25 rem de `data-anim`. */
   .anim-js [data-anim-cascada='izquierda'] > * {
-    --anim-desde: translate3d(-2rem, 0, 0);
+    --anim-desde: translate3d(-2.25rem, 0, 0);
   }
 
   .anim-js [data-anim-cascada='derecha'] > * {
-    --anim-desde: translate3d(2rem, 0, 0);
+    --anim-desde: translate3d(2.25rem, 0, 0);
   }
 
   /* ---------------- LO QUE ESTÁ SOBRE EL PLIEGUE ----------------
    *
-   * `data-anim-entrada` es la misma cascada, pero PARA LO QUE YA SE VE AL
-   * abrir la página: el hero de la portada y el encabezado de cada página
-   * interior. Y es un mecanismo distinto por un motivo concreto:
+   * `data-anim-entrada` es la misma cascada —MISMA duración, misma curva,
+   * mismo escalón de 80 ms y mismo recorrido de 2,25 rem, de modo que el gesto
+   * es indistinguible— pero PARA LO QUE YA SE VE AL abrir la página: el hero
+   * de la portada y el encabezado de cada página interior. Es un mecanismo
+   * distinto por un motivo concreto, y solo por ese:
    *
    *   La cascada de más arriba la revela un `IntersectionObserver`, y ese
    *   observador es JavaScript: entre que el HTML se pinta y el módulo se
@@ -295,27 +298,67 @@
    * hay ventana en la que pueda quedarse invisible.
    */
   [data-anim-entrada] > * {
-    animation: anim-entrada 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: anim-entrada 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
     animation-delay: var(--anim-retraso, 0ms);
   }
 
+  /* Los mismos 80 ms de escalón que el resto del sitio. */
   [data-anim-entrada] > *:nth-child(2) {
-    --anim-retraso: 110ms;
+    --anim-retraso: 80ms;
   }
   [data-anim-entrada] > *:nth-child(3) {
-    --anim-retraso: 220ms;
+    --anim-retraso: 160ms;
   }
   [data-anim-entrada] > *:nth-child(4) {
-    --anim-retraso: 330ms;
+    --anim-retraso: 240ms;
   }
   [data-anim-entrada] > *:nth-child(n + 5) {
-    --anim-retraso: 440ms;
+    --anim-retraso: 320ms;
+  }
+
+  /*
+   * La dirección, igual que en la cascada. Aquí NO se puede resolver con la
+   * variable `--anim-desde` como en las otras dos: esto es una animación con
+   * fotogramas, y un `@keyframes` es un bloque compartido —no se puede
+   * particularizar por elemento—. Así que hay un juego de fotogramas por
+   * dirección. Son tres bloques de cuatro líneas; la alternativa era meter
+   * `var()` dentro de los fotogramas, que funciona pero se resuelve de forma
+   * distinta según el navegador y no vale la pena por ahorrar ocho renglones.
+   */
+  [data-anim-entrada='izquierda'] > * {
+    animation-name: anim-entrada-izquierda;
+  }
+
+  [data-anim-entrada='derecha'] > * {
+    animation-name: anim-entrada-derecha;
   }
 
   @keyframes anim-entrada {
     from {
       opacity: 0;
-      transform: translate3d(0, 1.5rem, 0);
+      transform: translate3d(0, 1.75rem, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes anim-entrada-izquierda {
+    from {
+      opacity: 0;
+      transform: translate3d(-2.25rem, 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes anim-entrada-derecha {
+    from {
+      opacity: 0;
+      transform: translate3d(2.25rem, 0, 0);
     }
     to {
       opacity: 1;
