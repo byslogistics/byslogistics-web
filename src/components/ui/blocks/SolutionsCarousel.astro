@@ -11,25 +11,34 @@ import Icon from '@components/ui/icons/Icon.astro';
  *
  * DECISIONES QUE NO SON DE ESTILO
  *
- * · **Avanza solo, pero se para en cuanto hay alguien.** El temporizador se
- *   detiene con el puntero encima, con el foco de teclado dentro, con la
- *   pestaña en segundo plano y cuando el carrusel sale de la pantalla. Un
- *   carrusel que sigue corriendo mientras alguien lee es la forma más rápida
- *   de que se pierda de vista justo la diapositiva que interesaba.
+ * · **NO SE PARA NUNCA.** Ni con el puntero encima, ni con el foco dentro, ni
+ *   con la pestaña de fondo, ni al salir de pantalla. Es la petición explícita
+ *   de la clienta y hay que tomársela al pie de la letra: la portada tiene que
+ *   verse en movimiento sin excepciones.
  *
- *   OJO CON LAS DOS PAUSAS, que es donde estuvo el bug que dejaba el carrusel
- *   MUERTO EN EL MÓVIL de un solo toque:
+ *   AQUÍ HUBO PAUSAS Y SE QUITARON TODAS, así que conviene saber qué se
+ *   probó antes de volver a ponerlas:
  *
- *     · La del puntero solo vale donde hay puntero de verdad (`hover: hover`).
- *       Al tocar la pantalla, el navegador sintetiza un `mouseenter` que nunca
- *       tiene su `mouseleave`: el carrusel se pausaba con el primer toque y ya
- *       no volvía a moverse en toda la visita.
- *     · La del foco solo vale para el foco de TECLADO (`:focus-visible`).
- *       Tocar una flecha o un punto también deja el foco dentro, así que
- *       cambiar de diapositiva a mano equivalía a apagar el automático.
+ *     · Pausar con el puntero encima parece de manual, y en la práctica es lo
+ *       que más molesta: el ratón pasa por encima de media portada sin querer,
+ *       y el carrusel se quedaba quieto justo mientras alguien lo miraba.
+ *     · La misma pausa dejó el carrusel MUERTO EN EL MÓVIL durante meses: al
+ *       tocar la pantalla, el navegador sintetiza un `mouseenter` que nunca
+ *       tiene su `mouseleave`, así que un solo toque lo apagaba para toda la
+ *       visita.
+ *     · Pausar con el foco dentro tenía el mismo final por otro camino: tocar
+ *       una flecha o un punto deja el foco ahí, y cambiar de diapositiva a
+ *       mano equivalía a apagar el automático.
+ *
+ *   El reloj tampoco se congela: la barra del punto activo corre siempre. Y
+ *   cambiar de diapositiva a mano no adelanta la siguiente — reinicia la
+ *   cuenta completa desde esa diapositiva (ver `programar`).
  *
  * · **Con `prefers-reduced-motion` no se mueve solo.** Ni temporizador ni
- *   acercamiento de la foto: quedan las flechas, los puntos y el arrastre.
+ *   acercamiento de la foto: quedan las flechas, los puntos y el arrastre. Es
+ *   la única cosa que lo detiene, y es también la vía por la que este carrusel
+ *   sigue cumpliendo con poder detenerse (WCAG 2.2.2) ahora que no queda
+ *   ningún control de pausa en pantalla.
  *
  * · **La foto va contenida sobre un fondo claro, no recortada a sangre.** Son
  *   fotos de producto sobre blanco, verticales muchas de ellas: recortarlas
@@ -245,38 +254,34 @@ const ACENTOS = [
     );
     const intervalo = Number(root.dataset.intervalo) || 4200;
     const quieto = window.matchMedia('(prefers-reduced-motion: reduce)');
-    /* Solo donde hay puntero de verdad. Ver la nota de la cabecera: en una
-       pantalla táctil el `mouseenter` sintético del primer toque no trae
-       `mouseleave`, y el carrusel se quedaba pausado para siempre. */
-    const conPuntero = window.matchMedia('(hover: hover)');
 
     let actual = 0;
     let temporizador: number | undefined;
 
     /**
-     * `visibilidad` guarda por qué está parado el carrusel. Son cuatro motivos
-     * independientes —puntero, foco, pestaña y estar fuera de pantalla— y
-     * cualquiera de ellos basta para detenerlo; con un único booleano, salir
-     * con el ratón reanudaba un carrusel que la pestaña oculta había parado.
+     * ARRANCA EL RELOJ DE LA DIAPOSITIVA ACTUAL. Siempre, sin condiciones.
+     *
+     * Aquí había un juego de pausas —con el puntero encima, con el foco
+     * dentro, con la pestaña de fondo y al salir de pantalla— y se quitó
+     * entero: la portada tiene que verse en movimiento sin excepciones, y
+     * pasar el ratón por encima es lo que más se hace sin querer. Con la pausa
+     * puesta, el carrusel se quedaba quieto justo mientras alguien lo miraba,
+     * que es lo contrario de lo que se busca.
+     *
+     * `programar` se llama desde `ir()`, así que cambiar de diapositiva a mano
+     * NO adelanta ni acorta la siguiente: el reloj vuelve a empezar completo
+     * desde esa diapositiva, con los mismos milisegundos que si hubiera pasado
+     * sola.
+     *
+     * Lo único que sigue deteniéndolo es `prefers-reduced-motion`, y esa no es
+     * una excepción caprichosa: es la preferencia del sistema de quien pidió
+     * menos movimiento, y es también la vía por la que este carrusel cumple
+     * con poder detenerse (WCAG 2.2.2), ya que no queda ningún control de
+     * pausa en pantalla.
      */
-    const motivos = new Set<string>();
-
-    const pausar = (motivo: string) => {
-      motivos.add(motivo);
-      root.dataset.pausado = 'true';
-      window.clearTimeout(temporizador);
-    };
-
-    const reanudar = (motivo: string) => {
-      motivos.delete(motivo);
-      if (motivos.size > 0) return;
-      root.dataset.pausado = 'false';
-      programar();
-    };
-
     function programar() {
       window.clearTimeout(temporizador);
-      if (quieto.matches || motivos.size > 0) return;
+      if (quieto.matches) return;
       temporizador = window.setTimeout(() => ir(actual + 1, 1), intervalo);
     }
 
@@ -340,40 +345,12 @@ const ACENTOS = [
       punto.addEventListener('click', () => ir(i, i > actual ? 1 : -1));
     });
 
-    root.addEventListener('mouseenter', () => {
-      if (conPuntero.matches) pausar('puntero');
-    });
-    root.addEventListener('mouseleave', () => reanudar('puntero'));
-
-    /* El foco pausa solo si es de TECLADO. Tocar una flecha o un punto también
-       deja el foco dentro; si eso pausara, pasar de diapositiva a mano
-       apagaría el automático de por vida. `:focus-visible` es justo la
-       distinción que hace falta, y la resuelve el navegador. */
-    root.addEventListener('focusin', event => {
-      const objetivo = event.target as HTMLElement | null;
-      if (objetivo?.matches(':focus-visible')) pausar('foco');
-    });
-    root.addEventListener('focusout', () => reanudar('foco'));
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) pausar('pestana');
-      else reanudar('pestana');
-    });
-
-    // Fuera de pantalla no hay nada que mirar: el temporizador se detiene para
-    // no llegar de vuelta con la diapositiva cambiada sin motivo.
-    if ('IntersectionObserver' in window) {
-      const observador = new IntersectionObserver(
-        entradas => {
-          for (const entrada of entradas) {
-            if (entrada.isIntersecting) reanudar('fuera');
-            else pausar('fuera');
-          }
-        },
-        { threshold: 0.25 }
-      );
-      observador.observe(root);
-    }
+    /*
+      AQUÍ NO HAY OYENTES DE PAUSA, y su ausencia es la decisión.
+      Estaban los cuatro de siempre —`mouseenter`, `focusin`, `visibilitychange`
+      y un `IntersectionObserver`— y se fueron todos. Si vuelve alguno, vuelve
+      el problema: el carrusel quieto mientras alguien lo mira.
+    */
 
     // Teclado: flechas cuando el foco está dentro del carrusel.
     root.addEventListener('keydown', event => {
@@ -1035,10 +1012,6 @@ const ACENTOS = [
 
   .slider-punto.is-activo .slider-punto-relleno {
     animation: slider-reloj var(--reloj, 6500ms) linear both;
-  }
-
-  .slider[data-pausado='true'] .slider-punto-relleno {
-    animation-play-state: paused;
   }
 
   @keyframes slider-reloj {

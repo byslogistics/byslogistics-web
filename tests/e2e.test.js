@@ -1781,3 +1781,113 @@ describe('la burbuja del asistente llama la atención', { skip: skip() }, () => 
     await page.close();
   });
 });
+
+/**
+ * EL CARRUSEL NO SE DETIENE NUNCA.
+ *
+ * Tenía las pausas de manual —puntero encima, foco dentro, pestaña de fondo,
+ * fuera de pantalla— y todas juntas hacían lo contrario de lo que se busca:
+ * quedarse quieto justo mientras alguien lo está mirando. Se quitaron enteras,
+ * y estos tests están para que no vuelvan sin querer.
+ *
+ * Lo segundo que se comprueba es que cambiar de diapositiva a mano no adelanta
+ * la siguiente: el reloj vuelve a empezar COMPLETO desde ahí, no continúa el
+ * que ya iba corriendo.
+ */
+describe('el carrusel de soluciones no se para', { skip: skip() }, () => {
+  /** Milisegundos entre diapositivas; el mismo `data-intervalo` del componente. */
+  const INTERVALO = 4200;
+
+  const activa = page =>
+    page.evaluate(() =>
+      Array.from(document.querySelectorAll('[data-slide]')).findIndex(slide =>
+        slide.classList.contains('is-activa')
+      )
+    );
+
+  const portada = async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+    await page.locator('[data-slider]').scrollIntoViewIfNeeded();
+    return page;
+  };
+
+  test('sigue avanzando con el ratón encima', async () => {
+    const page = await portada();
+    await page.hover('[data-slider-marco]');
+
+    const antes = await activa(page);
+    await page.waitForTimeout(INTERVALO + 900);
+    const despues = await activa(page);
+
+    assert.notEqual(
+      despues,
+      antes,
+      'con el puntero encima el carrusel se quedó parado'
+    );
+    await page.close();
+  });
+
+  test('sigue avanzando con el foco dentro', async () => {
+    const page = await portada();
+    await page.focus('[data-slider-next]');
+
+    const antes = await activa(page);
+    await page.waitForTimeout(INTERVALO + 900);
+    const despues = await activa(page);
+
+    assert.notEqual(
+      despues,
+      antes,
+      'con el foco dentro el carrusel se quedó parado'
+    );
+    await page.close();
+  });
+
+  test('la barra del punto activo sigue corriendo con el ratón encima', async () => {
+    const page = await portada();
+    await page.hover('[data-slider-marco]');
+    await page.waitForTimeout(300);
+
+    const estado = await page.evaluate(
+      () =>
+        getComputedStyle(
+          document.querySelector(
+            '.slider-punto.is-activo [data-slider-relleno]'
+          )
+        ).animationPlayState
+    );
+    assert.equal(
+      estado,
+      'running',
+      'la cuenta atrás del punto activo se congeló al pasar el ratón'
+    );
+    await page.close();
+  });
+
+  test('cambiar de diapositiva a mano reinicia la cuenta entera', async () => {
+    const page = await portada();
+    await page.click('[data-slider-next]');
+    const tras = await activa(page);
+
+    // Antes del intervalo completo no puede haber cambiado: si el reloj
+    // hubiera continuado el que ya iba, aquí ya estaríamos en la siguiente.
+    await page.waitForTimeout(INTERVALO - 900);
+    assert.equal(
+      await activa(page),
+      tras,
+      'la siguiente diapositiva llegó antes de tiempo: el reloj no reinició'
+    );
+
+    // Y pasado el intervalo sí, que tampoco puede quedarse ahí.
+    await page.waitForTimeout(1900);
+    assert.notEqual(
+      await activa(page),
+      tras,
+      'tras el cambio a mano el carrusel no volvió a arrancar'
+    );
+    await page.close();
+  });
+});
