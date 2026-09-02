@@ -10,7 +10,7 @@ cardImageAlt: 'Precinto de correa dentada con doble cierre'
 # defecto de familia de `fichas.ts`.
 # LA PLANTILLA DE LA CATEGORÍA. Todo lo de aquí lo heredan las seis
 # referencias, y cada una sobreescribe lo que sea suyo. Los atributos que
-# cambian de una a otra —la longitud, el área de marcación, la resistencia— se
+# cambian de una a otra —la longitud, el ancho, el área de marcación— se
 # declaran SIN valor: la fila se ve igual en las seis fichas y la que todavía
 # no tiene su número invita a consultarlo, en vez de enseñar el de otra.
 specs:
@@ -20,9 +20,6 @@ specs:
   - etiqueta: 'Ancho de correa'
   - etiqueta: 'Tipo de cierre'
   - etiqueta: 'Área de marcación'
-  - etiqueta: 'Resistencia a la tensión'
-  - etiqueta: 'Temperatura de trabajo'
-    valor: '-20 °C a 80 °C'
   - etiqueta: 'Usos'
     valor: 'Control de seguridad e identificación'
 medidas:
@@ -253,8 +250,6 @@ products:
         valor: '4,3 x 2,8 cm'
       - etiqueta: 'Tipo de cierre'
         valor: 'Cierre Dentado ajustable'
-      - etiqueta: 'Resistencia a la tensión'
-        valor: '18 kgf aprox.'
     medidas:
       valores:
         - etiqueta: 'Longitud total'
@@ -306,8 +301,6 @@ products:
       - 'Bolsa x 100 unidades'
       - 'Caja máster x 1.000 unidades'
     faq:
-      - question: '¿Qué resistencia a la tensión tiene?'
-        answer: 'Resiste unos 18 kgf de tensión, suficiente para asegurar puertas de furgón, tulas, canastillas y cajas sin que ceda en ruta. Recuerde que un precinto no es un candado: su función es evidenciar la apertura, no impedirla.'
       - question: '¿Para qué sirven los Precinto de Correa Dentada?'
         answer: 'Sirve para asegurar y controlar medios de transporte de carga y elementos que requieren custodia, facilitando la identificación de posibles aperturas o manipulaciones.'
       - question: '¿Qué ventaja ofrece el sistema de doble dentado?'
@@ -363,7 +356,9 @@ products:
       - nombre: 'Gris'
         hex: '#8a8a8a'
       - nombre: 'Lila'
+        hex: '#a47dab'
       - nombre: 'Fucsia'
+        hex: '#ff00ff'
     personalizacion:
       - 'Logo de empresa'
       - 'Numeración consecutiva'
@@ -524,7 +519,9 @@ products:
       - nombre: 'Gris'
         hex: '#8a8a8a'
       - nombre: 'Lila'
+        hex: '#a47dab'
       - nombre: 'Fucsia'
+        hex: '#ff00ff'
     personalizacion:
       - 'Logo de empresa'
       - 'Numeración consecutiva'

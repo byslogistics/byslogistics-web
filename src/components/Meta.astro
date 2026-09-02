@@ -1,14 +1,18 @@
 ---
 import { getImage } from 'astro:assets';
-import { OG, SEO, SITE } from '@data/constants';
-import faviconSrc from '@images/icon.png';
+import { OG, SITE } from '@data/constants';
+
+/*
+  Los datos estructurados NO están aquí: viven en StructuredData.astro, que
+  MainLayout pinta después de la medición. Ver la cabecera de ese componente
+  para el motivo — resumido: son dos kilobytes de JSON, y por delante de la
+  etiqueta de Google empujaban la medición fuera del arranque del documento.
+*/
 
 // Default properties for the Meta component. These values are used if props are not provided.
 // 'meta' sets a default description meta tag to describe the page content.
-// 'structuredData' defines default structured data in JSON-LD format to enhance search engine understanding of the page (for SEO purposes).
 const defaultProps = {
   meta: SITE.description,
-  structuredData: SEO.structuredData,
   customDescription: null,
   customOgTitle: null,
 };
@@ -18,7 +22,6 @@ const defaultProps = {
 // <MainLayout title="Custom Title" meta="Custom description." />
 const {
   meta = defaultProps.meta,
-  structuredData = defaultProps.structuredData,
   customDescription = defaultProps.customDescription,
   customOgTitle = defaultProps.customOgTitle,
 } = Astro.props;
@@ -40,33 +43,23 @@ const socialImageRes = await getImage({
 });
 const socialImage = Astro.url.origin + socialImageRes.src; // Get the full URL of the image (https://stackoverflow.com/a/9858694)
 
-// Generate and optimize the favicon images
-const favicon = await getImage({
-  src: faviconSrc,
-  width: 512,
-  height: 512,
-  format: 'png',
-});
+/*
+  LOS ICONOS NO SE PIDEN A `getImage`, y esto es lo que arregló que el logo no
+  saliera en Google.
 
-const appleTouchIcon = await getImage({
-  src: faviconSrc,
-  width: 180,
-  height: 180,
-  format: 'png',
-});
+  `getImage` publica el archivo en `/_astro/icon.<hash>.png`, y ese hash cambia
+  cada vez que el archivo se recompila. Google pide expresamente que la URL del
+  favicon **se mantenga constante**: con una que se mueve, cada rastreo
+  encuentra un icono distinto, ninguno llega a asociarse al sitio y el
+  resultado de búsqueda se queda con el globo gris de «sin favicon».
+
+  Ahora los tres —el icono, el de iOS y el logotipo de la empresa— salen de
+  endpoints propios con dirección fija: `src/pages/icono.png.ts`,
+  `apple-touch-icon.png.ts` y `logo.png.ts`. Si algún día se vuelve a poner un
+  `getImage` aquí, vuelve el problema.
+*/
 ---
 
-{
-  /*  Inject structured data into the page if provided. This data is formatted as JSON-LD, a method recommended by Google for structured data pass:
-     https://developers.google.com/search/docs/advanced/structured-data/intro-structured-data */
-}{
-  structuredData && (
-    <script
-      type="application/ld+json"
-      set:html={JSON.stringify(structuredData)}
-    />
-  )
-}
 {/* Define the character set, description, author, and viewport settings */}
 <meta charset="utf-8" />
 <meta content={description} name="description" />
@@ -103,11 +96,17 @@ const appleTouchIcon = await getImage({
 {/* https://docs.astro.build/en/guides/integrations-guide/sitemap/ */}
 <link rel="sitemap" href="/sitemap-index.xml" />
 
-{/* Links for favicons */}
-<link href="/favicon.ico" rel="icon" sizes="any" type="image/x-icon" />
-<link href={favicon.src} rel="icon" type="image/png" sizes="512x512" />
+{
+  /* Los iconos, todos en direcciones fijas. Ver la nota de arriba: la URL de
+     un favicon no puede cambiar de un despliegue a otro. */
+}
+<link href="/favicon.ico" rel="icon" sizes="48x48" type="image/x-icon" />
+<link href="/icono.png" rel="icon" type="image/png" sizes="512x512" />
 <meta name="mobile-web-app-capable" content="yes" />
-<link href={appleTouchIcon.src} rel="apple-touch-icon" />
-<link href={appleTouchIcon.src} rel="shortcut icon" />
-{/* Set theme color */}
-<meta name="theme-color" content="#facc15" />
+<link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180" />
+{
+  /* El color de la barra del navegador es el azul de marca. Era `#facc15`, el
+     amarillo de la plantilla original: en Android la barra salía amarilla
+     encima de un sitio azul. */
+}
+<meta name="theme-color" content="#0060a8" />

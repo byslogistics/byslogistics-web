@@ -175,6 +175,72 @@ export const ANALYTICS = {
   hostsSinMedicion: ['localhost', '127.0.0.1', '0.0.0.0', '::1', '[::1]'],
 };
 
+/**
+ * LA EMPRESA, PARA GOOGLE.
+ *
+ * POR QUÉ HACÍA FALTA. El sitio publicaba datos estructurados de `WebPage`,
+ * que describen la PÁGINA, y ninguno de `Organization`, que describe la
+ * EMPRESA. Sin eso Google no tiene de dónde sacar el logotipo de B&S
+ * Logistics: no lo adivina de la barra de navegación, hay que declarárselo con
+ * un campo `logo`. Es la mitad del motivo por el que el logo no salía en los
+ * resultados; la otra mitad era el favicon, que se publicaba en una URL con
+ * hash y cambiaba en cada despliegue (ver `src/pages/icono.png.ts`).
+ *
+ * `logo` y `image` apuntan a `/logo.png`, un endpoint propio con dirección
+ * fija: el requisito de Google es justo ese, que la imagen viva siempre en el
+ * mismo sitio. Ver `src/pages/logo.png.ts`.
+ *
+ * `sameAs` son los perfiles oficiales. Es lo que le permite a Google atar este
+ * dominio con las redes de la empresa y tratarlas como la misma entidad; se
+ * escriben aquí sueltos y no importados de navigation.ts porque ahí la lista
+ * lleva entradas vacías, y una cadena vacía en `sameAs` invalida el bloque.
+ */
+export const ORGANIZACION = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': `${SITE.url}/#organizacion`,
+  name: SITE.title,
+  legalName: SITE.legalName,
+  alternateName: 'Business & Supplies Logistics',
+  url: SITE.url,
+  logo: {
+    '@type': 'ImageObject',
+    url: `${SITE.url}/logo.png`,
+    width: 1200,
+    height: 629,
+  },
+  image: `${SITE.url}/logo.png`,
+  description: SITE.description_short,
+  foundingDate: '2011',
+  email: CONTACT.email,
+  telephone: CONTACT.pbx[0].label,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: CONTACT.address,
+    addressLocality: 'Bogotá',
+    addressRegion: 'Cundinamarca',
+    addressCountry: 'CO',
+  },
+  areaServed: [
+    { '@type': 'Country', name: 'Colombia' },
+    { '@type': 'Country', name: 'Panamá' },
+  ],
+  contactPoint: [
+    {
+      '@type': 'ContactPoint',
+      contactType: 'sales',
+      telephone: CONTACT.pbx[0].label,
+      email: CONTACT.email,
+      areaServed: 'CO',
+      availableLanguage: ['es'],
+    },
+  ],
+  sameAs: [
+    'https://www.facebook.com/people/Byslogistics/100070925777333/',
+    'https://www.instagram.com/byslogistics/',
+  ],
+};
+
 export const SEO = {
   title: SITE.title,
   description: SITE.description,
@@ -191,6 +257,7 @@ export const SEO = {
       url: SITE.url,
       name: SITE.title,
       description: SITE.description,
+      publisher: { '@id': `${SITE.url}/#organizacion` },
     },
   },
 };

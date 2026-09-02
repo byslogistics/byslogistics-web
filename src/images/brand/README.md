@@ -5,18 +5,32 @@ procesa y optimiza Astro automáticamente.
 
 ## Logo
 
-`logo.png` — logo oficial, 1600 x 839 px, fondo transparente. Ya está
-conectado: lo usa `src/components/BrandLogo.astro`, que lo muestra en el
-encabezado y en el pie de página de todas las páginas.
+Cuatro archivos, todos de 1600 x 839 px y con fondo transparente. Los usa
+`src/components/BrandLogo.astro`, que muestra el logo en el encabezado y en
+el pie de página de todas las páginas.
 
-Para cambiarlo, reemplaza este archivo conservando el nombre. Si algún día
-hay una versión en SVG, es preferible: escala sin perder nitidez.
+| Archivo                  | Dónde se ve                    |
+| ------------------------ | ------------------------------ |
+| `logo.png`               | Pie de página, en modo claro.  |
+| `logo-oscuro.png`        | Pie de página, en modo oscuro. |
+| `logo-navbar.png`        | Barra de navegación, claro.    |
+| `logo-navbar-oscuro.png` | Barra de navegación, oscuro.   |
 
-**Pendiente — versión para fondo oscuro.** El logo actual tiene las letras
-en negro y gris, así que sobre fondo oscuro no se lee. Mientras tanto,
-`BrandLogo.astro` lo dibuja sobre una base blanca cuando el sitio está en
-modo oscuro. Si llega un `logo-dark.png` o `logo-dark.svg` con las letras
-en blanco, se puede mostrar esa versión y quitar la base blanca.
+**Los originales son los dos primeros de cada pareja**: `logo.png` y
+`logo-navbar.png`, que son los que entrega la empresa. Para cambiar el logo se
+reemplaza ese archivo conservando su nombre y después se corre:
+
+```
+node scripts/make-dark-logo.mjs
+```
+
+Ese script vuelve a generar las dos versiones `-oscuro`, que no se editan a
+mano: aclara las letras negras y grises y sube de tono el azul de marca, que
+sobre fondo oscuro queda ilegible en su `#0060A8` original. Si se cambia el
+logo y no se corre el script, el modo oscuro se queda enseñando el logo viejo.
+
+Si algún día hay una versión en SVG, es preferible: escala sin perder nitidez
+(y entonces las variantes oscuras se pueden resolver con CSS, sin script).
 
 ## Colores
 

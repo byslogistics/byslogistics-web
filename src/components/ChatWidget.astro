@@ -207,11 +207,22 @@ const sugerencias = [
     let busy = false;
     let endpointDown = false;
 
+    /*
+     * Con el dedo NO se enfoca el campo al abrir.
+     *
+     * En el escritorio, poner el cursor en el campo ahorra un clic. En el
+     * teléfono hace lo contrario: sube el teclado de golpe y se come media
+     * pantalla, tapando justo el saludo y las preguntas sugeridas, que son lo
+     * que hay que leer antes de escribir. `(pointer: fine)` distingue el ratón
+     * del dedo mejor que el ancho de la pantalla.
+     */
+    const conPuntero = window.matchMedia('(pointer: fine)');
+
     const open = () => {
       panel.hidden = false;
       toggle.setAttribute('aria-expanded', 'true');
       root.classList.add('is-open');
-      input.focus();
+      if (conPuntero.matches) input.focus();
     };
     const close = () => {
       panel.hidden = true;
@@ -326,7 +337,7 @@ const sugerencias = [
       } finally {
         busy = false;
         send.disabled = false;
-        input.focus();
+        if (conPuntero.matches) input.focus();
       }
     }
 
@@ -429,8 +440,30 @@ const sugerencias = [
     animation: chat-anillo 15s ease-out 5s infinite;
   }
 
+  /*
+   * EL ICONO TIENE QUE MEDIR ALGO.
+   *
+   * El `<svg>` del globo no trae atributos `width`/`height` —solo `viewBox`—,
+   * así que dentro de un `<span>` sin tamaño se quedaba en nada: en el móvil,
+   * donde la etiqueta «Asistente» no se enseña, el lanzador se veía como un
+   * punto azul liso y nadie entendía que era el chat. El tamaño se pone aquí,
+   * en el envoltorio y en el propio svg, y no en el marcado, para que la
+   * sacudida de la llamada de atención siga teniendo un elemento propio del
+   * que colgarse.
+   */
   .chat-launcher-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 1.375rem;
+    height: 1.375rem;
     animation: chat-saludo 15s ease-in-out 5s infinite;
+  }
+
+  .chat-launcher-icon svg {
+    width: 100%;
+    height: 100%;
   }
 
   /* Con el panel abierto, o con el puntero encima, ya hay atención: insistir
@@ -725,16 +758,26 @@ const sugerencias = [
     border-color: var(--color-neutral-700);
   }
 
+  /*
+   * 16 PÍXELES CLAVADOS, Y NO ES UN CAPRICHO DE ESTILO.
+   *
+   * Safari de iOS hace zoom sobre cualquier campo con letra menor de 16 px en
+   * cuanto recibe el foco, y no lo deshace al salir: el asistente se abría, el
+   * teclado subía, la página entera quedaba ampliada y con el panel saliéndose
+   * de la pantalla, y había que alejar el zoom a mano para seguir navegando.
+   * Con 16 px no hay zoom que deshacer. Si algún día se quiere el campo más
+   * pequeño, se hace con `padding`, nunca bajando de aquí.
+   */
   .chat-form input {
     flex: 1;
     min-width: 0;
-    padding: 0.7rem 0.85rem;
+    padding: 0.6rem 0.85rem;
     border: 1px solid var(--color-neutral-300);
     border-radius: 0.75rem;
     background: #fff;
     color: var(--color-neutral-800);
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 16px;
   }
 
   .chat-form input:focus {
@@ -792,23 +835,36 @@ const sugerencias = [
     color: var(--color-brand-300);
   }
 
-  @media (max-width: 520px) {
+  @media (max-width: 639px) {
     /*
-      En teléfono el panel se ancla al viewport, no al lanzador: con `left` y
-      `right` fijados y `width:auto`, el ancho lo deriva el navegador del
-      viewport real, sin aritmética sobre `100vw` que pueda descuadrarse en
-      Safari de iOS.
+      EN TELÉFONO EL PANEL ES UNA HOJA ANCLADA ABAJO, no una ventana flotante.
+
+      Se ancla al viewport con `inset: auto 0 0 0` —no al lanzador, y sin
+      aritmética sobre `100vw`, que en Safari de iOS incluye la barra de
+      desplazamiento y descuadra el ancho—. A 390 px no queda sitio para
+      márgenes laterales: la ventanita flotante dejaba la conversación en una
+      columna de texto demasiado estrecha y, en cuanto el teclado subía, se
+      salía del borde. Como hoja, ocupa el ancho completo y el alto que le
+      sobra a la pantalla, que es como se comporta cualquier chat de móvil.
     */
     .chat-panel {
       position: fixed;
-      left: 0.75rem;
-      right: 0.75rem;
-      bottom: 0.75rem;
+      inset: auto 0 0 0;
       width: auto;
+      max-width: none;
       /* dvh descuenta la barra de direcciones; vh queda de reserva para
          navegadores que no lo soporten. */
-      height: min(72vh, 560px);
-      height: min(72dvh, 560px);
+      height: min(80vh, 560px);
+      height: min(80dvh, 560px);
+      border-width: 1px 0 0;
+      border-radius: 1.25rem 1.25rem 0 0;
+    }
+
+    /* Con la hoja abierta, el lanzador queda debajo de ella: enseñarlo solo
+       sirve para que asome medio botón por detrás. Se cierra con el aspa de
+       la cabecera, que en la hoja está a la vista. */
+    .chat.is-open .chat-llamada {
+      visibility: hidden;
     }
 
     .chat-launcher-label {
@@ -816,7 +872,11 @@ const sugerencias = [
     }
 
     .chat-launcher {
-      padding: 0.9rem;
+      /* Cuadrado y con el icono centrado: sin la etiqueta, el relleno
+         asimétrico del botón ancho dejaba el globo descentrado. */
+      width: 3.25rem;
+      height: 3.25rem;
+      padding: 0;
     }
   }
 

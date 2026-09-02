@@ -48,11 +48,15 @@ export const GET: APIRoute = async () => {
     short_name: SITE.title,
     name: SITE.title,
     icons,
+    description: SITE.description_short,
     display: 'minimal-ui',
     id: '/',
     start_url: '/',
-    theme_color: '#FFEDD5',
-    background_color: '#262626',
+    // El azul de marca (brand-600) y el blanco sobre el que está dibujado el
+    // isotipo. Eran `#FFEDD5` y `#262626`, de la plantilla original: la
+    // pantalla de arranque salía color melocotón sobre gris oscuro.
+    theme_color: '#0060a8',
+    background_color: '#ffffff',
   };
 
   return new Response(JSON.stringify(manifest));

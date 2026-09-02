@@ -12,10 +12,21 @@ import Icon from '@components/ui/icons/Icon.astro';
  * DECISIONES QUE NO SON DE ESTILO
  *
  * · **Avanza solo, pero se para en cuanto hay alguien.** El temporizador se
- *   detiene con el puntero encima, con el foco dentro, con la pestaña en
- *   segundo plano y cuando el carrusel sale de la pantalla. Un carrusel que
- *   sigue corriendo mientras alguien lee es la forma más rápida de que se
- *   pierda de vista justo la diapositiva que interesaba.
+ *   detiene con el puntero encima, con el foco de teclado dentro, con la
+ *   pestaña en segundo plano y cuando el carrusel sale de la pantalla. Un
+ *   carrusel que sigue corriendo mientras alguien lee es la forma más rápida
+ *   de que se pierda de vista justo la diapositiva que interesaba.
+ *
+ *   OJO CON LAS DOS PAUSAS, que es donde estuvo el bug que dejaba el carrusel
+ *   MUERTO EN EL MÓVIL de un solo toque:
+ *
+ *     · La del puntero solo vale donde hay puntero de verdad (`hover: hover`).
+ *       Al tocar la pantalla, el navegador sintetiza un `mouseenter` que nunca
+ *       tiene su `mouseleave`: el carrusel se pausaba con el primer toque y ya
+ *       no volvía a moverse en toda la visita.
+ *     · La del foco solo vale para el foco de TECLADO (`:focus-visible`).
+ *       Tocar una flecha o un punto también deja el foco dentro, así que
+ *       cambiar de diapositiva a mano equivalía a apagar el automático.
  *
  * · **Con `prefers-reduced-motion` no se mueve solo.** Ni temporizador ni
  *   acercamiento de la foto: quedan las flechas, los puntos y el arrastre.
@@ -44,7 +55,18 @@ interface Props {
   intervalo?: number;
 }
 
-const { soluciones, intervalo = 6500 } = Astro.props;
+/*
+ * 4,2 SEGUNDOS POR DIAPOSITIVA.
+ *
+ * Eran 6,5 y la portada parecía parada: con seis líneas, dar la vuelta entera
+ * costaba casi cuarenta segundos, así que quien bajaba por la página veía una
+ * sola diapositiva y se iba creyendo que el carrusel era una foto fija.
+ *
+ * 4,2 s es lo que se tarda en leer un titular y una frase de una línea, que es
+ * todo lo que hay en cada diapositiva. Y no hace falta más margen: el
+ * temporizador se detiene solo en cuanto alguien se para a mirar (ver arriba).
+ */
+const { soluciones, intervalo = 4200 } = Astro.props;
 const total = soluciones.length;
 
 /**
@@ -221,8 +243,12 @@ const ACENTOS = [
     const puntos = Array.from(
       root.querySelectorAll<HTMLElement>('[data-slider-punto]')
     );
-    const intervalo = Number(root.dataset.intervalo) || 6500;
+    const intervalo = Number(root.dataset.intervalo) || 4200;
     const quieto = window.matchMedia('(prefers-reduced-motion: reduce)');
+    /* Solo donde hay puntero de verdad. Ver la nota de la cabecera: en una
+       pantalla táctil el `mouseenter` sintético del primer toque no trae
+       `mouseleave`, y el carrusel se quedaba pausado para siempre. */
+    const conPuntero = window.matchMedia('(hover: hover)');
 
     let actual = 0;
     let temporizador: number | undefined;
@@ -291,7 +317,7 @@ const ACENTOS = [
 
       // La clase de salida se retira cuando termina la transición; si se
       // quitara de inmediato, la diapositiva saliente desaparecería de golpe.
-      window.setTimeout(() => saliendo.classList.remove('is-saliendo'), 800);
+      window.setTimeout(() => saliendo.classList.remove('is-saliendo'), 620);
 
       puntos.forEach((punto, i) => {
         punto.classList.toggle('is-activo', i === siguiente);
@@ -314,9 +340,19 @@ const ACENTOS = [
       punto.addEventListener('click', () => ir(i, i > actual ? 1 : -1));
     });
 
-    root.addEventListener('mouseenter', () => pausar('puntero'));
+    root.addEventListener('mouseenter', () => {
+      if (conPuntero.matches) pausar('puntero');
+    });
     root.addEventListener('mouseleave', () => reanudar('puntero'));
-    root.addEventListener('focusin', () => pausar('foco'));
+
+    /* El foco pausa solo si es de TECLADO. Tocar una flecha o un punto también
+       deja el foco dentro; si eso pausara, pasar de diapositiva a mano
+       apagaría el automático de por vida. `:focus-visible` es justo la
+       distinción que hace falta, y la resuelve el navegador. */
+    root.addEventListener('focusin', event => {
+      const objetivo = event.target as HTMLElement | null;
+      if (objetivo?.matches(':focus-visible')) pausar('foco');
+    });
     root.addEventListener('focusout', () => reanudar('foco'));
 
     document.addEventListener('visibilitychange', () => {
@@ -367,7 +403,9 @@ const ACENTOS = [
       arrastrando = false;
       const dx = event.clientX - inicioX;
       const dy = event.clientY - inicioY;
-      if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy)) return;
+      // 44 px y no 60: en una pantalla de 390 px, sesenta píxeles son un gesto
+      // largo y el arrastre no respondía a un deslizamiento normal del pulgar.
+      if (Math.abs(dx) < 44 || Math.abs(dx) < Math.abs(dy)) return;
       ir(actual + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
     });
 
@@ -481,6 +519,16 @@ const ACENTOS = [
   }
 
   /* ---------- DIAPOSITIVA ---------- */
+  /*
+     EL CAMBIO DE DIAPOSITIVA: MÁS CORTO Y CON MÁS RECORRIDO.
+
+     Era una transición de 0,7 s recorriendo 2,5 rem, y a esa velocidad y con
+     ese recorrido el cambio se leía como un fundido: la diapositiva no parecía
+     entrar desde ningún lado, simplemente aparecía. Ahora son 0,55 s de
+     entrada —el ojo la registra como un movimiento— sobre 5 rem, que es lo que
+     hace que se vea DE DÓNDE viene y hacia dónde va. La curva sigue siendo la
+     misma `cubic-bezier(0.22, 1, 0.36, 1)`: arranca rápido y frena al final,
+     que es lo que le quita el aire mecánico. */
   .slide {
     position: absolute;
     inset: 0;
@@ -489,11 +537,11 @@ const ACENTOS = [
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translate3d(calc(var(--dir) * 2.5rem), 0, 0) scale(0.99);
+    transform: translate3d(calc(var(--dir) * 5rem), 0, 0) scale(0.97);
     transition:
-      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-      visibility 0s linear 0.7s;
+      opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0.55s;
   }
 
   .slide.is-activa {
@@ -505,11 +553,14 @@ const ACENTOS = [
     transition-delay: 0s;
   }
 
-  /* La que se va sale hacia el lado contrario al del avance. */
+  /* La que se va sale hacia el lado contrario al del avance, y algo más
+     deprisa que lo que tarda en entrar la siguiente: así no se solapan las dos
+     a media opacidad, que es lo que emborronaba el cambio. */
   .slide.is-saliendo {
     visibility: visible;
     opacity: 0;
-    transform: translate3d(calc(var(--dir) * -2.5rem), 0, 0) scale(0.99);
+    transform: translate3d(calc(var(--dir) * -4rem), 0, 0) scale(0.97);
+    transition-duration: 0.45s;
     z-index: 1;
   }
 
@@ -548,12 +599,12 @@ const ACENTOS = [
     border-radius: 50%;
     background: radial-gradient(
       circle at 50% 50%,
-      color-mix(in srgb, var(--acento) 38%, transparent) 0%,
+      color-mix(in srgb, var(--acento) 46%, transparent) 0%,
       transparent 65%
     );
     filter: blur(40px);
     opacity: 0;
-    transition: opacity 1.2s ease;
+    transition: opacity 0.6s ease;
   }
 
   .slide--invertida .slide-resplandor {
@@ -563,7 +614,7 @@ const ACENTOS = [
 
   .slide.is-activa .slide-resplandor {
     opacity: 1;
-    animation: slide-deriva 16s ease-in-out infinite alternate;
+    animation: slide-deriva 9s ease-in-out infinite alternate;
   }
 
   @keyframes slide-deriva {
@@ -600,14 +651,14 @@ const ACENTOS = [
   }
 
   .slide.is-activa .slide-fantasma {
-    animation: slide-fantasma-entra 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: slide-fantasma-entra 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   @keyframes slide-fantasma-entra {
     from {
       opacity: 0;
-      transform: translate3d(-3rem, -50%, 0) rotate(var(--giro, 0deg))
-        scale(1.1);
+      transform: translate3d(calc(var(--dir) * 4rem), -50%, 0)
+        rotate(var(--giro, 0deg)) scale(1.15);
     }
     to {
       opacity: 1;
@@ -667,7 +718,7 @@ const ACENTOS = [
   /* La línea del epígrafe se dibuja sola al entrar: es el primer movimiento
      que ve quien llega a la diapositiva, antes incluso que el titular. */
   .slide.is-activa .slide-orden-sep {
-    animation: slide-raya 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+    animation: slide-raya 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
   }
 
   @keyframes slide-raya {
@@ -805,20 +856,22 @@ const ACENTOS = [
   /* Flotación continua del producto y acercamiento lento del plano. Son dos
      elementos distintos a propósito: encadenar dos animaciones de `transform`
      en el mismo nodo obliga a elegir una, y aquí hacen falta las dos. */
+  /* El plano se acerca mientras dura la diapositiva —de ahí que el zoom mida
+     lo que mide el ciclo, no once segundos—, y el producto flota encima. */
   .slide.is-activa .slide-plano {
-    animation: slide-zoom 11s ease-out both;
+    animation: slide-zoom 6s ease-out both;
   }
 
   .slide.is-activa .slide-foto {
-    animation: slide-flota 7s ease-in-out 1s infinite alternate;
+    animation: slide-flota 3.5s ease-in-out 0.4s infinite alternate;
   }
 
   @keyframes slide-zoom {
     from {
-      transform: scale(1);
+      transform: scale(1.01);
     }
     to {
-      transform: scale(1.06);
+      transform: scale(1.08);
     }
   }
 
@@ -839,25 +892,28 @@ const ACENTOS = [
     }
   }
 
-  /* Entrada escalonada del texto. */
+  /* Entrada escalonada del texto. El escalón es lo que hace que el titular
+     «llegue» y la frase le siga, en vez de aparecer todo de golpe; sube de
+     0,07 s a 0,09 s entre líneas y el recorrido crece a 2 rem, para que el
+     gesto se vea a la distancia a la que se mira una portada. */
   .slide.is-activa .anim {
-    animation: slide-sube 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: slide-sube 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .slide.is-activa .anim:nth-child(2) {
-    animation-delay: 0.07s;
+    animation-delay: 0.09s;
   }
   .slide.is-activa .anim:nth-child(3) {
-    animation-delay: 0.14s;
+    animation-delay: 0.18s;
   }
   .slide.is-activa .anim:nth-child(4) {
-    animation-delay: 0.21s;
+    animation-delay: 0.27s;
   }
 
   @keyframes slide-sube {
     from {
       opacity: 0;
-      transform: translate3d(0, 1.25rem, 0);
+      transform: translate3d(0, 2rem, 0);
     }
     to {
       opacity: 1;
@@ -888,7 +944,10 @@ const ACENTOS = [
       transform 0.3s;
   }
 
-  @media (min-width: 1024px) {
+  /* Las flechas aparecen a partir de 640 px. Por debajo se quedan fuera: en
+     una pantalla de teléfono se comerían el ancho de la foto, y ahí el gesto
+     natural es arrastrar —que también funciona— o tocar un punto. */
+  @media (min-width: 640px) {
     .slider-flecha {
       display: flex;
     }
@@ -938,7 +997,7 @@ const ACENTOS = [
   .slider-punto {
     position: relative;
     width: 1.75rem;
-    height: 0.3rem;
+    height: 0.35rem;
     padding: 0;
     overflow: hidden;
     border: none;

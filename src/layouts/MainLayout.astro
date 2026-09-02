@@ -1,6 +1,7 @@
 ---
 // Importing necessary components
 import Meta from '@components/Meta.astro';
+import StructuredData from '@components/StructuredData.astro';
 import Analytics from '@components/Analytics.astro';
 import AnalyticsNoScript from '@components/AnalyticsNoScript.astro';
 import Navbar from '@components/sections/navbar&footer/Navbar.astro';
@@ -70,7 +71,6 @@ interface Props {
     {/* Adding metadata to the HTML document */}
     <Meta
       meta={meta}
-      structuredData={structuredData}
       customDescription={customDescription}
       customOgTitle={customOgTitle}
     />
@@ -78,25 +78,70 @@ interface Props {
     <Analytics evento={analytics} />
     {/* Define the title of the page */}
     <title>{title}</title>
+    {
+      /* Datos estructurados: la página y la empresa. Van DESPUÉS de la
+         medición a propósito —son dos kilobytes de JSON y por delante la
+         empujaban fuera del arranque del head—; a los buscadores el orden les
+         da igual. Ver StructuredData.astro. */
+    }
+    <StructuredData structuredData={structuredData} />
     <script is:inline>
-      // Script to handle dark mode. El tema claro es el predeterminado: solo se
-      // aplica el modo oscuro si el visitante lo eligió explícitamente, o si
-      // guardó 'auto' y su sistema prefiere el esquema oscuro.
-      const storedTheme = localStorage.getItem('hs_theme');
-      if (
-        storedTheme === 'dark' ||
-        (storedTheme === 'auto' &&
-          window.matchMedia('(prefers-color-scheme: dark)').matches)
-      ) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+      /*
+        El tema, resuelto ANTES de pintar nada.
+
+        El tema claro es el predeterminado: solo se aplica el modo oscuro si el
+        visitante lo eligió explícitamente, o si guardó 'auto' y su sistema
+        prefiere el esquema oscuro.
+
+        Y SOLO EN PANTALLA ANCHA. Por debajo de 1024 px el interruptor no se
+        enseña (ver la nota que lo explica en Navbar.astro), así que quien
+        llegara ahí con 'dark' guardado de una visita desde el escritorio se
+        quedaría encerrado en un modo oscuro que no puede desactivar. En el
+        móvil el sitio se queda siempre en claro; la preferencia guardada no se
+        borra, y vuelve sola al abrirlo en una pantalla grande.
+
+        La función queda colgada de `window` porque el interruptor de tema, que
+        vive en Navbar.astro, es quien la vuelve a llamar al cambiar de tema o
+        al cruzar ese ancho: la regla se escribe una sola vez y en el sitio
+        donde tiene que correr primero.
+      */
+      window.BYS_TEMA_OSCURO_DESDE = '(min-width: 1024px)';
+      window.bysAplicarTema = function () {
+        const guardado = localStorage.getItem('hs_theme') || 'default';
+        const cabe = window.matchMedia(window.BYS_TEMA_OSCURO_DESDE).matches;
+        const oscuro =
+          cabe &&
+          (guardado === 'dark' ||
+            (guardado === 'auto' &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches));
+        document.documentElement.classList.toggle('dark', oscuro);
+      };
+      window.bysAplicarTema();
+
+      /*
+        La aparición al hacer scroll (ver global.css) esconde lo que todavía no
+        entró en pantalla, y esto es lo que la enciende. Va aquí, en línea y
+        antes de pintar, porque si se encendiera desde el módulo que la revela
+        la página se vería un instante entera y acto seguido se escondería.
+
+        Y VA CON RED. Si el módulo no llega a cargar —una conexión que se cae a
+        mitad, un bloqueador—, nadie revelaría nada y el sitio se quedaría en
+        blanco. A los dos segundos y medio, si el script no ha avisado de que
+        está listo, se quita la clase y todo vuelve a verse. Un sitio sin
+        animación es un contratiempo; un sitio invisible es una avería.
+      */
+      document.documentElement.classList.add('anim-js');
+      setTimeout(function () {
+        if (document.documentElement.dataset.animListo !== 'true') {
+          document.documentElement.classList.remove('anim-js');
+        }
+      }, 2500);
     </script>
     <script>
       import '@scripts/lenisSmoothScroll.js';
       import '@scripts/contactForms.js';
       import '@scripts/quoteCart.js';
+      import '@scripts/aparecer.js';
     </script>
   </head>
   <body
@@ -132,8 +177,18 @@ interface Props {
         debajo a propósito.
       */
     }
+    {
+      /*
+        `data-anim-scope` es lo que hace que TODA sección de la página aparezca
+        al entrar en pantalla, sin tocar ninguna página: el selector del CSS
+        cuelga de este atributo. La primera sección queda fuera —está sobre el
+        pliegue—, y una sección concreta se puede sacar con `data-anim="no"`.
+        Ver el bloque «APARICIÓN AL HACER SCROLL» de global.css.
+      */
+    }
     <main
       id="main-content"
+      data-anim-scope
       class:list={['w-full grow', !heroASangre && 'pt-[4.75rem]']}
     >
       <slot />

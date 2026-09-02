@@ -178,6 +178,51 @@ describe('datos de la empresa', () => {
   });
 });
 
+describe('imágenes de marca', () => {
+  /*
+   * El logo vive en cuatro archivos: el original de cada uso y su pareja para
+   * fondo oscuro, que genera `scripts/make-dark-logo.mjs`. El modo en que esto
+   * se rompe es siempre el mismo: alguien reemplaza el logo original y no
+   * vuelve a correr el script, así que el sitio en oscuro se queda enseñando
+   * el logo anterior sin un solo error a la vista.
+   */
+  const PAREJAS = [
+    ['logo.png', 'logo-oscuro.png'],
+    ['logo-navbar.png', 'logo-navbar-oscuro.png'],
+  ];
+
+  test('cada logo tiene su versión para fondo oscuro', () => {
+    for (const [claro, oscuro] of PAREJAS) {
+      assert.ok(
+        existsSync(P('src/images/brand', claro)),
+        `falta src/images/brand/${claro}`
+      );
+      assert.ok(
+        existsSync(P('src/images/brand', oscuro)),
+        `falta src/images/brand/${oscuro}: corra "node scripts/make-dark-logo.mjs"`
+      );
+    }
+  });
+
+  test('BrandLogo enseña la versión oscura, no una base blanca', () => {
+    // La base blanca era un recuadro macizo dentro de la píldora de vidrio de
+    // la barra: es lo que se vino a quitar, y lo que vuelve solo si alguien
+    // reintroduce el `dark:bg-white`.
+    const componente = readFileSync(
+      P('src/components/BrandLogo.astro'),
+      'utf8'
+    );
+    assert.doesNotMatch(
+      componente,
+      /dark:bg-white/,
+      'volvió la base blanca detrás del logo'
+    );
+    assert.match(componente, /logo-oscuro\.png/);
+    assert.match(componente, /logo-navbar-oscuro\.png/);
+    assert.match(componente, /dark:block/);
+  });
+});
+
 describe('sinónimos del buscador', () => {
   /*
    * Se lee el fuente en vez de importarlo, como con fichas.ts: el archivo usa

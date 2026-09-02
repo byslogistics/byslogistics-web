@@ -1,0 +1,41 @@
+---
+/**
+ * Los datos estructurados de la página: lo que leen los buscadores.
+ *
+ * Son dos bloques y describen cosas distintas:
+ *
+ *   1. **La página.** `WebPage`, `Product`, `FAQPage`, `CollectionPage`… Lo
+ *      arma cada página y llega por `structuredData`; si no declara nada, se
+ *      usa el `WebPage` genérico de `SEO.structuredData`.
+ *   2. **La empresa.** `ORGANIZACION`, igual en todas las páginas. Es de donde
+ *      Google saca el LOGOTIPO de la marca —los datos de la página no hablan
+ *      de la empresa—, y por eso va en todas y no solo en la portada:
+ *      cualquiera puede ser la primera que se rastree. Comparte `@id`, así que
+ *      repetirlo no crea entidades duplicadas.
+ *
+ * POR QUÉ ESTO NO VIVE EN Meta.astro, que es donde estaba. Porque este
+ * componente se pinta DESPUÉS de la medición, y ahí el orden importa: el píxel
+ * y la etiqueta de Google tienen que salir al principio del `<head>` o una
+ * visita de dos segundos no se cuenta. Con los dos bloques de datos
+ * estructurados por delante —dos kilobytes de JSON— la medición bajaba del
+ * arranque del documento. A los buscadores les da igual dónde esté el JSON-LD;
+ * a la medición no. Hay un test que lo comprueba.
+ */
+import { ORGANIZACION, SEO } from '@data/constants';
+
+interface Props {
+  structuredData?: object | null;
+}
+
+const { structuredData = SEO.structuredData } = Astro.props;
+---
+
+{
+  structuredData && (
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(structuredData)}
+    />
+  )
+}
+<script type="application/ld+json" set:html={JSON.stringify(ORGANIZACION)} />

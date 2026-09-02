@@ -6,7 +6,12 @@
  *
  *   1. Un aviso al equipo comercial, con `reply_to` puesto en el correo de
  *      quien escribió — responder ese correo responde directo a la persona,
- *      sin copiar y pegar la dirección.
+ *      sin copiar y pegar la dirección. El asunto y el cuerpo dicen que la
+ *      consulta llegó por el FORMULARIO DEL SITIO y desde qué página: al
+ *      correo comercial también le entran mensajes escritos a mano, remitidos
+ *      por un asesor o llegados de otros portales, y sin esa marca no hay
+ *      forma de saber cuál de todos es el que hay que atender con el guion de
+ *      la web (ver `PROCEDENCIA` y `origenDeLaConsulta`).
  *   2. Una confirmación a quien escribió, para que sepa que el mensaje llegó
  *      y en cuánto le responden.
  *
@@ -62,6 +67,43 @@ const AVISO_ADICIONAL = [
 ];
 
 const FROM_POR_DEFECTO = 'B&S Logistics <contacto@byslogistics.com.co>';
+
+/**
+ * Cómo se presenta el origen del mensaje en el correo interno.
+ *
+ * `etiqueta` abre el asunto, para que la consulta se distinga de un golpe en
+ * la bandeja aunque el correo se lea desde el móvil y solo se vean las
+ * primeras palabras. `nombre` es la fila del cuerpo, y se completa con la
+ * página concreta desde la que se envió.
+ */
+const PROCEDENCIA = {
+  etiqueta: '[Formulario web]',
+  nombre: 'Formulario de contacto del sitio web',
+  sitio: 'byslogistics.com.co',
+};
+
+/**
+ * La página desde la que se envió, para poder decirlo en el correo.
+ *
+ * Se toma del `Referer`, no de un campo del formulario: un campo lo puede
+ * escribir cualquiera que llame al endpoint, y aquí el dato solo sirve si es
+ * de fiar. Se descarta todo lo que no sea del propio sitio, y de la URL solo
+ * se conserva la ruta —ni parámetros ni fragmento—, porque una búsqueda del
+ * catálogo puede arrastrar lo que la persona escribió y eso no pinta nada en
+ * el aviso interno.
+ */
+function origenDeLaConsulta(req: Request): string {
+  const propio = new URL(req.url).origin;
+  const referer = req.headers.get('referer');
+  if (!referer) return PROCEDENCIA.sitio;
+  try {
+    const url = new URL(referer);
+    if (url.origin !== propio) return PROCEDENCIA.sitio;
+    return `${PROCEDENCIA.sitio}${url.pathname}`;
+  } catch {
+    return PROCEDENCIA.sitio;
+  }
+}
 
 /**
  * El motivo de consulta del formulario. Repetido aquí y en el `<select>` de
@@ -150,6 +192,8 @@ interface Consulta {
   company: string;
   subject: string;
   message: string;
+  /** Sitio y ruta desde donde se envió. Ver `origenDeLaConsulta`. */
+  origen: string;
 }
 
 /** El armazón que comparten los dos correos: cabecera con la marca, tarjeta
@@ -200,8 +244,10 @@ function fila(etiqueta: string, valor: string): string {
 /** El aviso al equipo comercial. */
 function correoInterno(c: Consulta): { html: string; text: string } {
   const html = envoltorio(`
-    <h1 style="margin:0 0 16px;font-size:18px;color:#00203a;">Nueva consulta del sitio</h1>
+    <h1 style="margin:0 0 4px;font-size:18px;color:#00203a;">Nueva consulta del sitio web</h1>
+    <p style="margin:0 0 16px;font-size:13px;color:#64748b;">Enviada desde el ${esc(PROCEDENCIA.nombre.toLowerCase())} (${esc(c.origen)}).</p>
     <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:20px;">
+      ${fila('Origen', `${PROCEDENCIA.nombre} — ${c.origen}`)}
       ${fila('Nombre', c.name)}
       ${fila('Correo', c.email)}
       ${fila('Teléfono', c.phone)}
@@ -213,7 +259,8 @@ function correoInterno(c: Consulta): { html: string; text: string } {
     <p style="margin:20px 0 0;font-size:12px;color:#94a3b8;">Responda este correo directamente: va a la dirección que dejó la persona.</p>
   `);
   const text = [
-    'Nueva consulta del sitio',
+    'Nueva consulta del sitio web',
+    `Origen: ${PROCEDENCIA.nombre} — ${c.origen}`,
     '',
     `Nombre: ${c.name}`,
     `Correo: ${c.email}`,
@@ -308,6 +355,7 @@ export default async (req: Request, context: NetlifyContext) => {
     company: unaLinea((entrante.company ?? '').trim()),
     subject: MOTIVOS[entrante.subject ?? ''] ?? '',
     message,
+    origen: origenDeLaConsulta(req),
   };
 
   const token = process.env.RESEND_API_KEY;
@@ -336,7 +384,7 @@ export default async (req: Request, context: NetlifyContext) => {
       from,
       to: destinatarios,
       reply_to: `${name} <${email}>`,
-      subject: `Nueva consulta${datos.subject ? ` — ${datos.subject}` : ''} — ${name}`,
+      subject: `${PROCEDENCIA.etiqueta} Nueva consulta${datos.subject ? ` — ${datos.subject}` : ''} — ${name}`,
       html: interno.html,
       text: interno.text,
     },
