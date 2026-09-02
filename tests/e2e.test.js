@@ -1337,6 +1337,49 @@ describe('asistente del sitio', { skip: skip() }, () => {
     await page.close();
   });
 
+  test('el icono está centrado dentro del botón', async () => {
+    /*
+     * EL FALLO QUE ESTO VIGILA, porque no se ve en el código y no rompe nada:
+     * el botón del móvil es un cuadrado fijo de 56 px con un icono de 32, y sin
+     * `justify-content: center` un contenedor flexible manda los 24 px
+     * sobrantes al final —el icono se pega al borde izquierdo y queda 12 px
+     * fuera del centro—. A ojo se lee como «un icono feo», y se pierden dos
+     * intentos cambiando el dibujo antes de dar con el sitio.
+     *
+     * Se mide la TINTA del `path`, no la caja del `<svg>`: un icono puede estar
+     * en una caja centrada y aun así verse caído, porque el `viewBox` que trae
+     * un archivo SVG casi nunca coincide con lo que hay pintado dentro.
+     */
+    const page = await browser.newPage({
+      viewport: { width: 390, height: 844 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(300);
+
+    const desvio = await page.evaluate(() => {
+      const centro = el => {
+        const r = el.getBoundingClientRect();
+        return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+      };
+      const boton = centro(document.querySelector('.chat-launcher'));
+      const tinta = centro(
+        document.querySelector('.chat-launcher-icon svg path')
+      );
+      return { x: tinta.x - boton.x, y: tinta.y - boton.y };
+    });
+
+    // Un píxel de margen para el redondeo del navegador.
+    assert.ok(
+      Math.abs(desvio.x) <= 1,
+      `el icono está ${desvio.x.toFixed(1)} px fuera del centro horizontal`
+    );
+    assert.ok(
+      Math.abs(desvio.y) <= 1,
+      `el icono está ${desvio.y.toFixed(1)} px fuera del centro vertical`
+    );
+    await page.close();
+  });
+
   test('el lanzador enseña un icono, no un punto azul', async () => {
     /*
      * En el móvil el lanzador va sin etiqueta, así que el icono es lo único

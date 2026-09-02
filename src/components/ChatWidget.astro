@@ -55,27 +55,25 @@ const sugerencias = [
     >
       {
         /*
-          EL ICONO NO ESTÁ DIBUJADO AQUÍ: es `support_agent` de Material
-          Symbols (Google, Apache 2.0), copiado tal cual de su versión
-          «rounded». Antes había un globo de conversación hecho a mano, y
-          fueron dos intentos: a 32 px sobre un círculo, un globo dibujado a
-          ojo se lee como una mancha, y encima ya lo usa media web para
-          cualquier cosa.
+          EL ICONO NO ESTÁ DIBUJADO AQUÍ: es `chat-dots-fill` de Bootstrap
+          Icons (MIT), copiado tal cual. Hubo dos intentos de dibujar el globo
+          a mano y los dos se veían mal a 32 px; uno hecho por gente que dibuja
+          iconos aguanta el tamaño.
 
-          El auricular de soporte dice algo más concreto y más cierto: detrás
-          hay atención, y cuando el asistente no sabe algo pasa con una persona
-          del equipo. Es también el icono con el que la gente ya reconoce un
-          botón de ayuda.
-
-          Va como `path` suelto y no importado de una librería a propósito: el
-          sitio no arrastra dependencias por un icono, y `icons.ts` se mantiene
-          podado (ver AI_GUIDE).
+          Y OJO CON EL `viewBox`, QUE NO ES EL ORIGINAL. El de Bootstrap es
+          `0 0 16 16`, pero la tinta del dibujo va de y=1 a y=15,93: está 0,47
+          más abajo del centro de su propia caja. Al escalarlo dentro de un
+          cuadrado, ese medio punto se convierte en un icono que se ve caído.
+          El `viewBox` de aquí es la caja MEDIDA del dibujo, cuadrada y centrada
+          en él, así que lo que se ve queda en el centro exacto. Si algún día se
+          cambia de icono hay que volver a medirlo: el `viewBox` que trae un
+          archivo SVG casi nunca coincide con lo que hay pintado dentro.
         */
       }
       <span class="chat-launcher-icon" aria-hidden="true">
-        <svg viewBox="0 -960 960 960" fill="currentColor">
+        <svg viewBox="0 0.47 16 16" fill="currentColor">
           <path
-            d="M470-120q-12.75 0-21.37-8.68-8.63-8.67-8.63-21.5 0-12.82 8.63-21.32 8.62-8.5 21.37-8.5h310v-304q0-123.69-87.32-209.84Q605.36-780 480-780q-125.36 0-212.68 86.16Q180-607.69 180-484v224q0 8.5-5.75 14.25T160-240q-33 0-56.5-23.5T80-320v-80q0-21 10.5-39.5T120-469l3-53q8-68 39.5-126t79-101q47.5-43 109-67T480-840q68 0 129 24t109 66.5Q766-707 797-649t40 126l3 52q19 9 29.5 27t10.5 38v92q0 20-10.5 38T840-249v69q0 24.75-17.62 42.37Q804.75-120 780-120H470ZM359.82-410q-12.82 0-21.32-8.68-8.5-8.67-8.5-21.5 0-12.82 8.68-21.32 8.67-8.5 21.5-8.5 12.82 0 21.32 8.68 8.5 8.67 8.5 21.5 0 12.82-8.68 21.32-8.67 8.5-21.5 8.5Zm240 0q-12.82 0-21.32-8.68-8.5-8.67-8.5-21.5 0-12.82 8.68-21.32 8.67-8.5 21.5-8.5 12.82 0 21.32 8.68 8.5 8.67 8.5 21.5 0 12.82-8.68 21.32-8.67 8.5-21.5 8.5ZM241-462q-7-106 64-182t177-76q87 0 151 57.5T711-519q-89-1-162.5-50T434.72-698Q419-618 367.5-555.5T241-462Z"
+            d="M16 8c0 3.866-3.582 7-8 7a9 9 0 0 1-2.347-.306c-.584.296-1.925.864-4.181 1.234-.2.032-.352-.176-.273-.362.354-.836.674-1.95.77-2.966C.744 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7M5 8a1 1 0 1 0-2 0 1 1 0 0 0 2 0m4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2"
           ></path>
         </svg>
       </span>
@@ -402,6 +400,19 @@ const sugerencias = [
   .chat-launcher {
     display: inline-flex;
     align-items: center;
+    /*
+      `justify-content: center` ERA LO QUE FALTABA, y es el motivo por el que el
+      icono se veía descolocado desde el principio.
+
+      En el escritorio el botón mide lo que mide su contenido, así que no sobra
+      espacio y esta línea no hace nada. En el móvil, en cambio, el botón es un
+      cuadrado fijo de 56 px con un icono de 32: sin `justify-content`, un
+      contenedor flexible reparte los 24 px sobrantes al final, así que el icono
+      se pegaba al borde izquierdo y quedaba 12 px fuera del centro. A ojo
+      parecía «un icono feo»; era un icono bien puesto en el sitio equivocado.
+      Hay un test que lo mide, porque esto se rompe sin que nada falle.
+    */
+    justify-content: center;
     gap: 0.6rem;
     padding: 0.85rem 1.25rem 0.85rem 1rem;
     border: none;
