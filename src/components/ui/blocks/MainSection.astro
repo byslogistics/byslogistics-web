@@ -43,7 +43,18 @@ interface Props {
   <div
     class="relative mx-auto max-w-[85rem] px-10 py-16 sm:px-14 lg:px-20 lg:py-24"
   >
-    <div class="max-w-2xl">
+    {
+      /* Escalona la entrada de lo que hay dentro —titular, párrafo y botón— en
+        lugar de meterlos de golpe. Es el encabezado de casi todas las páginas
+        interiores, así que este atributo solo hace que media web entre con el
+        mismo gesto que el cierre de la portada.
+
+        `entrada` y no `cascada` porque esto se ve SIN hacer scroll: la cascada
+        la revela un observador de JavaScript, y arriba del todo eso deja al
+        titular escondido los milisegundos que tarda en cargar el módulo. La
+        entrada es CSS puro y arranca en el primer fotograma. Ver global.css. */
+    }
+    <div class="max-w-2xl" data-anim-entrada>
       {/* Section title */}
       <h1
         class="mb-5 text-4xl font-extrabold tracking-tight text-balance text-neutral-800 sm:text-5xl lg:text-6xl dark:text-neutral-100"

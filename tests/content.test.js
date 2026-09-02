@@ -223,6 +223,62 @@ describe('imágenes de marca', () => {
   });
 });
 
+describe('opiniones de Google', () => {
+  /*
+   * Esta lista NO la escribe un programador: la regenera
+   * `scripts/importar-resenas.mjs` a partir de un volcado que sube la clienta,
+   * y el volcado puede venir con reseñas a medias —sin texto, sin autor, con
+   * la puntuación en blanco—. Lo que se comprueba aquí es que lo que llegue a
+   * la portada esté completo, porque una tarjeta sin autor o sin estrellas no
+   * se distingue de un testimonio inventado, que es justo lo contrario de lo
+   * que la sección viene a hacer.
+   */
+  const fuente = readFileSync(P('src/data_files/opiniones.ts'), 'utf8');
+
+  const opiniones = [
+    ...fuente
+      .slice(fuente.indexOf('export const OPINIONES'))
+      .matchAll(/\{([\s\S]*?)\n  \}/g),
+  ].map(m => m[1]);
+
+  test('hay al menos una, y todas traen autor, texto y estrellas', () => {
+    assert.ok(opiniones.length > 0, 'la lista de opiniones quedó vacía');
+
+    for (const [i, opinion] of opiniones.entries()) {
+      assert.match(
+        opinion,
+        /autor: '[^']+'/,
+        `la reseña ${i + 1} no trae autor`
+      );
+      assert.match(
+        opinion,
+        /texto:\s*\n?\s*'[^']/,
+        `la reseña ${i + 1} no trae texto`
+      );
+      assert.match(
+        opinion,
+        /estrellas: [1-5],/,
+        `la reseña ${i + 1} no trae una puntuación de 1 a 5`
+      );
+    }
+  });
+
+  test('enlaza a la ficha real de Google', () => {
+    // Sin el enlace, la sección deja de ser comprobable y pasa a ser un
+    // testimonio más, que es lo que vino a sustituir.
+    assert.match(fuente, /ficha: 'https:\/\/maps\.app\.goo\.gl\/[A-Za-z0-9]+'/);
+  });
+
+  test('el importador y sus instrucciones siguen donde se dijo', () => {
+    // Si el script desaparece, la clienta se queda sin forma de publicar una
+    // reseña nueva y el archivo vuelve a editarse a mano.
+    assert.ok(existsSync(P('scripts/importar-resenas.mjs')));
+    const readme = readFileSync(P('📤SUBIR-CONTENIDO/README.md'), 'utf8');
+    assert.match(readme, /importar-resenas\.mjs/);
+    assert.match(readme, /resenas\.json/);
+  });
+});
+
 describe('sinónimos del buscador', () => {
   /*
    * Se lee el fuente en vez de importarlo, como con fichas.ts: el archivo usa

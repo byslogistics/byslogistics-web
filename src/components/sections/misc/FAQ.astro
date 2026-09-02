@@ -65,7 +65,13 @@ const conIndice = categorias.length > 1;
   <div class="grid gap-10 md:grid-cols-5">
     <div class="md:col-span-2">
       <div class="md:sticky md:top-28">
-        <div class="max-w-xs">
+        {
+          /* La cascada va AQUÍ DENTRO y no en la columna, que es la que lleva
+            el `md:sticky`: un `transform` sobre el elemento pegajoso —o sobre
+            su contenedor— le cambia el bloque de referencia y lo despega. Ver
+            global.css. */
+        }
+        <div class="max-w-xs" data-anim-cascada="izquierda">
           <Heading
             class="text-2xl font-bold text-neutral-800 md:text-4xl dark:text-neutral-200"
           >
@@ -105,8 +111,11 @@ const conIndice = categorias.length > 1;
         }
       </div>
     </div>
-    {/* FAQ accordion items */}
-    <div class="md:col-span-3">
+    {
+      /* Las preguntas entran detrás del titular. Van marcadas a mano porque la
+        sección ya no anima como un bloque: lleva una cascada dentro. */
+    }
+    <div class="md:col-span-3" data-anim data-anim-retraso="2">
       {
         categorias.map((categoria, indiceCategoria) => (
           <div

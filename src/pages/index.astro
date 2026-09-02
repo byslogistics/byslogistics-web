@@ -51,7 +51,8 @@ const soluciones = (await getCollection('soluciones')).sort(
   }
   <section id="soluciones" class="py-16 lg:py-24">
     <div class="mx-auto max-w-[85rem] px-10 sm:px-14 lg:px-20">
-      <div class="max-w-2xl">
+      {/* Escalonado, como el cierre de la página. Ver global.css. */}
+      <div class="max-w-2xl" data-anim-cascada="izquierda">
         <h2
           class="text-3xl font-bold text-balance text-neutral-800 lg:text-5xl dark:text-neutral-100"
         >
@@ -79,7 +80,11 @@ const soluciones = (await getCollection('soluciones')).sort(
         tres renglones tapan la foto.
       */
     }
-    <div class="mt-10 lg:mt-14">
+    {
+      /* El carrusel entra detrás del titular. Va marcado a mano porque la
+        sección ya no anima como un bloque: lleva una cascada dentro. */
+    }
+    <div class="mt-10 lg:mt-14" data-anim data-anim-retraso="3">
       <SolutionsCarousel
         soluciones={soluciones.map(solucion => ({
           id: solucion.id,

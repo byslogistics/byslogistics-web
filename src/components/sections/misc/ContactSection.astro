@@ -68,7 +68,11 @@ const copy = {
          resto del sitio (ver MainSection.astro). Centrado y en un cuerpo
          menor, esta era la única página que rompía el eje de lectura. */
     }
-    <div class="max-w-2xl">
+    {
+      /* `entrada` y no `cascada`: este encabezado se ve sin hacer scroll, y la
+        cascada la revela un observador de JavaScript. Ver global.css. */
+    }
+    <div class="max-w-2xl" data-anim-entrada>
       <h1
         class="mb-5 text-4xl font-extrabold tracking-tight text-balance text-neutral-800 sm:text-5xl lg:text-6xl dark:text-neutral-100"
       >
@@ -86,7 +90,14 @@ const copy = {
 <section class="mx-auto max-w-[85rem] px-10 pb-16 sm:px-14 lg:px-20 lg:pb-24">
   <div>
     <div class="mt-12 grid items-start gap-6 lg:grid-cols-2 lg:gap-16">
-      <div class="flex flex-col rounded-xl p-4 sm:p-6 lg:p-8">
+      {
+        /* El formulario entra desde la izquierda y los datos de contacto desde
+          la derecha, como las dos columnas del cierre de la portada. */
+      }
+      <div
+        class="flex flex-col rounded-xl p-4 sm:p-6 lg:p-8"
+        data-anim="izquierda"
+      >
         <h2
           class="mb-8 text-xl font-bold text-neutral-700 dark:text-neutral-300"
         >
@@ -179,7 +190,11 @@ const copy = {
         </form>
       </div>
 
-      <div class="divide-y divide-neutral-300 dark:divide-neutral-700">
+      <div
+        class="divide-y divide-neutral-300 dark:divide-neutral-700"
+        data-anim="derecha"
+        data-anim-retraso="1"
+      >
         <ContactIconBlock
           heading={copy.pbxHeading}
           content={copy.pbxContent}
@@ -213,7 +228,7 @@ const copy = {
     </div>
 
     {/* Mapa de la sede. loading="lazy" para no penalizar la carga inicial. */}
-    <div class="mt-12">
+    <div class="mt-12" data-anim>
       <h2 class="text-xl font-bold text-neutral-700 dark:text-neutral-300">
         {copy.mapHeading}
       </h2>

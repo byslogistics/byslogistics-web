@@ -18,15 +18,34 @@
  */
 
 /*
- * Lo que se anima. Dos familias, las mismas que declara el CSS:
+ * Lo que se anima. Tres familias, las mismas que declara el CSS:
  *   · lo marcado a mano con `data-anim` (menos el `no`, que es la salida);
- *   · toda sección hija de `<main>` salvo la primera, que está sobre el
- *     pliegue y no debe esconderse.
+ *   · los contenedores con `data-anim-cascada`, que escalonan a sus hijos;
+ *   · toda sección hija de `<main>` salvo la primera —que está sobre el
+ *     pliegue— y salvo las que ya animan por dentro con una cascada, que si
+ *     no entrarían dos veces.
+ *
+ * `:has()` es de 2023 y en un navegador que no lo entienda el selector entero
+ * sería inválido, así que va SOLO en su entrada de la lista y se prueba
+ * aparte: si falla, se pierde el automático de las secciones y no el resto.
  */
-const SELECTOR = [
+const SELECTORES = [
   '[data-anim]:not([data-anim="no"])',
-  'main[data-anim-scope] > section:not(:first-child):not([data-anim])',
-].join(', ');
+  '[data-anim-cascada]',
+  'main[data-anim-scope] > section:not(:first-child):not([data-anim]):not(:has([data-anim-cascada]))',
+];
+
+/** Los selectores que este navegador sabe leer. */
+function selectoresValidos() {
+  return SELECTORES.filter(selector => {
+    try {
+      document.querySelector(selector);
+      return true;
+    } catch {
+      return false;
+    }
+  });
+}
 
 /** Un pellizco de margen abajo: la aparición arranca cuando el elemento ya
  *  entró de verdad, no cuando asoma un píxel por el borde. */
@@ -39,7 +58,10 @@ function revelar(elemento) {
 }
 
 export function initAparecer() {
-  const elementos = document.querySelectorAll(SELECTOR);
+  const selector = selectoresValidos().join(', ');
+  if (!selector) return;
+
+  const elementos = document.querySelectorAll(selector);
   if (elementos.length === 0) return;
 
   // Sin IntersectionObserver no hay animación, pero tampoco contenido

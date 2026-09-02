@@ -168,8 +168,7 @@
  *   ni el estado inicial.
  * ------------------------------------------------------------------ */
 @media (prefers-reduced-motion: no-preference) {
-  .anim-js [data-anim]:not([data-anim='no']),
-  .anim-js main[data-anim-scope] > section:not(:first-child):not([data-anim]) {
+  .anim-js [data-anim]:not([data-anim='no']) {
     opacity: 0;
     transform: var(--anim-desde, translate3d(0, 1.75rem, 0));
     transition:
@@ -177,15 +176,151 @@
       transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--anim-retraso, 0ms);
   }
 
-  /* El estado final repite los dos selectores de arriba con `.anim-dentro`
-     añadido, y no se resuelve con una regla suelta, porque el del automático
-     es lo bastante específico como para ganarle a cualquier cosa más corta. */
-  .anim-js [data-anim]:not([data-anim='no']).anim-dentro,
-  .anim-js
-    main[data-anim-scope]
-    > section:not(:first-child):not([data-anim]).anim-dentro {
+  .anim-js [data-anim]:not([data-anim='no']).anim-dentro {
     opacity: 1;
     transform: none;
+  }
+
+  /*
+    El automático de las secciones va en SU PROPIA regla, separado del de
+    arriba, y no en una lista de selectores con él. El motivo es el `:has()`:
+    en un navegador que no lo entienda, un selector inválido tumba TODA la
+    lista en la que aparece, y con los dos juntos se caería también la
+    animación de lo marcado a mano. Separados, un navegador viejo solo pierde
+    el automático de las secciones —y lo que pierde es la animación, nunca el
+    contenido, que se ve entero—.
+
+    El `:has([data-anim-cascada])` saca de aquí a las secciones que animan sus
+    partes por dentro: si no, la sección entraría como un bloque y sus hijos
+    otra vez por su cuenta, y dos transiciones encadenadas sobre lo mismo se
+    ven emborronadas en lugar de escalonadas.
+  */
+  .anim-js
+    main[data-anim-scope]
+    > section:not(:first-child):not([data-anim]):not(
+      :has([data-anim-cascada])
+    ) {
+    opacity: 0;
+    transform: var(--anim-desde, translate3d(0, 1.75rem, 0));
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--anim-retraso, 0ms),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--anim-retraso, 0ms);
+  }
+
+  .anim-js
+    main[data-anim-scope]
+    > section:not(:first-child):not([data-anim]):not(
+      :has([data-anim-cascada])
+    ).anim-dentro {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ---------------- LA CASCADA ----------------
+   *
+   * Un bloque entero que entra de golpe se lee como una diapositiva que
+   * cambia. Escalonado —el epígrafe, el titular, el párrafo, los botones,
+   * cada uno un pelo después del anterior— se lee como algo que se está
+   * componiendo, y es la diferencia entre «la página tiene animaciones» y «la
+   * página está viva». Es el gesto del cierre de la portada, que es el que la
+   * clienta señaló como el que quiere en todas partes.
+   *
+   * `data-anim-cascada` se pone en el CONTENEDOR, y escalona a sus hijos
+   * directos. Un atributo por sección en vez de uno por renglón: menos que
+   * escribir, y sobre todo menos que olvidar al agregar un renglón nuevo.
+   */
+  .anim-js [data-anim-cascada] > * {
+    opacity: 0;
+    transform: var(--anim-desde, translate3d(0, 1.5rem, 0));
+    transition:
+      opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1) var(--anim-retraso, 0ms),
+      transform 0.65s cubic-bezier(0.22, 1, 0.36, 1) var(--anim-retraso, 0ms);
+  }
+
+  .anim-js [data-anim-cascada].anim-dentro > * {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* El escalón: 90 ms entre hermanos. Menos y no se percibe como orden; más y
+     el último renglón llega cuando ya se dejó de mirar. A partir del décimo se
+     dejan de escalonar: una lista de veinte entraría durante dos segundos. */
+  .anim-js [data-anim-cascada] > *:nth-child(2) {
+    --anim-retraso: 90ms;
+  }
+  .anim-js [data-anim-cascada] > *:nth-child(3) {
+    --anim-retraso: 180ms;
+  }
+  .anim-js [data-anim-cascada] > *:nth-child(4) {
+    --anim-retraso: 270ms;
+  }
+  .anim-js [data-anim-cascada] > *:nth-child(5) {
+    --anim-retraso: 360ms;
+  }
+  .anim-js [data-anim-cascada] > *:nth-child(6) {
+    --anim-retraso: 450ms;
+  }
+  .anim-js [data-anim-cascada] > *:nth-child(7) {
+    --anim-retraso: 540ms;
+  }
+  .anim-js [data-anim-cascada] > *:nth-child(n + 8) {
+    --anim-retraso: 630ms;
+  }
+
+  /* La cascada también puede entrar de lado, como la del cierre de la
+     portada: se le pasa la dirección al contenedor. */
+  .anim-js [data-anim-cascada='izquierda'] > * {
+    --anim-desde: translate3d(-2rem, 0, 0);
+  }
+
+  .anim-js [data-anim-cascada='derecha'] > * {
+    --anim-desde: translate3d(2rem, 0, 0);
+  }
+
+  /* ---------------- LO QUE ESTÁ SOBRE EL PLIEGUE ----------------
+   *
+   * `data-anim-entrada` es la misma cascada, pero PARA LO QUE YA SE VE AL
+   * abrir la página: el hero de la portada y el encabezado de cada página
+   * interior. Y es un mecanismo distinto por un motivo concreto:
+   *
+   *   La cascada de más arriba la revela un `IntersectionObserver`, y ese
+   *   observador es JavaScript: entre que el HTML se pinta y el módulo se
+   *   ejecuta hay unos milisegundos en los que lo marcado está escondido. Abajo
+   *   no se nota —nadie ha llegado todavía—, pero arriba sería el titular de la
+   *   empresa parpadeando en cada visita.
+   *
+   * Por eso esto NO cuelga de `.anim-js` ni espera a nadie: es una animación de
+   * CSS con `both`, que arranca en el primer fotograma. Funciona igual sin
+   * JavaScript, y como el elemento nunca depende de que alguien lo revele, no
+   * hay ventana en la que pueda quedarse invisible.
+   */
+  [data-anim-entrada] > * {
+    animation: anim-entrada 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--anim-retraso, 0ms);
+  }
+
+  [data-anim-entrada] > *:nth-child(2) {
+    --anim-retraso: 110ms;
+  }
+  [data-anim-entrada] > *:nth-child(3) {
+    --anim-retraso: 220ms;
+  }
+  [data-anim-entrada] > *:nth-child(4) {
+    --anim-retraso: 330ms;
+  }
+  [data-anim-entrada] > *:nth-child(n + 5) {
+    --anim-retraso: 440ms;
+  }
+
+  @keyframes anim-entrada {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 1.5rem, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   .anim-js [data-anim='izquierda'] {

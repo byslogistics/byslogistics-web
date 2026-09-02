@@ -89,7 +89,7 @@ const puntuacion = GOOGLE.puntuacion.toLocaleString('es-CO', {
 <section class="opiniones relative overflow-hidden">
   <div class="mx-auto max-w-[85rem] px-10 pt-16 sm:px-14 lg:px-20 lg:pt-24">
     <div class="lg:flex lg:items-end lg:justify-between lg:gap-12">
-      <div class="max-w-2xl">
+      <div class="max-w-2xl" data-anim-cascada="izquierda">
         <h2
           class="mb-3 text-3xl font-bold text-balance text-neutral-800 lg:text-5xl dark:text-neutral-100"
         >
@@ -189,6 +189,8 @@ const puntuacion = GOOGLE.puntuacion.toLocaleString('es-CO', {
   }
   <div
     class:list={['opiniones-cinta mt-10 lg:mt-14', enMovimiento && 'is-viva']}
+    data-anim
+    data-anim-retraso="2"
   >
     {
       filas.map((fila, indice) => (
@@ -304,6 +306,8 @@ const puntuacion = GOOGLE.puntuacion.toLocaleString('es-CO', {
 
   <div
     class="mx-auto max-w-[85rem] px-10 pt-10 pb-16 sm:px-14 lg:px-20 lg:pb-24"
+    data-anim
+    data-anim-retraso="3"
   >
     <a
       href={GOOGLE.ficha}

@@ -86,7 +86,26 @@ interface Props {
   <div
     class="relative mx-auto w-full max-w-[85rem] px-10 pt-32 pb-28 sm:px-14 lg:px-20 lg:pt-40 lg:pb-32"
   >
-    <div class="max-w-2xl">
+    {
+      /*
+        El titular, la frase y los botones entran escalonados al cargar. El
+        hero era lo único que se quedaba quieto mientras el resto de la página
+        aparecía al pasar por delante, y eso se notaba justo donde peor: en la
+        primera pantalla.
+
+        `data-anim-entrada` y no la cascada del resto del sitio, porque esto se
+        ve SIN hacer scroll. La cascada la revela un observador de JavaScript, y
+        aquí arriba eso deja el titular de la empresa escondido los
+        milisegundos que tarda en cargar el módulo, en cada visita. La entrada
+        es CSS puro, arranca en el primer fotograma y no depende de nadie. Ver
+        el bloque «APARICIÓN AL HACER SCROLL» de global.css.
+
+        La fotografía del fondo NO entra con ellos: es lo más grande de la
+        pantalla y lo que mide la métrica de carga, así que se pinta cuanto
+        antes y se queda.
+      */
+    }
+    <div class="max-w-2xl" data-anim-entrada>
       {
         /* About Fragment: https://docs.astro.build/en/basics/astro-syntax/#fragments */
       }
@@ -142,7 +161,7 @@ interface Props {
     nextSection && (
       <a
         href={`#${nextSection}`}
-        class="text-brand-100 absolute inset-x-0 bottom-8 mx-auto flex w-fit flex-col items-center gap-y-1 rounded-full px-4 py-2 text-xs font-medium ring-white outline-hidden transition hover:text-white focus-visible:ring-3"
+        class="hero-senal text-brand-100 absolute inset-x-0 bottom-8 mx-auto flex w-fit flex-col items-center gap-y-1 rounded-full px-4 py-2 text-xs font-medium ring-white outline-hidden transition hover:text-white focus-visible:ring-3"
       >
         <span>Nuestras soluciones</span>
         <svg
@@ -163,6 +182,25 @@ interface Props {
 </section>
 
 <style>
+  /* La señal llega la última, cuando ya hubo tiempo de leer el titular: antes
+     compite con él por la atención en la misma pantalla. */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-senal {
+      animation: hero-senal 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both;
+    }
+  }
+
+  @keyframes hero-senal {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 0.75rem, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   /* Un vaivén corto y lento: lo justo para que se lea como "sigue bajando" sin
      convertirse en el elemento que más se mueve de la portada. */
   .hero-cue {

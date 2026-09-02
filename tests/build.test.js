@@ -505,6 +505,45 @@ describe('metadatos de cada página', () => {
   });
 });
 
+/*
+ * EL SISTEMA DE APARICIÓN.
+ *
+ * Son tres atributos y ninguno se ve en el HTML sin buscarlo, así que se
+ * pierden en un refactor sin que nada falle: la página simplemente vuelve a
+ * quedarse quieta, que es de donde se venía. Lo que se vigila aquí es que
+ * sigan puestos, y sobre todo que lo de ARRIBA DEL TODO use `data-anim-entrada`
+ * —CSS puro, arranca en el primer fotograma— y no la cascada, que espera a un
+ * observador de JavaScript y dejaría el titular parpadeando en cada visita.
+ */
+describe('las animaciones de entrada', () => {
+  test('el contenido va dentro del alcance del automático', () => {
+    for (const p of pages()) {
+      assert.match(
+        p.html,
+        /<main[^>]*data-anim-scope/,
+        `${p.route} dejó <main> fuera del sistema de aparición`
+      );
+    }
+  });
+
+  test('lo que se ve sin hacer scroll entra con CSS, no con el observador', () => {
+    // El hero de la portada y el encabezado de las páginas interiores.
+    for (const ruta of ['/', '/nosotros/', '/contacto/', '/catalogo/']) {
+      const html = pages().find(p => p.route === ruta).html;
+      assert.match(
+        html,
+        /data-anim-entrada/,
+        `${ruta} no anima lo que se ve al abrirla`
+      );
+    }
+  });
+
+  test('la portada escalona sus secciones', () => {
+    const html = pages().find(p => p.route === '/').html;
+    assert.match(html, /data-anim-cascada/, 'la portada perdió la cascada');
+  });
+});
+
 describe('enlaces', () => {
   test('ningún enlace interno lleva a una página inexistente', () => {
     const rutas = new Set(pages().map(p => p.route));
@@ -587,14 +626,29 @@ describe('formularios', () => {
     }
   });
 
-  test('el de suscripción también manda a su endpoint, y está en todas las páginas', () => {
-    for (const p of pages()) {
-      if (p.route === '/404.html' || p.route.endsWith('404.html')) continue;
-      if (!p.html.includes('name="suscripcion"')) continue;
-      const form = p.html.match(/<form[^>]*name="suscripcion"[^>]*>/)[0];
-      assert.match(form, /data-contact-form/);
-      assert.doesNotMatch(form, /data-netlify/);
-    }
+  /*
+   * La suscripción vive SOLO en el cierre de la portada. Estaba también en el
+   * pie, y con las dos el mismo formulario salía dos veces en la misma
+   * pantalla de la home: se quitó la del pie. Lo que se vigila aquí es que no
+   * vuelva a colarse en todas las páginas por la puerta de atrás —el pie sale
+   * en todas—, y que la que queda siga mandando a su endpoint.
+   */
+  test('el de suscripción manda a su endpoint y solo está en la portada', () => {
+    const conSuscripcion = pages()
+      .filter(p => p.html.includes('name="suscripcion"'))
+      .map(p => p.route);
+
+    assert.deepEqual(
+      conSuscripcion,
+      ['/'],
+      'la suscripción tiene que estar en la portada y en ninguna otra página'
+    );
+
+    const form = pages()
+      .find(p => p.route === '/')
+      .html.match(/<form[^>]*name="suscripcion"[^>]*>/)[0];
+    assert.match(form, /data-contact-form/);
+    assert.doesNotMatch(form, /data-netlify/);
   });
 
   test('el formulario exige autorización de tratamiento de datos', () => {

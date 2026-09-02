@@ -2,11 +2,18 @@
 /**
  * Pie del sitio.
  *
- * Tres piezas, de arriba abajo:
+ * Dos piezas, de arriba abajo:
  *
- *   1. La rejilla: marca y datos de la empresa, las columnas de enlaces
- *      (Productos, Empresa, Legal) y la suscripción.
+ *   1. La rejilla: marca y datos de la empresa, y las columnas de enlaces
+ *      (Productos, Recursos, Empresa, Legal).
  *   2. La barra inferior: identidad legal —razón social y NIT— y redes.
+ *
+ * AQUÍ NO HAY SUSCRIPCIÓN, y no es un olvido. La había, y quedó duplicada
+ * cuando la portada estrenó su cierre con el boletín en una tarjeta propia
+ * (CierreSection.astro): el mismo formulario dos veces en la misma pantalla no
+ * suma suscriptores, resta claridad. Se quedó la de arriba, que es la que
+ * explica qué se recibe al suscribirse; el pie volvió a ser lo que tiene que
+ * ser: dónde encontrar a la empresa y a dónde ir.
  *
  * La columna «Legal» no se escribe aquí: sale de `strings.legalLinks`, que a
  * su vez sale de `LEGAL.documentos` en constants.ts. Es la misma lista de la
@@ -19,15 +26,10 @@
  * justo encima. Ver la nota de `LEGAL` en constants.ts.
  */
 import FooterSocialLink from '@components/ui/links/FooterSocialLink.astro';
-import EmailFooterInput from '@components/ui/forms/input/EmailFooterInput.astro';
 import strings from '@utils/navigation.ts';
 import Icon from '@components/ui/icons/Icon.astro';
 import BrandLogo from '@components/BrandLogo.astro';
-import { CONTACT, FORMS, LEGAL, SITE } from '@data/constants';
-
-const sectionThreeTitle: string = 'Manténgase al día';
-const sectionThreeContent: string =
-  'Reciba novedades sobre nuestros productos de seguridad preventiva.';
+import { CONTACT, LEGAL, SITE } from '@data/constants';
 // Only render the social icons that actually have a URL configured, so the
 // footer never links out to a placeholder profile.
 const socialIcons = [
@@ -54,12 +56,16 @@ const linkClass =
   >
     {
       /*
-      La rejilla crece de 2 columnas a 6 y a 7: en `lg` son marca (2), las tres
-      columnas de enlaces (1 cada una) y la suscripción (2).
+      La rejilla crece de 2 columnas a 6 y a 6: en `lg` son marca (2) y las
+      CUATRO columnas de enlaces —Productos, Recursos, Empresa y Legal—, una
+      cada una. Eran 7 cuando el pie llevaba la suscripción; al quitarla hay
+      que bajar a 6 exactos, ni más ni menos: con 7 quedaba un hueco a la
+      derecha, y con 5 la columna «Legal» no cabía y se caía a un segundo
+      renglón, debajo de la dirección de la empresa.
     */
     }
     <div
-      class="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-6 lg:grid-cols-7"
+      class="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-6 lg:grid-cols-6"
     >
       <div class="col-span-2 md:col-span-6 lg:col-span-2">
         {/* Brand Logo */}
@@ -125,40 +131,6 @@ const linkClass =
             ))
           }
         </ul>
-      </div>
-
-      <div class="col-span-2 md:col-span-6 lg:col-span-2">
-        <h3 class="font-bold text-neutral-800 dark:text-neutral-200">
-          {sectionThreeTitle}
-        </h3>
-
-        <form
-          name={FORMS.newsletter}
-          method="POST"
-          data-contact-form
-          data-form-success="¡Listo! Quedó suscrito a nuestras novedades."
-          data-form-fallback={`No pudimos completar la suscripción. Escríbenos a ${CONTACT.email} y lo agregamos a la lista.`}
-        >
-          {/* Trampa antispam */}
-          <input
-            type="checkbox"
-            name="botcheck"
-            class="hidden"
-            style="display:none"
-            tabindex="-1"
-            autocomplete="off"
-            aria-hidden="true"
-          />
-          <EmailFooterInput />
-          <p class="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
-            {sectionThreeContent} Al suscribirse acepta nuestra{' '}
-            <a
-              href="/politica-de-datos"
-              class="underline underline-offset-2 hover:text-neutral-800 dark:hover:text-neutral-200"
-              >Política de Tratamiento de Datos</a
-            >.
-          </p>
-        </form>
       </div>
     </div>
 
