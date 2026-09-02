@@ -59,9 +59,34 @@ const DESTINO = path.join(RAIZ, 'src/data_files/opiniones.ts');
  * Lectura del volcado
  * ------------------------------------------------------------------ */
 
+/**
+ * Deja el texto en una sola línea y le quita el rastro de la interfaz de
+ * Google. Son dos suciedades distintas y las dos vienen del volcado, no del
+ * cliente que escribió la reseña:
+ *
+ * 1. **Los glifos de iconos.** Google pinta sus estrellas con una tipografía
+ *    de iconos, y esos «caracteres» viven en el Área de Uso Privado de
+ *    Unicode (U+E000–U+F8FF). El fragmento del navegador se los lleva como si
+ *    fueran texto, así que el campo «cuándo» de la primera importación llegó
+ *    con cinco U+E838 —las cinco estrellas— en lugar de una fecha. En pantalla
+ *    no se ven, pero no están vacíos: el campo contaba como relleno y la
+ *    tarjeta reservaba sitio para una fecha que no existía. Fuera van también
+ *    los caracteres de ancho cero, que son igual de invisibles y igual de
+ *    molestos.
+ *
+ * 2. **El «… Más».** Es el botón de «ver más» que Google pone al final de los
+ *    textos largos, y el volcado se lo lleva pegado. Publicado tal cual queda
+ *    «…que se acople a la necesidad del cliente.… Más», que se lee como una
+ *    errata del cliente y no lo es. Se retira y se dejan los puntos
+ *    suspensivos: son la señal honrada de que la reseña sigue en Google, que
+ *    es a donde lleva la tarjeta.
+ */
 const limpiar = texto =>
   String(texto ?? '')
+    // Glifos de tipografía de iconos y caracteres invisibles.
+    .replace(/[\u{E000}-\u{F8FF}\u{F0000}-\u{FFFFD}\u200b-\u200f\ufeff]/gu, '')
     .replace(/\s+/g, ' ')
+    .replace(/(?:…|\.\.\.)\s*(?:Más|Mas|More)\s*$/i, '…')
     .trim();
 
 /** Una reseña con lo mínimo para pintarla, o `null` si no sirve. */

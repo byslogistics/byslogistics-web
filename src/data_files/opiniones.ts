@@ -56,18 +56,64 @@ export const GOOGLE = {
 /**
  * Las reseñas, copiadas de la ficha.
  *
- * ESTA LISTA ESTÁ INCOMPLETA, y conviene que quede escrito: hoy solo contiene
- * la reseña que ya estaba publicada en el sitio. El resto hay que copiarlas de
- * la ficha de Google, una por una, con el formato de la que ya está. La
- * sección se adapta al número que haya —con tres o más pasa a moverse sola,
- * con menos las deja quietas—, así que se puede ir completando sin tocar
- * código.
+ * Las importa `scripts/importar-resenas.mjs` desde un volcado de la
+ * ficha; no se escriben a mano salvo para corregir una que ya esté aquí.
  */
 export const OPINIONES: Opinion[] = [
+  {
+    autor: 'Rafael Márquez',
+    texto:
+      'Excelente calidad de los precintos, la atención por parte del asesor de ventas es muy buena y la entrega del producto está dentro del tiempo establecido.',
+    estrellas: 5,
+  },
+  {
+    autor: 'CIGAS GNV Operaciones',
+    texto:
+      'Rápida atención y brindan información clara sobre los productos. Muy amables y educados. Recomendados 100%',
+    estrellas: 5,
+  },
   {
     autor: 'Daniel Molina',
     texto:
       'Su asesoría al momento de elegir el producto que mejor se adaptara a las necesidades de mi empresa, fue clave para el éxito de los procesos logísticos de mi negocio. Los recomiendo.',
+    estrellas: 5,
+  },
+  {
+    autor: 'Milton Contreras',
+    texto:
+      'Excelente el servicio y la mejor disposición para buscar la solución mas acertada que se acople a la necesidad del cliente.…',
+    estrellas: 5,
+  },
+  {
+    autor: 'Edward leon',
+    texto:
+      'Buenas tardes a quien le interese la empresa byslogisticsltda es una empresa sería y muy comprometida con los productos ke ofrece(presintos de seguridad)...son de muy buena calidad y el personal es muy amable muchas gracias byslogistics',
+    estrellas: 5,
+  },
+  {
+    autor: 'Laprea ́s Technologies',
+    texto: 'Excelentes productos funcionales. Recomendados 100%.',
+    estrellas: 5,
+  },
+  {
+    autor: 'CRISTIAN ARIAS',
+    texto: 'Muy buen servicio solo deben mejorar en los tiempos de envíos',
+    estrellas: 5,
+  },
+  {
+    autor: 'Fernanda Robayo',
+    texto: 'Son muy ágiles en sus procesos y cumplimento en las entregas',
+    estrellas: 5,
+  },
+  {
+    autor: 'Transportes Alvarez',
+    texto:
+      'Recibimos los precintos de seguridad en Funza, Cundinamarca, en óptimas condiciones y dentro de lo esperado. Muy buena atención, calidad y cumplimiento. ¡Gracias por el excelente servicio!',
+    estrellas: 5,
+  },
+  {
+    autor: 'JULIANA VANESSA MADRID GÜIZA',
+    texto: 'Compré precintos de seguridad en Bogotá, excelente atencion',
     estrellas: 5,
   },
 ];
