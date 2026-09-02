@@ -70,22 +70,22 @@ netlify/functions/
 
 ### Páginas
 
-| Ruta                      | Contenido                                       |
-| ------------------------- | ----------------------------------------------- |
-| `/`                       | Portada: propuesta, soluciones, testimonio, CTA |
-| `/catalogo`               | Las 115 referencias con filtros y buscador      |
-| `/precintos`              | Índice de las 11 categorías de precintos        |
-| `/precintos/<categoría>`  | Referencias de una categoría                    |
-| `/productos`              | Índice de las 6 familias                        |
-| `/productos/<familia>`    | Familia con sus referencias agrupadas           |
-| `/usos`                   | Guías por aplicación y sectores atendidos       |
-| `/usos/<guía>`            | Guía de una aplicación concreta                 |
-| `/nosotros`               | Historia de la empresa                          |
-| `/faq`                    | Preguntas frecuentes                            |
-| `/contacto`               | Formulario, teléfonos y mapa                    |
-| `/terminos-y-condiciones` | Condiciones de uso del sitio                    |
-| `/politica-de-privacidad` | Privacidad del sitio web                        |
-| `/politica-de-datos`      | Tratamiento de datos personales (POGE01)        |
+| Ruta                      | Contenido                                                   |
+| ------------------------- | ----------------------------------------------------------- |
+| `/`                       | Portada: propuesta, soluciones, testimonio, CTA             |
+| `/catalogo`               | Las 118 referencias, con filtros, buscador, orden y páginas |
+| `/precintos`              | Índice de las 11 categorías de precintos                    |
+| `/precintos/<categoría>`  | Referencias de una categoría                                |
+| `/productos`              | Índice de las 6 familias                                    |
+| `/productos/<familia>`    | Familia con sus referencias agrupadas                       |
+| `/usos`                   | Guías por aplicación y sectores atendidos                   |
+| `/usos/<guía>`            | Guía de una aplicación concreta                             |
+| `/nosotros`               | Historia de la empresa                                      |
+| `/faq`                    | Preguntas frecuentes                                        |
+| `/contacto`               | Formulario, teléfonos y mapa                                |
+| `/terminos-y-condiciones` | Condiciones de uso del sitio                                |
+| `/politica-de-privacidad` | Privacidad del sitio web                                    |
+| `/politica-de-datos`      | Tratamiento de datos personales (POGE01)                    |
 
 ---
 
@@ -226,15 +226,17 @@ estaba. Y por debajo de `lg` el fondo se oculta, porque ahí el texto ocupa
 todo el ancho y cualquier imagen detrás estorbaría la lectura.
 
 La usan los encabezados de página (`MainSection`, props `backdrop` y
-`backdropTreatment`), los testimonios y el cierre de página (`HeroSectionAlt`).
+`backdropTreatment`) y el cierre de las páginas interiores (`HeroSectionAlt`).
 La sección contenedora debe ser `relative overflow-hidden` y su contenido ir en
 un `div` `relative`.
 
-El hero de la portada no lo usa: la fotografía ocupa el bloque entero y el
-texto va encima, con un velo azul en degradado que garantiza el contraste sin
-tapar la foto. Ese velo no es decoración: sobre una imagen, el texto blanco se
-lee o no según lo que caiga detrás de cada línea, y eso cambia con el ancho de
-la pantalla.
+Los dos bloques de la portada no lo usan: la fotografía ocupa el bloque entero
+y el texto va encima, con un velo azul en degradado que garantiza el contraste
+sin tapar la foto. Ese velo no es decoración: sobre una imagen, el texto blanco
+se lee o no según lo que caiga detrás de cada línea, y eso cambia con el ancho
+de la pantalla. Son el hero (`HeroSection`) y el cierre (`CierreSection`, con
+el CTA y la suscripción), y están montados igual a propósito: la portada abre y
+cierra con el mismo gesto.
 
 El hero mide `min-h-svh` —la pantalla completa— y empieza en el borde superior,
 por debajo de la barra de navegación, que va flotando por encima. `svh` y no

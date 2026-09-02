@@ -2,7 +2,7 @@
 /**
  * Logo oficial de B&S Logistics.
  *
- * Hay DOS archivos, y no es un descuido:
+ * Hay DOS logos, y no es un descuido:
  *
  * - `logo.png` es el de siempre, y es el que va en todas partes.
  * - `logo-navbar.png` es una versión que solo se usa en la barra de
@@ -10,19 +10,30 @@
  *   con `variante="navbar"`, que es lo único que la trae; ningún otro sitio
  *   debe pasarla.
  *
- * Los dos son PNG de 1600x839 con fondo transparente, así que Astro los
+ * Y cada uno tiene su PAREJA PARA FONDO OSCURO —`logo-oscuro.png` y
+ * `logo-navbar-oscuro.png`—, que se muestra con `hidden dark:block`. Las
+ * genera `scripts/make-dark-logo.mjs` a partir de las originales: al cambiar
+ * el logo hay que volver a correrlo, o el modo oscuro se queda con el logo
+ * viejo (hay un test que comprueba que las cuatro existan).
+ *
+ * ANTES SE HACÍA DE OTRA MANERA, y conviene saber por qué se dejó de hacer:
+ * las originales tienen las letras en negro y gris, así que en modo oscuro se
+ * dibujaban sobre una BASE BLANCA para que siguieran siendo legibles. El
+ * resultado era un recuadro blanco con un logo negro dentro, flotando dentro
+ * de una píldora de vidrio oscuro: la única mancha maciza de toda la barra.
+ * Con las versiones claras el fondo vuelve a ser transparente y el logo se
+ * apoya en el vidrio como todo lo demás.
+ *
+ * Los cuatro son PNG de 1600x839 con fondo transparente, así que Astro los
  * optimiza y genera sus versiones responsivas, y cambiar de uno a otro no
  * mueve nada de sitio. Quien lo usa controla el tamaño con la clase que le
  * pasa (`w-24`, `w-32`).
- *
- * Los dos existen solo en versión para fondo claro: sus letras son negras y
- * grises. En modo oscuro se dibujan sobre una base blanca para que sigan
- * siendo legibles. Si llega una versión para fondo oscuro, se puede importar
- * aquí y mostrarla con `hidden dark:block` en lugar de la base blanca.
  */
 import { Image } from 'astro:assets';
 import logo from '@images/brand/logo.png';
+import logoOscuro from '@images/brand/logo-oscuro.png';
 import logoNavbar from '@images/brand/logo-navbar.png';
+import logoNavbarOscuro from '@images/brand/logo-navbar-oscuro.png';
 
 const { class: className, variante = 'principal', ...rest } = Astro.props;
 
@@ -33,22 +44,38 @@ interface Props {
   [key: string]: unknown;
 }
 
-const fuente = variante === 'navbar' ? logoNavbar : logo;
+const esNavbar = variante === 'navbar';
+const claro = esNavbar ? logoNavbar : logo;
+const oscuro = esNavbar ? logoNavbarOscuro : logoOscuro;
+
+/* Compartidos por las dos versiones: tienen que medir y cargarse igual, o al
+   cambiar de tema el logo daría un salto. */
+const comunes = {
+  widths: [160, 320, 480],
+  sizes: '(min-width: 768px) 160px, 128px',
+  loading: 'eager' as const,
+};
 ---
 
-<span
-  class:list={[
-    'inline-block rounded-md dark:bg-white dark:px-1.5 dark:py-1',
-    className,
-  ]}
->
+<span class:list={['inline-block', className]}>
+  {
+    /* Las dos versiones van en el HTML y las conmuta el CSS, no un script: el
+       tema se resuelve antes de pintar (ver el script en línea de MainLayout),
+       así que nunca se ve el logo equivocado durante un instante. */
+  }
   <Image
-    src={fuente}
+    src={claro}
     alt="B&S Logistics"
-    widths={[160, 320, 480]}
-    sizes="(min-width: 768px) 160px, 128px"
-    class="h-auto w-full"
-    loading="eager"
+    class="h-auto w-full dark:hidden"
+    {...comunes}
+    {...rest}
+  />
+  <Image
+    src={oscuro}
+    alt="B&S Logistics"
+    class="hidden h-auto w-full dark:block"
+    aria-hidden="true"
+    {...comunes}
     {...rest}
   />
 </span>

@@ -179,7 +179,9 @@ products:
       - nombre: 'Gris'
         hex: '#8a8a8a'
       - nombre: 'Lila'
+        hex: '#a47dab'
       - nombre: 'Fucsia'
+        hex: '#ff00ff'
     personalizacion:
       - 'Logo de empresa'
       - 'Numeración consecutiva'
@@ -263,7 +265,9 @@ products:
       - nombre: 'Gris'
         hex: '#8a8a8a'
       - nombre: 'Lila'
+        hex: '#a47dab'
       - nombre: 'Fucsia'
+        hex: '#ff00ff'
     personalizacion:
       - 'Logo de empresa'
       - 'Numeración consecutiva'

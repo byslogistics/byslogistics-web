@@ -10,10 +10,19 @@ import { SITE } from '@data/constants';
 import { eventoDeListado } from '@utils/analytics';
 
 /**
- * Catálogo completo con filtros. Todas las referencias se imprimen en el HTML
- * y el filtrado ocurre en el navegador: son ~115 tarjetas, así que no hace
- * falta paginar ni pedir nada al servidor, y el catálogo sigue siendo
- * indexable por los buscadores.
+ * Catálogo completo con filtros, orden y páginas.
+ *
+ * TODAS las referencias se imprimen en el HTML —son ~118 tarjetas— y todo lo
+ * demás ocurre en el navegador: no se le pide nada al servidor, así que filtrar
+ * y cambiar de página es instantáneo y el catálogo entero sigue siendo
+ * indexable por los buscadores, que ven las ciento dieciocho en la misma
+ * página aunque a la vista solo haya veinticuatro.
+ *
+ * POR QUÉ HAY PÁGINAS SI ESTÁN TODAS CARGADAS. No es una limitación técnica,
+ * es una decisión de lectura: ciento dieciocho tarjetas seguidas son una
+ * columna sin fondo, y quien baja no sabe si va por la mitad o por el
+ * principio. En páginas de veinticuatro, la lista tiene principio y final, se
+ * puede volver a «la página 3» y el pie de la página vuelve a estar a mano.
  *
  * LOS FILTROS SON UN ACORDEÓN, NO DOS LISTAS.
  *
@@ -36,6 +45,21 @@ import { eventoDeListado } from '@utils/analytics';
  */
 const items = await getCatalog();
 const { families, groups } = getFacets(items);
+
+/**
+ * Referencias por página.
+ *
+ * Veinticuatro es lo que llena tres columnas de ocho filas sin dejar una fila
+ * coja, y es también más o menos lo que cabe en dos pantallas de escritorio:
+ * suficiente para que valga la pena bajar, poco para no perder el hilo. En la
+ * vista de lista caben más por pantalla, pero el tamaño de página no cambia:
+ * dos vistas con distinta paginación harían que «la página 3» significara dos
+ * cosas distintas y el enlace copiado dejaría de valer.
+ *
+ * Está también en el script de abajo, que es quien lo usa de verdad; aquí se
+ * necesita para pintar el primer rango («1–24 de 118») ya en el servidor.
+ */
+const POR_PAGINA = 24;
 
 const pageTitle = `Catálogo | ${SITE.title}`;
 const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} referencias en precintos de seguridad, etiquetas, cintas, bolsas, cajas, embalaje protector y rastreo satelital.`;
@@ -260,11 +284,125 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
           </button>
         </div>
 
-        <p class="text-sm text-neutral-600 dark:text-neutral-400">
-          Mostrando <span id="catalog-count">{items.length}</span> de {
-            items.length
-          } referencias
-        </p>
+        {
+          /*
+            LA BARRA DE RESULTADOS.
+
+            Reúne en un solo renglón las tres cosas que se hacen sobre una
+            lista larga: saber cuántas hay, ordenarlas y moverse por ellas. Se
+            repite abajo la paginación —y solo la paginación—, porque al
+            terminar una página el sitio donde se busca «siguiente» es el pie
+            de la lista, no la cabecera de la que ya se pasó.
+          */
+        }
+        <div class="catalogo-barra">
+          <p class="text-sm text-neutral-600 dark:text-neutral-400">
+            Mostrando <span id="catalog-rango"
+              >1–{Math.min(POR_PAGINA, items.length)}</span
+            > de <span id="catalog-count">{items.length}</span> referencias
+          </p>
+
+          <div class="catalogo-controles">
+            <div class="catalogo-orden">
+              <label for="catalog-orden" class="sr-only">
+                Ordenar el catálogo
+              </label>
+              <select id="catalog-orden">
+                <option value="">Orden del catálogo</option>
+                <option value="az">Nombre (A → Z)</option>
+                <option value="za">Nombre (Z → A)</option>
+              </select>
+            </div>
+
+            {
+              /*
+                Rejilla o lista. La rejilla enseña la foto grande —es como se
+                elige entre productos que se parecen—; la lista mete el triple
+                de referencias en la misma pantalla, que es lo que hace falta
+                cuando ya se sabe qué se busca y solo hay que dar con la medida.
+                Por debajo de `sm` no se ofrece: ahí la tarjeta ya va acostada
+                y las dos vistas serían la misma.
+              */
+            }
+            <div
+              class="catalogo-vistas"
+              role="group"
+              aria-label="Forma de ver el catálogo"
+            >
+              <button
+                type="button"
+                data-vista="rejilla"
+                aria-pressed="true"
+                aria-label="Ver en rejilla"
+                title="Ver en rejilla"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <rect x="3" y="3" width="7.5" height="7.5" rx="1.5"></rect>
+                  <rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"></rect>
+                  <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"></rect>
+                  <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"
+                  ></rect>
+                </svg>
+              </button>
+              <button
+                type="button"
+                data-vista="lista"
+                aria-pressed="false"
+                aria-label="Ver en lista"
+                title="Ver en lista"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="3.2" rx="1.5"></rect>
+                  <rect x="3" y="10.4" width="18" height="3.2" rx="1.5"></rect>
+                  <rect x="3" y="16.8" width="18" height="3.2" rx="1.5"></rect>
+                </svg>
+              </button>
+            </div>
+
+            <nav class="catalogo-paginas" aria-label="Páginas del catálogo">
+              <button
+                type="button"
+                data-pagina="anterior"
+                aria-label="Página anterior"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="m15 18-6-6 6-6"></path>
+                </svg>
+              </button>
+              <p class="catalogo-paginas-texto">
+                <span class="sr-only">Página</span>
+                <span id="catalog-pagina">1</span> de <span id="catalog-paginas"
+                  >1</span
+                >
+              </p>
+              <button
+                type="button"
+                data-pagina="siguiente"
+                aria-label="Página siguiente"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="m9 18 6-6-6-6"></path>
+                </svg>
+              </button>
+            </nav>
+          </div>
+        </div>
 
         {
           /*
@@ -293,44 +431,58 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
 
         {
           /*
-            En el móvil la tarjeta va acostada —foto a la izquierda, texto a la
-            derecha— y no de pie. De pie, con la foto ocupando el ancho de la
-            pantalla, cada referencia medía media pantalla de alto: recorrer
-            las ciento quince era un scroll interminable. Acostada caben tres o
-            cuatro a la vez, que es lo que hace falta para comparar las medidas
-            de un mismo producto.
+            LA TARJETA, EN TRES FORMAS.
+
+            · **En el móvil va acostada** —foto a la izquierda, texto a la
+              derecha—, y no de pie. De pie, con la foto ocupando el ancho de
+              la pantalla, cada referencia medía media pantalla de alto y
+              recorrerlas era un scroll interminable. Acostada caben tres o
+              cuatro a la vez, que es lo que hace falta para comparar las
+              medidas de un mismo producto.
+            · **En rejilla (de `sm` para arriba)** se pone de pie y la foto
+              pasa a ser cuadrada y grande. Es la vista de elegir: entre dos
+              precintos que se llaman casi igual, lo que decide es la foto, y
+              una foto pequeña no decide nada.
+            · **En lista** vuelve a acostarse a todo lo ancho. Es la vista de
+              buscar: cuando ya se sabe qué referencia se quiere y solo falta
+              dar con la medida, caben el triple en la misma pantalla.
+
+            Las tres son la misma tarjeta y el mismo marcado; lo que cambia es
+            el `data-vista` de la rejilla, y el resto lo resuelve el CSS.
           */
         }
         <div
           id="catalog-grid"
-          class="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3"
+          class="catalogo-rejilla mt-6"
+          data-vista="rejilla"
         >
           {
             items.map(item => (
               <article
-                class="group focus-within:ring-brand-500 relative flex overflow-hidden rounded-xl border border-neutral-300 bg-neutral-100 transition focus-within:ring-2 hover:border-neutral-400 sm:flex-col dark:border-neutral-700 dark:bg-neutral-900 dark:hover:border-neutral-500"
+                class="catalogo-tarjeta"
                 data-catalog-item
                 data-family={item.familyId}
                 data-group={item.groupId}
                 data-search={item.search}
+                data-nombre={item.name}
               >
                 {/* La foto no es un enlace aparte: el enlace del nombre se
                     estira sobre toda la tarjeta (ver `.catalog-enlace` en el
                     <style>), así que la foto, el epígrafe y el hueco entre
                     ellos llevan al mismo sitio con un solo objetivo táctil. */}
-                <div class="aspect-square w-2/5 shrink-0 self-start overflow-hidden bg-white sm:aspect-[4/3] sm:w-full sm:self-auto">
+                <div class="catalogo-foto">
                   {/* `alt` vacío a propósito: la foto va pegada al nombre, que
                       dice lo mismo. Con texto, un lector de pantalla leería
-                      dos veces cada una de las ciento quince referencias. La
-                      descripción de la foto vive en la ficha del producto, que
-                      es donde sí es la protagonista. */}
+                      dos veces cada una de las ciento dieciocho referencias.
+                      La descripción de la foto vive en la ficha del producto,
+                      que es donde sí es la protagonista. */}
                   {item.image ? (
                     <Image
                       src={item.image}
                       alt=""
-                      class="h-full w-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
-                      widths={[240, 480]}
-                      sizes="(min-width: 1280px) 16rem, (min-width: 640px) 40vw, 80vw"
+                      class="catalogo-imagen"
+                      widths={[240, 480, 720]}
+                      sizes="(min-width: 1280px) 22rem, (min-width: 640px) 40vw, 80vw"
                       loading="lazy"
                       draggable={false}
                     />
@@ -339,23 +491,19 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
                   )}
                 </div>
 
-                <div class="flex min-w-0 grow flex-col p-4 sm:p-5">
-                  <p class="text-brand-700 dark:text-brand-400 text-xs font-bold tracking-wide uppercase">
-                    {item.group}
-                  </p>
+                <div class="catalogo-cuerpo">
+                  <p class="catalogo-epigrafe">{item.group}</p>
                   {/* El nombre es el enlace, y no el epígrafe de encima: con
-                      ciento quince tarjetas, un lector de pantalla leía ciento
-                      quince enlaces llamados «precintos de correa dentada» que
-                      llevaban cada uno a un sitio distinto. */}
-                  <h2 class="mt-2 font-bold text-neutral-800 dark:text-neutral-200">
+                      ciento dieciocho tarjetas, un lector de pantalla leía
+                      ciento dieciocho enlaces llamados «precintos de correa
+                      dentada» que llevaban cada uno a un sitio distinto. */}
+                  <h2 class="catalogo-nombre">
                     <a href={item.url} class="catalog-enlace">
                       {item.name}
                     </a>
                   </h2>
                   {item.description && (
-                    <p class="mt-1 line-clamp-2 grow text-sm text-neutral-600 sm:line-clamp-3 dark:text-neutral-400">
-                      {item.description}
-                    </p>
+                    <p class="catalogo-descripcion">{item.description}</p>
                   )}
                   {!item.description && <div class="grow" />}
                   <AddToQuoteBtn
@@ -368,6 +516,24 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
             ))
           }
         </div>
+
+        {
+          /*
+            La paginación de abajo, con los números.
+
+            La de la barra de arriba es para saltar de una en una sin perder de
+            vista el recuento; esta es para ir a una página concreta, y está
+            donde se termina de leer la última tarjeta. Los botones los pinta el
+            script, porque cuántas páginas hay depende de lo que esté filtrado.
+          */
+        }
+        <nav
+          id="catalog-paginacion"
+          class="catalogo-paginacion"
+          aria-label="Páginas del catálogo"
+          hidden
+        >
+        </nav>
 
         <div id="catalog-empty" hidden class="mt-10 text-center">
           <p class="text-neutral-600 dark:text-neutral-400">
@@ -396,6 +562,416 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
 </MainLayout>
 
 <style>
+  /* ------------------------------------------------------------------ *
+   * LA BARRA DE RESULTADOS
+   * ------------------------------------------------------------------ */
+  .catalogo-barra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid var(--color-neutral-300);
+  }
+
+  :global(.dark) .catalogo-barra {
+    border-color: var(--color-neutral-700);
+  }
+
+  .catalogo-controles {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .catalogo-orden select {
+    min-height: 2.5rem;
+    padding: 0 2rem 0 0.75rem;
+    border: 1px solid var(--color-neutral-300);
+    border-radius: 0.6rem;
+    background-color: var(--color-neutral-100);
+    /* La flecha, dibujada a mano: el control nativo la pinta de un color
+       distinto en cada sistema y desentonaba con el resto de la barra. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23525252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    background-size: 0.9rem;
+    appearance: none;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--color-neutral-700);
+    cursor: pointer;
+  }
+
+  :global(.dark) .catalogo-orden select {
+    border-color: var(--color-neutral-700);
+    background-color: var(--color-neutral-800);
+    color: var(--color-neutral-300);
+  }
+
+  .catalogo-vistas {
+    display: none;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem;
+    border: 1px solid var(--color-neutral-300);
+    border-radius: 0.6rem;
+  }
+
+  /* Por debajo de `sm` la tarjeta ya va acostada: las dos vistas serían la
+     misma y el par de botones solo quitaría sitio. */
+  @media (min-width: 640px) {
+    .catalogo-vistas {
+      display: flex;
+    }
+  }
+
+  :global(.dark) .catalogo-vistas {
+    border-color: var(--color-neutral-700);
+  }
+
+  .catalogo-vistas button {
+    display: inline-flex;
+    width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 0.4rem;
+    background: transparent;
+    color: var(--color-neutral-500);
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+
+  .catalogo-vistas button:hover {
+    color: var(--color-neutral-800);
+  }
+
+  :global(.dark) .catalogo-vistas button:hover {
+    color: var(--color-neutral-200);
+  }
+
+  .catalogo-vistas button[aria-pressed='true'] {
+    background: var(--color-neutral-800);
+    color: var(--color-neutral-50);
+  }
+
+  :global(.dark) .catalogo-vistas button[aria-pressed='true'] {
+    background: var(--color-neutral-200);
+    color: var(--color-neutral-900);
+  }
+
+  .catalogo-vistas svg {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+
+  .catalogo-paginas {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .catalogo-paginas button {
+    display: inline-flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-neutral-300);
+    border-radius: 0.6rem;
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-700);
+    transition:
+      background-color 0.2s,
+      border-color 0.2s;
+  }
+
+  :global(.dark) .catalogo-paginas button {
+    border-color: var(--color-neutral-700);
+    background: var(--color-neutral-800);
+    color: var(--color-neutral-300);
+  }
+
+  .catalogo-paginas button:hover:not(:disabled) {
+    border-color: var(--color-brand-500);
+    color: var(--color-brand-700);
+  }
+
+  /* En la primera página no hay «anterior», y en la última no hay
+     «siguiente». Se deshabilitan en vez de esconderse: si desaparecieran, los
+     dos botones que quedan bailarían de sitio al cambiar de página. */
+  .catalogo-paginas button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .catalogo-paginas button svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .catalogo-paginas-texto {
+    min-width: 4.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-neutral-700);
+  }
+
+  :global(.dark) .catalogo-paginas-texto {
+    color: var(--color-neutral-300);
+  }
+
+  /* ------------------------------------------------------------------ *
+   * LA REJILLA Y SUS TARJETAS
+   * ------------------------------------------------------------------ */
+  .catalogo-rejilla {
+    display: grid;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .catalogo-rejilla[data-vista='rejilla'] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .catalogo-rejilla[data-vista='rejilla'] {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .catalogo-tarjeta {
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    border: 1px solid var(--color-neutral-300);
+    border-radius: 1rem;
+    background: var(--color-neutral-100);
+    transition:
+      transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.3s,
+      box-shadow 0.3s;
+  }
+
+  :global(.dark) .catalogo-tarjeta {
+    border-color: var(--color-neutral-700);
+    background: var(--color-neutral-900);
+  }
+
+  /* El relieve al pasar el cursor es lo que hace que la rejilla se lea como un
+     estante de productos y no como una tabla. Dos píxeles de subida: lo justo
+     para que se note cuál está señalada sin que la rejilla dé saltos. */
+  .catalogo-tarjeta:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-brand-400);
+    box-shadow: 0 22px 40px -28px rgb(0 32 58 / 0.6);
+  }
+
+  .catalogo-tarjeta:focus-within {
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 2px var(--color-brand-500);
+  }
+
+  /* --- La foto --- */
+  .catalogo-foto {
+    position: relative;
+    flex: none;
+    width: 40%;
+    /* Acostada, el plano blanco llega de arriba abajo de la tarjeta. Con el
+       alto atado a la foto quedaba un escalón gris por debajo de ella, y una
+       lista de tarjetas con un escalón de distinto tamaño cada una se lee como
+       si estuvieran mal cortadas. */
+    align-self: stretch;
+    min-height: 7.5rem;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .catalogo-imagen {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    padding: 1rem;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .catalogo-tarjeta:hover .catalogo-imagen {
+    transform: scale(1.06);
+  }
+
+  /* --- El texto --- */
+  .catalogo-cuerpo {
+    display: flex;
+    min-width: 0;
+    flex-grow: 1;
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .catalogo-epigrafe {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-brand-700);
+  }
+
+  :global(.dark) .catalogo-epigrafe {
+    color: var(--color-brand-400);
+  }
+
+  .catalogo-nombre {
+    margin-top: 0.4rem;
+    font-weight: 700;
+    line-height: 1.35;
+    text-wrap: balance;
+    color: var(--color-neutral-800);
+  }
+
+  :global(.dark) .catalogo-nombre {
+    color: var(--color-neutral-200);
+  }
+
+  .catalogo-descripcion {
+    margin-top: 0.4rem;
+    flex-grow: 1;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--color-neutral-600);
+    /* Recortada a dos renglones: con descripciones de trescientos caracteres,
+       sin recorte cada tarjeta medía el triple que su vecina y la rejilla
+       dejaba de ser una rejilla. */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  :global(.dark) .catalogo-descripcion {
+    color: var(--color-neutral-400);
+  }
+
+  /* --- De pie, en la vista de rejilla --- */
+  @media (min-width: 640px) {
+    .catalogo-rejilla[data-vista='rejilla'] .catalogo-tarjeta {
+      flex-direction: column;
+    }
+
+    .catalogo-rejilla[data-vista='rejilla'] .catalogo-foto {
+      width: 100%;
+      align-self: auto;
+      /* De pie sí manda la foto: cuadrada, y grande. Era 4:3 y a tres columnas
+         quedaba en una franja de doscientos píxeles. Entre dos precintos que
+         se llaman casi igual, lo que decide es la foto, y una foto pequeña no
+         decide nada. */
+      aspect-ratio: 1;
+    }
+
+    .catalogo-rejilla[data-vista='rejilla'] .catalogo-imagen {
+      padding: 1.75rem;
+    }
+
+    .catalogo-rejilla[data-vista='rejilla'] .catalogo-cuerpo {
+      padding: 1.25rem 1.35rem 1.35rem;
+    }
+
+    .catalogo-rejilla[data-vista='rejilla'] .catalogo-nombre {
+      font-size: 1.0625rem;
+    }
+
+    .catalogo-rejilla[data-vista='rejilla'] .catalogo-descripcion {
+      -webkit-line-clamp: 3;
+    }
+  }
+
+  /* --- Acostada y a todo lo ancho, en la vista de lista --- */
+  @media (min-width: 640px) {
+    .catalogo-rejilla[data-vista='lista'] {
+      gap: 0.75rem;
+    }
+
+    .catalogo-rejilla[data-vista='lista'] .catalogo-foto {
+      width: 9.5rem;
+    }
+
+    .catalogo-rejilla[data-vista='lista'] .catalogo-cuerpo {
+      padding: 1.1rem 1.35rem;
+    }
+
+    /* El botón de cotizar no tiene por qué ocupar todo el ancho de una fila de
+       mil píxeles: se encoge a su texto y se va al final. */
+    .catalogo-rejilla[data-vista='lista'] .catalogo-cuerpo :global(button) {
+      width: auto;
+      align-self: flex-start;
+      margin-top: 0.85rem;
+    }
+  }
+
+  /* ------------------------------------------------------------------ *
+   * LA PAGINACIÓN DE ABAJO
+   * ------------------------------------------------------------------ */
+  .catalogo-paginacion {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 2.5rem;
+  }
+
+  .catalogo-paginacion :global(button) {
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 0.6rem;
+    border: 1px solid var(--color-neutral-300);
+    border-radius: 0.6rem;
+    background: var(--color-neutral-100);
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-neutral-700);
+    transition:
+      background-color 0.2s,
+      border-color 0.2s,
+      color 0.2s;
+  }
+
+  :global(.dark) .catalogo-paginacion :global(button) {
+    border-color: var(--color-neutral-700);
+    background: var(--color-neutral-800);
+    color: var(--color-neutral-300);
+  }
+
+  .catalogo-paginacion :global(button:hover:not(:disabled)) {
+    border-color: var(--color-brand-500);
+    color: var(--color-brand-700);
+  }
+
+  .catalogo-paginacion :global(button[aria-current='page']) {
+    border-color: var(--color-brand-600);
+    background: var(--color-brand-600);
+    color: #fff;
+  }
+
+  .catalogo-paginacion :global(button:disabled) {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* El hueco entre saltos de página («1 2 … 9 10»). No es un botón: no hay a
+     dónde llevar, solo dice que en medio faltan páginas. */
+  .catalogo-paginacion :global(.catalogo-salto) {
+    padding: 0 0.35rem;
+    color: var(--color-neutral-500);
+  }
+
   /* El acordeón de filtros. Va en CSS y no en clases sueltas porque son
      estados —abierto, cerrado, seleccionado— y no una lista de utilidades. */
   .familia-cabecera {
@@ -585,8 +1161,18 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .filtros-chevron {
+    .filtros-chevron,
+    .catalogo-tarjeta,
+    .catalogo-imagen {
       transition: none;
+    }
+
+    .catalogo-tarjeta:hover {
+      transform: none;
+    }
+
+    .catalogo-tarjeta:hover .catalogo-imagen {
+      transform: none;
     }
   }
 </style>
@@ -618,6 +1204,41 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
       document.querySelectorAll<HTMLDetailsElement>('[data-familia]')
     );
 
+    /* Orden, vista y páginas */
+    const rango = document.getElementById('catalog-rango');
+    const selectOrden = document.getElementById(
+      'catalog-orden'
+    ) as HTMLSelectElement | null;
+    const vistas = Array.from(
+      document.querySelectorAll<HTMLButtonElement>('[data-vista]')
+    ).filter(boton => boton.tagName === 'BUTTON');
+    const numeroPagina = document.getElementById('catalog-pagina');
+    const numeroPaginas = document.getElementById('catalog-paginas');
+    const paginacion = document.getElementById('catalog-paginacion');
+    const saltos = Array.from(
+      document.querySelectorAll<HTMLButtonElement>('[data-pagina]')
+    );
+
+    /*
+     * Referencias por página. El mismo número que usa la plantilla para pintar
+     * el primer rango en el servidor (`POR_PAGINA` en el frontmatter): si los
+     * dos dejan de coincidir, el «1–24 de 118» del primer pintado diría una
+     * cosa y el script otra en cuanto se tocara cualquier filtro.
+     */
+    const POR_PAGINA = 24;
+
+    /** Cuántos números de página se enseñan alrededor del actual antes de
+     *  resumir con puntos suspensivos. */
+    const VECINAS = 1;
+
+    let pagina = 1;
+    let orden = '';
+
+    /** El orden original del catálogo: agrupado por línea y categoría. Se
+     *  guarda al arrancar porque ordenar por nombre mueve los nodos, y sin
+     *  esta copia no habría manera de volver. */
+    const ordenOriginal = cards.slice();
+
     const radios = () =>
       Array.from(
         document.querySelectorAll<HTMLInputElement>('input[name="filtro"]')
@@ -644,6 +1265,103 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
     let ultimaBusquedaMedida = '';
     let temporizador: ReturnType<typeof setTimeout> | undefined;
 
+    /**
+     * Reordena las tarjetas.
+     *
+     * Se mueven los nodos de sitio en lugar de pintarlos otra vez: son ciento
+     * dieciocho tarjetas con su foto ya cargada, y volver a crearlas obligaría
+     * al navegador a redescargarlo todo. `appendChild` sobre un nodo que ya
+     * está en el documento lo MUEVE, no lo duplica, así que basta con
+     * recorrerlas en el orden nuevo.
+     */
+    function ordenar() {
+      const lista =
+        orden === 'az' || orden === 'za'
+          ? ordenOriginal.slice().sort((a, b) => {
+              const comparacion = (a.dataset.nombre ?? '').localeCompare(
+                b.dataset.nombre ?? '',
+                'es',
+                { numeric: true, sensitivity: 'base' }
+              );
+              return orden === 'za' ? -comparacion : comparacion;
+            })
+          : ordenOriginal;
+
+      for (const card of lista) grid!.appendChild(card);
+      // `cards` se usa para filtrar y paginar en el orden en que se ven.
+      cards.length = 0;
+      cards.push(...lista);
+    }
+
+    /**
+     * Los botones de página de abajo: «‹ 1 2 3 … 9 ›».
+     *
+     * Con cinco páginas caben todas; con veinte no, así que se enseñan la
+     * primera, la última y las vecinas de la actual, y el resto se resume con
+     * puntos suspensivos. Es lo que permite que la fila mida siempre lo mismo
+     * en lugar de crecer con el catálogo.
+     */
+    function pintarPaginacion(total: number) {
+      if (!paginacion) return;
+
+      paginacion.hidden = total <= 1;
+      paginacion.replaceChildren();
+      if (total <= 1) return;
+
+      const flecha = (destino: number, etiqueta: string, glifo: string) => {
+        const boton = document.createElement('button');
+        boton.type = 'button';
+        boton.textContent = glifo;
+        boton.setAttribute('aria-label', etiqueta);
+        boton.disabled = destino < 1 || destino > total;
+        boton.addEventListener('click', () => irA(destino));
+        return boton;
+      };
+
+      paginacion.append(flecha(pagina - 1, 'Página anterior', '‹'));
+
+      let anterior = 0;
+      for (let n = 1; n <= total; n++) {
+        const cerca = Math.abs(n - pagina) <= VECINAS;
+        if (n !== 1 && n !== total && !cerca) continue;
+
+        if (anterior && n - anterior > 1) {
+          const salto = document.createElement('span');
+          salto.className = 'catalogo-salto';
+          salto.textContent = '…';
+          salto.setAttribute('aria-hidden', 'true');
+          paginacion.append(salto);
+        }
+
+        const boton = document.createElement('button');
+        boton.type = 'button';
+        boton.textContent = String(n);
+        boton.setAttribute('aria-label', `Página ${n} de ${total}`);
+        if (n === pagina) boton.setAttribute('aria-current', 'page');
+        boton.addEventListener('click', () => irA(n));
+        paginacion.append(boton);
+        anterior = n;
+      }
+
+      paginacion.append(flecha(pagina + 1, 'Página siguiente', '›'));
+    }
+
+    /**
+     * Va a una página y sube a donde empiezan los resultados.
+     *
+     * Sin ese salto, pulsar «siguiente» desde el pie de la lista deja la
+     * página nueva empezada por la mitad y parece que no ha pasado nada.
+     * `scrollIntoView` sobre la barra y no sobre la rejilla, para que el
+     * recuento («Mostrando 25–48 de 118») quede a la vista.
+     */
+    function irA(destino: number) {
+      pagina = Math.max(1, destino);
+      apply();
+      document
+        .querySelector('.catalogo-barra')
+        ?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+
     function apply() {
       const radio = marcado();
       const valor = radio?.value ?? '';
@@ -661,18 +1379,47 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
       // aparece en ningún nombre.
       const palabras = term ? term.split(/\s+/) : [];
 
-      let visible = 0;
+      /*
+       * DOS MOTIVOS PARA NO VERSE, y no hay que confundirlos: que la
+       * referencia no case con el filtro, y que case pero esté en otra página.
+       * El recuento de arriba y el mensaje de «no encontramos nada» hablan del
+       * PRIMERO —de cuántas hay—, mientras que el atributo `hidden` responde a
+       * los dos. Por eso primero se juntan las que casan y solo después se
+       * decide cuáles de ellas se pintan.
+       */
+      const coincidentes: HTMLElement[] = [];
       for (const card of cards) {
         const indice = card.dataset.search ?? '';
         const coincide =
           (tipo !== 'familia' || card.dataset.family === id) &&
           (tipo !== 'grupo' || card.dataset.group === id) &&
           palabras.every(palabra => indice.includes(palabra));
-        card.hidden = !coincide;
-        if (coincide) visible++;
+        if (coincide) coincidentes.push(card);
       }
 
+      const visible = coincidentes.length;
+      const totalPaginas = Math.max(1, Math.ceil(visible / POR_PAGINA));
+      // Al filtrar, la página en la que se estaba puede dejar de existir.
+      if (pagina > totalPaginas) pagina = totalPaginas;
+
+      const desde = (pagina - 1) * POR_PAGINA;
+      const hasta = desde + POR_PAGINA;
+      const enPantalla = new Set(coincidentes.slice(desde, hasta));
+      for (const card of cards) card.hidden = !enPantalla.has(card);
+
       if (count) count.textContent = String(visible);
+      if (rango) {
+        rango.textContent =
+          visible === 0 ? '0' : `${desde + 1}–${Math.min(hasta, visible)}`;
+      }
+      if (numeroPagina) numeroPagina.textContent = String(pagina);
+      if (numeroPaginas) numeroPaginas.textContent = String(totalPaginas);
+      for (const boton of saltos) {
+        const siguiente = boton.dataset.pagina === 'siguiente';
+        boton.disabled = siguiente ? pagina >= totalPaginas : pagina <= 1;
+      }
+      pintarPaginacion(totalPaginas);
+
       if (empty) empty.hidden = visible > 0;
       if (searchClear) searchClear.hidden = !search?.value;
       pintarSinonimo(cambios);
@@ -744,10 +1491,20 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
      */
     function escribirUrl(filtro: string, termino: string) {
       const url = new URL(window.location.href);
+      /*
+       * Solo se escribe lo que se APARTA de lo normal: sin `p` es la primera
+       * página y sin `o` es el orden del catálogo. Así el enlace que se copia
+       * y se manda por WhatsApp sigue siendo `/catalogo?f=grupo:...` y no una
+       * ristra de parámetros que no dicen nada.
+       */
       if (filtro) url.searchParams.set('f', filtro);
       else url.searchParams.delete('f');
       if (termino) url.searchParams.set('q', termino);
       else url.searchParams.delete('q');
+      if (pagina > 1) url.searchParams.set('p', String(pagina));
+      else url.searchParams.delete('p');
+      if (orden) url.searchParams.set('o', orden);
+      else url.searchParams.delete('o');
       const destino = url.pathname + url.search;
       if (destino !== window.location.pathname + window.location.search) {
         window.history.replaceState(null, '', destino);
@@ -759,6 +1516,17 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
       const params = new URLSearchParams(window.location.search);
       const termino = params.get('q') ?? '';
       const filtro = params.get('f') ?? '';
+
+      const pedida = Number(params.get('p'));
+      if (Number.isFinite(pedida) && pedida > 0) pagina = Math.trunc(pedida);
+
+      const ordenPedido = params.get('o') ?? '';
+      if (ordenPedido === 'az' || ordenPedido === 'za') {
+        orden = ordenPedido;
+        if (selectOrden) selectOrden.value = orden;
+        ordenar();
+      }
+
       if (search && termino) search.value = termino;
       if (!filtro) return;
       const radio = radios().find(item => item.value === filtro);
@@ -776,15 +1544,78 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
       // Al limpiar se cierran los desplegables: el panel vuelve al estado en
       // el que se llegó a la página, con las seis líneas a la vista.
       for (const familia of familias) familia.open = false;
+      pagina = 1;
       apply();
     }
 
+    /*
+     * TOCAR UN FILTRO O EL BUSCADOR DEVUELVE A LA PRIMERA PÁGINA.
+     *
+     * Sin esto, quien estaba en la página 4 y escribe una palabra se queda
+     * mirando la página 4 de un resultado que ahora tiene dos: la lista se ve
+     * vacía y parece que la búsqueda no encontró nada.
+     */
     document.addEventListener('change', event => {
       const target = event.target as HTMLElement;
-      if (target.matches('input[name="filtro"]')) apply();
+      if (target.matches('input[name="filtro"]')) {
+        pagina = 1;
+        apply();
+      }
     });
 
-    search?.addEventListener('input', apply);
+    search?.addEventListener('input', () => {
+      pagina = 1;
+      apply();
+    });
+
+    selectOrden?.addEventListener('change', () => {
+      orden = selectOrden.value;
+      ordenar();
+      pagina = 1;
+      apply();
+    });
+
+    /*
+     * Rejilla o lista. La elección se recuerda en el navegador y no en la URL:
+     * es una preferencia de quien mira, no parte de lo que se está mirando, y
+     * no tiene por qué viajar en un enlace que se manda a un cliente.
+     */
+    const VISTA_GUARDADA = 'bys_catalogo_vista';
+
+    function ponerVista(vista: string) {
+      grid!.dataset.vista = vista;
+      for (const boton of vistas) {
+        boton.setAttribute(
+          'aria-pressed',
+          String(boton.dataset.vista === vista)
+        );
+      }
+      try {
+        localStorage.setItem(VISTA_GUARDADA, vista);
+      } catch {
+        // Modo privado o almacenamiento lleno: la vista funciona igual, solo
+        // que no se recuerda para la próxima visita.
+      }
+    }
+
+    for (const boton of vistas) {
+      boton.addEventListener('click', () =>
+        ponerVista(boton.dataset.vista ?? 'rejilla')
+      );
+    }
+
+    try {
+      const guardada = localStorage.getItem(VISTA_GUARDADA);
+      if (guardada === 'lista' || guardada === 'rejilla') ponerVista(guardada);
+    } catch {
+      // Ver arriba.
+    }
+
+    for (const boton of saltos) {
+      boton.addEventListener('click', () =>
+        irA(pagina + (boton.dataset.pagina === 'siguiente' ? 1 : -1))
+      );
+    }
 
     searchClear?.addEventListener('click', () => {
       if (search) search.value = '';
@@ -812,6 +1643,7 @@ const metaDescription = `Catálogo completo de B&S Logistics: ${items.length} re
         const todas = radios().find(radio => radio.value === '');
         if (todas) todas.checked = true;
       }
+      pagina = 1;
       apply();
       search?.focus();
     });

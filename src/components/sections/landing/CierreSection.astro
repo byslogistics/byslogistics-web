@@ -1,0 +1,280 @@
+---
+import { Image } from 'astro:assets';
+import PrimaryCTA from '@components/ui/buttons/PrimaryCTA.astro';
+import SecondaryCTA from '@components/ui/buttons/SecondaryCTA.astro';
+import cierreDefault from '@images/backgrounds/centro-de-distribucion.jpg';
+import { CONTACT, FORMS } from '@data/constants';
+
+/**
+ * Cierre de la portada: el último llamado antes del pie.
+ *
+ * QUÉ CAMBIÓ Y POR QUÉ. Antes era `HeroSectionAlt`, un bloque de texto con la
+ * foto arrinconada en una franja lateral que ni siquiera se veía por debajo de
+ * 1024 px (ver SectionBackdrop). El resultado: la página terminaba en un
+ * párrafo. Ahora es una pantalla completa, montada como el hero de arriba —la
+ * fotografía a sangre, el velo de marca encima y el texto sobre ella—, de modo
+ * que la portada abre y cierra con el mismo gesto.
+ *
+ * LA FOTO es del centro de distribución al atardecer, con los remolques
+ * precintados en fila: es literalmente el trabajo del cliente, así que va a
+ * plena intensidad y en horizontal, que es como está compuesta. Recortarla a
+ * una franja vertical dejaba fuera la fila de remolques, que es lo que cuenta
+ * la escena.
+ *
+ * DOS LLAMADOS, Y NO SE PISAN. La columna izquierda pide una conversación —el
+ * formulario de contacto o WhatsApp, que es donde se cierra una venta—; la
+ * derecha pide solo un correo. Son dos niveles de compromiso muy distintos, y
+ * por eso la suscripción va en su propia tarjeta: pegada debajo de los botones
+ * se leía como un tercer botón, y quien no estaba listo para escribir tampoco
+ * dejaba el correo.
+ *
+ * LA TARJETA DE SUSCRIPCIÓN NO REPITE al pie por descuido: el pie es donde se
+ * busca a propósito, este es donde se ofrece. Es el mismo formulario y el
+ * mismo endpoint (/api/suscripcion, ver contactForms.js); lo único que no se
+ * puede repetir es el `id` del campo, o la etiqueta dejaría de apuntar al suyo.
+ */
+interface Props {
+  title: string;
+  subTitle?: string;
+  url?: string;
+  btnTitle?: string;
+  /** La fotografía del fondo. Horizontal: ocupa el bloque entero. */
+  imagen?: ImageMetadata;
+}
+
+const {
+  title,
+  subTitle,
+  url,
+  btnTitle = 'Contáctenos',
+  imagen = cierreDefault,
+} = Astro.props;
+
+/** Lo que se gana suscribiéndose, dicho en concreto. «Novedades» no es un
+ *  motivo; saber qué referencia entró y qué norma cambió, sí. */
+const promesas = [
+  'Referencias nuevas y cambios de catálogo',
+  'Guías para elegir el precinto de cada operación',
+  'Avisos de normativa y certificaciones',
+];
+---
+
+<section class="cierre relative isolate flex items-center overflow-hidden">
+  <Image
+    src={imagen}
+    alt=""
+    class="absolute inset-0 -z-20 h-full w-full object-cover"
+    widths={[640, 1024, 1440, 1920]}
+    sizes="100vw"
+    loading="lazy"
+    decoding="async"
+    draggable={false}
+  />
+
+  {
+    /* El velo. Igual que en el hero, no es decoración: sobre una fotografía el
+      texto blanco se lee o no según lo que caiga detrás de cada renglón, y eso
+      cambia con el ancho de la pantalla. El degradado —opaco a la izquierda,
+      donde va el texto, y apenas velado a la derecha, donde está la nave—
+      garantiza el contraste en cualquier recorte sin tapar la foto. No llega a
+      transparente del todo: por ese lado va la tarjeta de suscripción, que es
+      texto blanco sobre vidrio, y sobre el cielo del atardecer se perdía. El
+      segundo, vertical, es lo que separa el bloque del pie sin una línea. */
+  }
+  <div
+    class="from-brand-950/95 via-brand-950/75 to-brand-950/35 absolute inset-0 -z-10 bg-gradient-to-r"
+    aria-hidden="true"
+  >
+  </div>
+  <div
+    class="to-brand-950/80 absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-b from-transparent"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div
+    class="relative mx-auto w-full max-w-[85rem] px-10 py-20 sm:px-14 lg:px-20 lg:py-28"
+  >
+    <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+      {/* Columna 1: el llamado de siempre, ahora sobre la foto. */}
+      <div>
+        <p
+          class="text-brand-200 flex items-center gap-x-3 text-xs font-bold tracking-[0.14em] uppercase"
+          data-anim="izquierda"
+        >
+          <span class="bg-brand-300/70 block h-px w-10" aria-hidden="true"
+          ></span>
+          Estamos aquí para ayudarle
+        </p>
+        <h2
+          class="mt-5 text-4xl font-bold tracking-tight text-balance text-white drop-shadow-sm md:text-5xl lg:text-6xl"
+          data-anim="izquierda"
+          data-anim-retraso="1"
+        >
+          {title}
+        </h2>
+        {
+          subTitle && (
+            <p
+              class="text-brand-50 mt-6 max-w-prose text-lg leading-relaxed text-pretty lg:text-xl"
+              data-anim="izquierda"
+              data-anim-retraso="2"
+            >
+              {subTitle}
+            </p>
+          )
+        }
+        {
+          url && (
+            <div
+              class="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center"
+              data-anim="izquierda"
+              data-anim-retraso="3"
+            >
+              <PrimaryCTA title={btnTitle} url={url} size="lg" tone="onBrand" />
+              <SecondaryCTA
+                title="Escribir por WhatsApp"
+                url={CONTACT.whatsapp}
+                size="lg"
+                tone="onBrand"
+              />
+            </div>
+          )
+        }
+      </div>
+
+      {/* Columna 2: la suscripción, en su propia tarjeta de vidrio. */}
+      <div
+        class="cierre-tarjeta rounded-3xl border border-white/25 bg-white/10 p-7 backdrop-blur-md sm:p-9"
+        data-anim="derecha"
+        data-anim-retraso="2"
+      >
+        <p class="text-brand-200 text-xs font-bold tracking-[0.14em] uppercase">
+          Boletín de B&S Logistics
+        </p>
+        <h3 class="mt-3 text-2xl font-bold text-balance text-white sm:text-3xl">
+          Entérese antes que su competencia
+        </h3>
+        <p class="text-brand-50 mt-3 text-pretty">
+          Un correo cuando hay algo que de verdad le sirve. Sin publicidad de
+          relleno, y se da de baja cuando quiera.
+        </p>
+
+        <ul class="mt-6 grid gap-3">
+          {
+            promesas.map(promesa => (
+              <li class="text-brand-50 flex items-start gap-x-3 text-sm">
+                <span
+                  class="bg-brand-300/25 text-brand-100 mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full"
+                  aria-hidden="true"
+                >
+                  <svg
+                    class="h-3 w-3"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="m5 13 4 4L19 7" />
+                  </svg>
+                </span>
+                {promesa}
+              </li>
+            ))
+          }
+        </ul>
+
+        <form
+          class="mt-7"
+          name={FORMS.newsletter}
+          method="POST"
+          data-contact-form
+          data-form-success="¡Listo! Quedó suscrito a nuestras novedades."
+          data-form-fallback={`No pudimos completar la suscripción. Escríbanos a ${CONTACT.email} y lo agregamos a la lista.`}
+        >
+          {/* Trampa antispam: la rellenan los robots, nunca una persona. */}
+          <input
+            type="checkbox"
+            name="botcheck"
+            class="hidden"
+            style="display:none"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+
+          <div class="flex flex-col gap-3 sm:flex-row">
+            <div class="w-full">
+              <label for="cierre-suscripcion" class="sr-only">
+                Correo electrónico
+              </label>
+              <input
+                type="email"
+                id="cierre-suscripcion"
+                name="email"
+                required
+                autocomplete="email"
+                placeholder="Escriba su correo"
+                class="cierre-campo w-full rounded-full border border-white/30 bg-white/95 px-5 py-3.5 text-neutral-800 placeholder:text-neutral-500"
+              />
+            </div>
+            <button
+              type="submit"
+              class="text-brand-800 shadow-brand-950/25 hover:bg-brand-50 inline-flex shrink-0 items-center justify-center rounded-full bg-white px-7 py-3.5 font-bold whitespace-nowrap shadow-lg ring-white outline-hidden transition duration-300 hover:-translate-y-0.5 focus-visible:ring-3 active:translate-y-0"
+            >
+              Suscribirme
+            </button>
+          </div>
+
+          <p
+            class="text-brand-100 mt-3 text-sm data-[kind=error]:text-red-200 data-[kind=ok]:text-green-200"
+            data-form-status
+            hidden
+            aria-live="polite"
+          >
+          </p>
+
+          <p class="text-brand-100/80 mt-3 text-xs">
+            Al suscribirse acepta nuestra{' '}
+            <a
+              href="/politica-de-datos"
+              class="underline underline-offset-2 hover:text-white"
+            >
+              Política de Tratamiento de Datos</a
+            >.
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /*
+    El alto. `min-h-svh` como el hero dejaría la portada terminando en dos
+    pantallas completas seguidas —el carrusel y esto— y se hacía larguísima.
+    Con `min-height: 78svh` el bloque sigue leyéndose como una pantalla entera
+    y deja asomar el pie, que es la señal de que la página se acaba.
+
+    `svh` y no `vh` por lo mismo que en el hero: en el móvil, `vh` cuenta la
+    barra de direcciones del navegador aunque esté visible.
+  */
+  .cierre {
+    min-height: 40rem;
+    min-height: 78svh;
+  }
+
+  /* El campo, con 16 px clavados: por debajo de eso Safari de iOS hace zoom al
+     enfocarlo y no lo deshace. Mismo motivo que en el asistente. */
+  .cierre-campo {
+    font-size: 16px;
+  }
+
+  .cierre-campo:focus {
+    outline: none;
+    border-color: #fff;
+    box-shadow: 0 0 0 4px rgb(255 255 255 / 0.35);
+  }
+</style>

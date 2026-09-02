@@ -179,6 +179,64 @@ describe('lo que se le manda a Resend', () => {
     assert.doesNotMatch(interno.subject, /inventado/);
     assert.doesNotMatch(interno.html, /inventado/);
   });
+
+  /*
+   * Al correo comercial le entran también mensajes escritos a mano y
+   * reenviados por asesores. Sin una marca, no hay forma de saber cuál llegó
+   * por el formulario del sitio y hay que atender con el guion de la web.
+   */
+  test('el aviso interno dice que la consulta viene del formulario del sitio', async () => {
+    await pedir(envio());
+    const [interno, confirmacion] = llamada.body;
+
+    assert.match(
+      interno.subject,
+      /^\[Formulario web\]/,
+      `el asunto no marca la procedencia: ${interno.subject}`
+    );
+    assert.match(interno.html, /Formulario de contacto del sitio web/);
+    assert.match(interno.text, /Formulario de contacto del sitio web/);
+
+    // La confirmación la lee el cliente: ahí la marca interna no pinta nada.
+    assert.doesNotMatch(confirmacion.subject, /Formulario web/);
+  });
+
+  test('el aviso dice desde qué página se envió, sin arrastrar la búsqueda', async () => {
+    const res = await contactoHandler(
+      new Request(`${ORIGEN}/api/contacto`, {
+        method: 'POST',
+        headers: {
+          origin: ORIGEN,
+          referer: `${ORIGEN}/catalogo/?q=lo-que-tecleo#resultados`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(envio()),
+      }),
+      { ip: '10.0.2.7' }
+    );
+    assert.equal(res.status, 200);
+
+    const [interno] = llamada.body;
+    assert.match(interno.html, /byslogistics\.com\.co\/catalogo\//);
+    assert.doesNotMatch(interno.html, /lo-que-tecleo/);
+  });
+
+  test('un referer de fuera no se imprime en el correo', async () => {
+    await contactoHandler(
+      new Request(`${ORIGEN}/api/contacto`, {
+        method: 'POST',
+        headers: {
+          origin: ORIGEN,
+          referer: 'https://sitio-ajeno.com/lo-que-sea',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(envio()),
+      }),
+      { ip: '10.0.2.8' }
+    );
+    const [interno] = llamada.body;
+    assert.doesNotMatch(interno.html, /sitio-ajeno/);
+  });
 });
 
 describe('el mensaje de otra persona nunca se ejecuta', () => {

@@ -10,7 +10,7 @@ cardImageAlt: 'Precinto de correa dentada con doble cierre'
 # defecto de familia de `fichas.ts`.
 # LA PLANTILLA DE LA CATEGORÍA. Todo lo de aquí lo heredan las seis
 # referencias, y cada una sobreescribe lo que sea suyo. Los atributos que
-# cambian de una a otra —la longitud, el área de marcación, la resistencia— se
+# cambian de una a otra —la longitud, el ancho, el área de marcación— se
 # declaran SIN valor: la fila se ve igual en las seis fichas y la que todavía
 # no tiene su número invita a consultarlo, en vez de enseñar el de otra.
 specs:
@@ -20,9 +20,6 @@ specs:
   - etiqueta: 'Ancho de correa'
   - etiqueta: 'Tipo de cierre'
   - etiqueta: 'Área de marcación'
-  - etiqueta: 'Resistencia a la tensión'
-  - etiqueta: 'Temperatura de trabajo'
-    valor: '-20 °C a 80 °C'
   - etiqueta: 'Usos'
     valor: 'Control de seguridad e identificación'
 medidas:
@@ -253,8 +250,6 @@ products:
         valor: '4,3 x 2,8 cm'
       - etiqueta: 'Tipo de cierre'
         valor: 'Cierre Dentado ajustable'
-      - etiqueta: 'Resistencia a la tensión'
-        valor: '18 kgf aprox.'
     medidas:
       valores:
         - etiqueta: 'Longitud total'
@@ -363,7 +358,9 @@ products:
       - nombre: 'Gris'
         hex: '#8a8a8a'
       - nombre: 'Lila'
+        hex: '#a47dab'
       - nombre: 'Fucsia'
+        hex: '#ff00ff'
     personalizacion:
       - 'Logo de empresa'
       - 'Numeración consecutiva'
@@ -524,7 +521,9 @@ products:
       - nombre: 'Gris'
         hex: '#8a8a8a'
       - nombre: 'Lila'
+        hex: '#a47dab'
       - nombre: 'Fucsia'
+        hex: '#ff00ff'
     personalizacion:
       - 'Logo de empresa'
       - 'Numeración consecutiva'

@@ -53,12 +53,19 @@ import { SITE } from '@/data_files/constants';
         <BrandLogo class="h-auto w-24" variante="navbar" />
       </a>
       {
-        /* En móvil el cotizador y el CTA acompañan al logo: dentro del menú
-          plegable quedarían escondidos justo cuando hay algo que enviar. */
+        /* En móvil solo acompaña al logo el COTIZADOR, y solo cuando tiene
+          algo dentro: escondido en el menú plegable quedaría fuera de la vista
+          justo cuando hay una cotización que enviar.
+
+          El CTA «Cotizar» NO está aquí, y es una decisión: sin etiqueta se
+          quedaba en un círculo azul con una etiqueta de precio dentro, al lado
+          del cotizador y del botón del menú —tres círculos seguidos, ninguno
+          legible—, y llevaba al catálogo, que ya está en el menú a un toque.
+          En pantalla ancha sí se mantiene, abajo, donde tiene sitio para su
+          etiqueta. */
       }
       <div class="ml-auto flex items-center gap-x-2 lg:hidden">
         <QuoteButton />
-        <QuoteCta compact />
       </div>
 
       {/* Collapse toggle for smaller screens */}
@@ -138,10 +145,17 @@ import { SITE } from '@/data_files/constants';
        Va pequeño (36 px) y con margen derecho negativo, que le come parte del
        relleno del contenedor y lo arrima al canto de la pantalla. Sigue dentro
        del `flex` de la cabecera y no suelto en `fixed` porque así RESERVA su
-       sitio: suelto, entre 1280 y 1536 px se montaba encima de la píldora. */
+       sitio: suelto, entre 1280 y 1536 px se montaba encima de la píldora.
+
+       NO SE VE EN EL MÓVIL (`hidden lg:flex`). Ahí el ancho es lo que escasea:
+       el interruptor le robaba sitio a la píldora para ofrecer un ajuste que
+       casi nadie toca desde el teléfono. Y no basta con esconderlo: sin él no
+       hay forma de volver, así que el móvil se queda SIEMPRE en el tema claro
+       —lo fuerza el script de más abajo— en lugar de heredar un modo oscuro
+       elegido en el escritorio y quedarse encerrado en él. */
   }
   <div
-    class="navbar-theme border-brand-100/40 bg-brand-50/60 -mr-1 flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-full border backdrop-blur-md sm:-mr-3 lg:-mr-5 dark:border-neutral-700/40 dark:bg-neutral-800/80 dark:backdrop-blur-md"
+    class="navbar-theme border-brand-100/40 bg-brand-50/60 hidden h-9 w-9 shrink-0 items-center justify-center self-center rounded-full border backdrop-blur-md lg:-mr-5 lg:flex dark:border-neutral-700/40 dark:bg-neutral-800/80 dark:backdrop-blur-md"
   >
     <ThemeIcon />
   </div>
@@ -314,13 +328,13 @@ import { SITE } from '@/data_files/constants';
           : 'default';
       }
 
-      document.querySelector('html').classList.remove('dark');
+      /* Quién decide si la clase `dark` entra o no es `bysAplicarTema`, la
+         función que MainLayout deja resuelta antes de pintar: es la que sabe
+         que el modo oscuro solo existe a partir de 1024 px. Aquí se guarda la
+         preferencia y se le pide que vuelva a aplicarla. */
       document.querySelector('html').classList.remove('default');
       document.querySelector('html').classList.remove('auto');
-
-      document
-        .querySelector('html')
-        .classList.add(this.getOriginalAppearance());
+      window.bysAplicarTema();
 
       setTimeout(() => {
         $resetStylesEl.remove();
@@ -355,6 +369,15 @@ import { SITE } from '@/data_files/constants';
         HSThemeAppearance.setAppearance('auto', false);
       }
     });
+
+  /* Al cruzar el ancho a partir del cual existe el interruptor —girando el
+     teléfono, o estirando la ventana en el escritorio— el tema se vuelve a
+     resolver. Sin esto, una ventana estrechada se quedaría en oscuro con el
+     interruptor ya fuera de pantalla, que es justo el callejón sin salida que
+     esta regla viene a evitar. */
+  window
+    .matchMedia(window.BYS_TEMA_OSCURO_DESDE)
+    .addEventListener('change', () => window.bysAplicarTema());
 
   window.addEventListener('load', () => {
     const $clickableThemes = document.querySelectorAll(

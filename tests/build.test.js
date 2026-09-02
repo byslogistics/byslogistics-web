@@ -135,6 +135,87 @@ describe('rutas generadas', () => {
   });
 });
 
+/*
+ * POR QUÉ ESTE BLOQUE.
+ *
+ * El logo no salía en los resultados de Google, y eran dos cosas a la vez:
+ *
+ *   1. El favicon se publicaba en `/_astro/icon.<hash>.png`. Ese hash cambia
+ *      con cada compilación del archivo, y Google pide que la dirección del
+ *      icono se mantenga constante: con una que se mueve, ningún rastreo llega
+ *      a asociarlo al sitio.
+ *   2. No había datos estructurados de `Organization`, que es de donde el
+ *      buscador saca el logotipo de una empresa. Los de `WebPage` describen la
+ *      página, no la marca.
+ *
+ * Las dos se arreglan solas y se rompen solas: basta con que alguien vuelva a
+ * poner un `getImage` en Meta.astro, o borre el bloque de la organización.
+ */
+describe('el logo y el icono, para los buscadores', () => {
+  const RUTAS_FIJAS = ['/icono.png', '/apple-touch-icon.png', '/logo.png'];
+
+  test('los iconos se publican en direcciones que no cambian', () => {
+    for (const ruta of RUTAS_FIJAS) {
+      assert.ok(
+        statSync(join(DIST, ruta.slice(1))).size > 1000,
+        `${ruta} no se generó, o salió vacío`
+      );
+    }
+  });
+
+  test('ninguna página declara un icono con hash en la URL', () => {
+    for (const p of pages()) {
+      const iconos = [
+        ...p.html.matchAll(/<link[^>]+rel="[^"]*icon[^"]*"[^>]*>/g),
+      ]
+        .map(m => m[0])
+        .filter(etiqueta => /_astro/.test(etiqueta));
+      assert.deepEqual(
+        iconos,
+        [],
+        `${p.route} apunta el icono a /_astro/, cuya URL cambia en cada despliegue`
+      );
+    }
+  });
+
+  test('el icono declarado es el de la ruta fija', () => {
+    const html = pages().find(p => p.route === '/').html;
+    assert.match(html, /href="\/icono\.png"/);
+    assert.match(html, /href="\/apple-touch-icon\.png"/);
+    assert.match(html, /href="\/favicon\.ico"/);
+  });
+
+  test('todas las páginas publican la organización con su logotipo', () => {
+    for (const p of pages()) {
+      const bloques = [
+        ...p.html.matchAll(
+          /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g
+        ),
+      ].map(m => JSON.parse(m[1]));
+
+      const organizacion = bloques.find(b => b['@type'] === 'Organization');
+      assert.ok(organizacion, `${p.route} no declara la organización`);
+      assert.equal(
+        organizacion.logo.url,
+        'https://byslogistics.com.co/logo.png',
+        `${p.route} apunta el logotipo a otro sitio`
+      );
+      assert.equal(organizacion.name, 'B&S Logistics');
+    }
+  });
+
+  test('el color de la barra del navegador es el de la marca', () => {
+    // Era `#facc15`, el amarillo de la plantilla original.
+    for (const p of pages()) {
+      assert.match(
+        p.html,
+        /<meta name="theme-color" content="#0060a8">/,
+        `${p.route} conserva el color de la plantilla`
+      );
+    }
+  });
+});
+
 describe('ficha de producto', () => {
   const fichas = () =>
     pages().filter(p =>
@@ -235,8 +316,24 @@ describe('ficha de producto', () => {
     ]) {
       assert.ok(html.includes(bloque), `la referencia no heredó "${bloque}"`);
     }
-    // Su longitud sí la sabe —la dice su nombre—, la resistencia todavía no.
+    // Y lo que es suyo lo conserva: la longitud, que la dice su nombre.
     assert.ok(html.includes('38 cm'), 'perdió su propia longitud');
+  });
+
+  /*
+   * La otra mitad de la herencia: un atributo que la categoría declara y la
+   * referencia todavía no sabe. La fila tiene que seguir viéndose, invitando a
+   * preguntarlo, y no desaparecer — si desapareciera, dos referencias de la
+   * misma categoría tendrían fichas de distinto tamaño y parecería que a una
+   * le falta media descripción.
+   *
+   * La referencia es de otra categoría a propósito: las de correa dentada ya
+   * tienen todos sus atributos, así que ahí no queda nada pendiente que mirar.
+   */
+  test('un atributo sin valor invita a consultarlo, no desaparece', () => {
+    const html = unaFicha(
+      '/precintos/precintos-planos/precinto-plano-bc-42-cms/'
+    );
     assert.ok(
       html.includes('Consúltenos'),
       'un atributo sin valor debe invitar a consultarlo, no desaparecer'
@@ -251,7 +348,7 @@ describe('ficha de producto', () => {
       !html.includes('Consúltenos'),
       'la ficha de ejemplo tiene que estar completa'
     );
-    for (const dato of ['8 mm', '4,3 x 2,8 cm', '18 kgf', 'Más vendido']) {
+    for (const dato of ['8 mm', '4,3 x 2,8 cm', 'Más vendido']) {
       assert.ok(html.includes(dato), `falta ${dato}`);
     }
   });

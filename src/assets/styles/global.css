@@ -130,3 +130,92 @@
     cursor: pointer;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * APARICIÓN AL HACER SCROLL
+ *
+ * Lo primero que dijeron al ver el sitio fue que «se ve plano»: se bajaba por
+ * la página y nada se movía, así que todo parecía una sola lámina impresa. Un
+ * desplazamiento corto y un fundido al entrar en pantalla bastan para que la
+ * página se lea como algo vivo, sin convertirse en un carrusel de efectos.
+ *
+ * CÓMO SE USA. De dos maneras, y la primera no hay que escribirla:
+ *
+ *   1. **Automática.** Toda `<section>` que sea hija directa de `<main>`
+ *      aparece al entrar en pantalla. No hace falta tocar ninguna página: es
+ *      la estructura que ya tienen todas. La PRIMERA queda fuera a propósito
+ *      —está sobre el pliegue, se ve antes de que haya scroll, y esconderla
+ *      para enseñarla medio segundo después solo retrasa lo que la gente vino
+ *      a ver (y empeora la métrica de carga de la portada)—.
+ *   2. **A mano, con `data-anim`,** para lo que no es una sección: una tarjeta,
+ *      un renglón de una lista, la columna de una rejilla. Los valores son
+ *      `sube` (el de por defecto), `izquierda`, `derecha`, `escala` y `no`,
+ *      que es cómo se saca a una sección del automático.
+ *
+ *   `data-anim-retraso="1..6"` escalona: en una rejilla de tarjetas, que
+ *   entren todas a la vez se ve como un parpadeo; escalonadas, se lee como si
+ *   la rejilla se fuera armando.
+ *
+ * DOS COSAS QUE NO SE PUEDEN PERDER DE VISTA
+ *
+ * · **Sin JavaScript no se esconde nada.** El estado inicial cuelga de la
+ *   clase `anim-js`, que pone el script en línea de MainLayout antes de
+ *   pintar. Sin scripts —o si el módulo que las revela no llega a cargar, que
+ *   MainLayout también contempla— la página se ve entera, que es lo único
+ *   aceptable: una animación que falla no puede dejar el contenido invisible.
+ * · **Con `prefers-reduced-motion` no existe.** Todo el bloque vive dentro de
+ *   la consulta `no-preference`, así que quien pidió menos movimiento no ve
+ *   ni el estado inicial.
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: no-preference) {
+  .anim-js [data-anim]:not([data-anim='no']),
+  .anim-js main[data-anim-scope] > section:not(:first-child):not([data-anim]) {
+    opacity: 0;
+    transform: var(--anim-desde, translate3d(0, 1.75rem, 0));
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--anim-retraso, 0ms),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--anim-retraso, 0ms);
+  }
+
+  /* El estado final repite los dos selectores de arriba con `.anim-dentro`
+     añadido, y no se resuelve con una regla suelta, porque el del automático
+     es lo bastante específico como para ganarle a cualquier cosa más corta. */
+  .anim-js [data-anim]:not([data-anim='no']).anim-dentro,
+  .anim-js
+    main[data-anim-scope]
+    > section:not(:first-child):not([data-anim]).anim-dentro {
+    opacity: 1;
+    transform: none;
+  }
+
+  .anim-js [data-anim='izquierda'] {
+    --anim-desde: translate3d(-2.25rem, 0, 0);
+  }
+
+  .anim-js [data-anim='derecha'] {
+    --anim-desde: translate3d(2.25rem, 0, 0);
+  }
+
+  .anim-js [data-anim='escala'] {
+    --anim-desde: scale(0.94);
+  }
+
+  .anim-js [data-anim-retraso='1'] {
+    --anim-retraso: 80ms;
+  }
+  .anim-js [data-anim-retraso='2'] {
+    --anim-retraso: 160ms;
+  }
+  .anim-js [data-anim-retraso='3'] {
+    --anim-retraso: 240ms;
+  }
+  .anim-js [data-anim-retraso='4'] {
+    --anim-retraso: 320ms;
+  }
+  .anim-js [data-anim-retraso='5'] {
+    --anim-retraso: 400ms;
+  }
+  .anim-js [data-anim-retraso='6'] {
+    --anim-retraso: 480ms;
+  }
+}

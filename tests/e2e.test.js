@@ -520,6 +520,156 @@ describe('catálogo con filtros', { skip: skip() }, () => {
     await page.close();
   });
 
+  /*
+   * LAS PÁGINAS.
+   *
+   * Las ciento dieciocho referencias siguen imprimiéndose en el HTML —eso lo
+   * comprueba tests/build.test.js—, pero a la vista solo hay veinticuatro. Lo
+   * que se vigila aquí es que las dos cifras no se confundan: el recuento
+   * habla de cuántas COINCIDEN, y la página de cuántas se PINTAN.
+   */
+  test('el catálogo se reparte en páginas de veinticuatro', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(200);
+
+    assert.equal(
+      await page.locator('[data-catalog-item]:visible').count(),
+      24,
+      'la primera página debería enseñar veinticuatro referencias'
+    );
+    assert.equal(await page.locator('#catalog-count').textContent(), '118');
+    assert.equal(await page.locator('#catalog-rango').textContent(), '1–24');
+    assert.equal(await page.locator('#catalog-paginas').textContent(), '5');
+    await page.close();
+  });
+
+  test('pasar de página enseña otras referencias, no las mismas', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(200);
+
+    const primeraDeLaUno = await page
+      .locator('[data-catalog-item]:visible h2')
+      .first()
+      .textContent();
+
+    await page.locator('[data-pagina="siguiente"]').first().click();
+    await page.waitForTimeout(300);
+
+    assert.equal(await page.locator('#catalog-pagina').textContent(), '2');
+    assert.equal(await page.locator('#catalog-rango').textContent(), '25–48');
+    const primeraDeLaDos = await page
+      .locator('[data-catalog-item]:visible h2')
+      .first()
+      .textContent();
+    assert.notEqual(
+      primeraDeLaDos,
+      primeraDeLaUno,
+      'la página 2 repite la primera referencia de la 1'
+    );
+
+    // Y la última página no tiene «siguiente» que pulsar.
+    await page
+      .locator('#catalog-paginacion button[aria-label^="Página 5"]')
+      .click();
+    await page.waitForTimeout(300);
+    assert.equal(
+      await page.locator('[data-pagina="siguiente"]').first().isDisabled(),
+      true
+    );
+    await page.close();
+  });
+
+  test('buscar desde la página 3 no deja la lista en blanco', async () => {
+    /*
+     * El fallo que esto vigila: quien estaba en la página 3 y escribe una
+     * palabra que solo devuelve ocho referencias se quedaba mirando la página
+     * 3 de un resultado que ahora tiene una sola, y la lista se veía vacía
+     * como si la búsqueda no hubiera encontrado nada.
+     */
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.locator('[data-pagina="siguiente"]').first().click();
+    await page.locator('[data-pagina="siguiente"]').first().click();
+    await page.waitForTimeout(300);
+    assert.equal(await page.locator('#catalog-pagina').textContent(), '3');
+
+    await page.fill('#catalog-search', 'guaya');
+    await page.waitForTimeout(300);
+
+    assert.equal(await page.locator('#catalog-pagina').textContent(), '1');
+    assert.ok(
+      (await page.locator('[data-catalog-item]:visible').count()) > 0,
+      'la búsqueda dejó la lista vacía por quedarse en una página que ya no existe'
+    );
+    await page.close();
+  });
+
+  test('la página que se está viendo viaja en el enlace', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/?p=3', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(300);
+    assert.equal(await page.locator('#catalog-pagina').textContent(), '3');
+    assert.equal(await page.locator('#catalog-rango').textContent(), '49–72');
+    await page.close();
+  });
+
+  test('se puede ordenar por nombre', async () => {
+    const page = await browser.newPage();
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(200);
+
+    await page.selectOption('#catalog-orden', 'az');
+    await page.waitForTimeout(300);
+    const primeras = await page
+      .locator('[data-catalog-item]:visible h2')
+      .allTextContents();
+    const ordenadas = primeras.slice().sort((a, b) => a.localeCompare(b, 'es'));
+    assert.deepEqual(
+      primeras.map(t => t.trim()),
+      ordenadas.map(t => t.trim()),
+      'la página no quedó ordenada alfabéticamente'
+    );
+
+    // Y ordenar no cambia cuántas hay.
+    assert.equal(await page.locator('#catalog-count').textContent(), '118');
+    await page.close();
+  });
+
+  test('la vista de lista cambia la forma de la rejilla', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 900 },
+    });
+    await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(200);
+
+    assert.equal(
+      await page.getAttribute('#catalog-grid', 'data-vista'),
+      'rejilla'
+    );
+    await page.locator('button[data-vista="lista"]').click();
+    await page.waitForTimeout(200);
+    assert.equal(
+      await page.getAttribute('#catalog-grid', 'data-vista'),
+      'lista'
+    );
+    assert.equal(
+      await page.getAttribute('button[data-vista="lista"]', 'aria-pressed'),
+      'true'
+    );
+
+    // Y se recuerda para la próxima visita.
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(300);
+    assert.equal(
+      await page.getAttribute('#catalog-grid', 'data-vista'),
+      'lista',
+      'la vista elegida no sobrevivió a la recarga'
+    );
+    await page.close();
+  });
+
   test('«limpiar filtros» restaura el listado completo', async () => {
     const page = await browser.newPage();
     await page.goto(base + '/catalogo/', { waitUntil: 'networkidle' });
@@ -760,7 +910,128 @@ describe('formulario de contacto', { skip: skip() }, () => {
   });
 });
 
+/*
+ * EL MODO OSCURO ES DE ESCRITORIO.
+ *
+ * Por debajo de 1024 px el interruptor no se enseña, y sin interruptor no hay
+ * forma de salir de un modo oscuro heredado de una visita desde el ordenador:
+ * quien abriera el sitio en el teléfono se quedaría encerrado en él. La regla
+ * vive en `bysAplicarTema` (MainLayout) y es fácil de romper sin enterarse —lo
+ * hizo el interruptor de tema de Preline, que se enganchaba solo a los mismos
+ * botones y volvía a poner la clase por su cuenta—, así que se comprueba aquí.
+ */
+describe(
+  'el tema oscuro solo existe en pantalla ancha',
+  { skip: skip() },
+  () => {
+    const estado = page =>
+      page.evaluate(() => ({
+        oscuro: document.documentElement.classList.contains('dark'),
+        guardado: localStorage.getItem('hs_theme'),
+      }));
+
+    test('en el móvil no se aplica, aunque esté guardado', async () => {
+      const page = await browser.newPage({
+        viewport: { width: 390, height: 844 },
+      });
+      await page.goto(base + '/', { waitUntil: 'networkidle' });
+      await page.evaluate(() => localStorage.setItem('hs_theme', 'dark'));
+      await page.reload({ waitUntil: 'networkidle' });
+      await page.waitForTimeout(400);
+
+      const { oscuro, guardado } = await estado(page);
+      assert.equal(oscuro, false, 'el móvil quedó en modo oscuro sin salida');
+      assert.equal(
+        guardado,
+        'dark',
+        'la preferencia se borró: al volver al escritorio debe seguir ahí'
+      );
+      assert.equal(
+        await page.locator('.navbar-theme').isVisible(),
+        false,
+        'el interruptor de tema no debe verse en el móvil'
+      );
+      await page.close();
+    });
+
+    test('en el escritorio se aplica y el interruptor funciona', async () => {
+      const page = await browser.newPage({
+        viewport: { width: 1280, height: 900 },
+      });
+      await page.goto(base + '/', { waitUntil: 'networkidle' });
+      assert.equal((await estado(page)).oscuro, false);
+
+      await page.locator('[data-hs-theme-click-value="dark"]:visible').click();
+      await page.waitForTimeout(300);
+      assert.equal(
+        (await estado(page)).oscuro,
+        true,
+        'no se pudo poner oscuro'
+      );
+
+      await page
+        .locator('[data-hs-theme-click-value="default"]:visible')
+        .click();
+      await page.waitForTimeout(300);
+      assert.equal(
+        (await estado(page)).oscuro,
+        false,
+        'no se pudo volver a claro'
+      );
+      await page.close();
+    });
+
+    test('al estrechar la ventana se apaga, y vuelve al ensanchar', async () => {
+      const page = await browser.newPage({
+        viewport: { width: 1280, height: 900 },
+      });
+      await page.goto(base + '/', { waitUntil: 'networkidle' });
+      await page.locator('[data-hs-theme-click-value="dark"]:visible').click();
+      await page.waitForTimeout(300);
+
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.waitForTimeout(400);
+      assert.equal((await estado(page)).oscuro, false);
+
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await page.waitForTimeout(400);
+      assert.equal((await estado(page)).oscuro, true);
+      await page.close();
+    });
+  }
+);
+
 describe('navegación móvil', { skip: skip() }, () => {
+  test('en la barra no queda el CTA de cotizar, que llevaba al catálogo', async () => {
+    /*
+     * Sin etiqueta se quedaba en un círculo azul con una etiqueta de precio
+     * dentro, al lado del cotizador y del botón del menú: tres círculos
+     * seguidos y ninguno legible. El catálogo sigue a un toque, dentro del
+     * menú.
+     */
+    const page = await browser.newPage({
+      viewport: { width: 390, height: 844 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+
+    const cta = page.locator('a[aria-label="Cotizar: ir al catálogo"]');
+    assert.equal(
+      await cta.locator('visible=true').count(),
+      0,
+      'volvió el CTA de cotizar a la barra del móvil'
+    );
+
+    await page.click('[data-hs-collapse]');
+    await page.waitForTimeout(500);
+    assert.ok(
+      await page
+        .locator('#navbar-collapse-with-animation a[href="/catalogo"]')
+        .isVisible(),
+      'el catálogo tiene que seguir estando en el menú'
+    );
+    await page.close();
+  });
+
   test('el menú se despliega al pulsar el botón', async () => {
     const page = await browser.newPage({
       viewport: { width: 390, height: 844 },
@@ -1063,6 +1334,62 @@ describe('asistente del sitio', { skip: skip() }, () => {
 
     await page.keyboard.press('Escape');
     assert.equal(await panel.isVisible(), false);
+    await page.close();
+  });
+
+  test('el lanzador enseña un icono, no un punto azul', async () => {
+    /*
+     * En el móvil el lanzador va sin etiqueta, así que el icono es lo único
+     * que dice qué es. El `<svg>` del globo no trae atributos de tamaño —solo
+     * `viewBox`—, y dentro de un `<span>` sin medidas se quedaba en nada: el
+     * botón se veía como un círculo azul liso y nadie entendía que era el
+     * chat. El tamaño lo pone el CSS, y esto comprueba que sigue puesto.
+     */
+    const page = await browser.newPage({
+      viewport: { width: 390, height: 844 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+
+    const icono = await page.locator('.chat-launcher-icon svg').boundingBox();
+    assert.ok(
+      icono && icono.width >= 14 && icono.height >= 14,
+      `el icono del asistente no se ve: ${JSON.stringify(icono)}`
+    );
+    await page.close();
+  });
+
+  test('en el móvil el panel no se sale de la pantalla', async () => {
+    const page = await browser.newPage({
+      viewport: { width: 390, height: 844 },
+    });
+    await page.goto(base + '/', { waitUntil: 'networkidle' });
+    await page.click('[data-chat-toggle]');
+    await page.waitForTimeout(300);
+
+    const panel = await page.locator('[data-chat-panel]').boundingBox();
+    assert.ok(
+      panel.x >= -1,
+      `el panel empieza fuera por la izquierda: ${panel.x}`
+    );
+    assert.ok(
+      panel.x + panel.width <= 391,
+      `el panel se sale por la derecha: ${panel.x + panel.width}`
+    );
+
+    /*
+     * Y el campo mide 16 px. Por debajo de eso, Safari de iOS hace zoom al
+     * enfocarlo y no lo deshace: la página entera se queda ampliada y hay que
+     * alejarla a mano. Es el motivo por el que el chat «se salía» del margen.
+     */
+    const letra = await page.evaluate(
+      () =>
+        getComputedStyle(document.querySelector('.chat-form input')).fontSize
+    );
+    assert.equal(
+      letra,
+      '16px',
+      'el campo del asistente volvió a medir menos de 16 px: iOS hará zoom'
+    );
     await page.close();
   });
 

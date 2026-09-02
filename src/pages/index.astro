@@ -2,12 +2,11 @@
 import { getCollection } from 'astro:content';
 import MainLayout from '@/layouts/MainLayout.astro';
 import HeroSection from '@components/sections/landing/HeroSection.astro';
-import HeroSectionAlt from '@components/sections/landing/HeroSectionAlt.astro';
+import CierreSection from '@components/sections/landing/CierreSection.astro';
 import ClientsSection from '@components/sections/landing/ClientsSection.astro';
-import TestimonialsSection from '@components/sections/testimonials/TestimonialsSection.astro';
+import OpinionesSection from '@components/sections/testimonials/OpinionesSection.astro';
 import SolutionsCarousel from '@components/ui/blocks/SolutionsCarousel.astro';
 import heroImage from '@images/backgrounds/precinto-tecnologia.jpg';
-import testimonialsBackdrop from '@images/backgrounds/precintos-estudio.jpg';
 import { partnersData } from '@/data_files/constants';
 
 /**
@@ -93,23 +92,32 @@ const soluciones = (await getCollection('soluciones')).sort(
     </div>
   </section>
 
-  <TestimonialsSection
-    title="Testimonios de Nuestros Clientes"
-    subTitle="Estas son algunas opiniones de nuestros clientes, contamos con 5 estrellas en la puntuación de satisfacción de Google."
-    testimonials={[
-      {
-        content:
-          'Su asesoría al momento de elegir el producto que mejor se adaptara a las necesidades de mi empresa, fue clave para el éxito de los procesos logísticos de mi negocio. Los recomiendo.',
-        author: 'Daniel Molina',
-        role: 'Reseña de Google · 5 estrellas',
-      },
-    ]}
-    backdrop={testimonialsBackdrop}
+  {
+    /*
+      Las opiniones ya no se escriben aquí: son las publicadas en la ficha de
+      Google de la empresa y viven en `src/data_files/opiniones.ts`, que es una
+      copia de lo que hay allí. Cada tarjeta enlaza a la ficha, así que la
+      autenticidad no hay que afirmarla, se comprueba. Ver OpinionesSection.
+    */
+  }
+  <OpinionesSection
+    title="Lo que dicen nuestros clientes"
+    subTitle="No son testimonios que hayamos escrito nosotros: son las reseñas publicadas en nuestra ficha de Google. Pulse cualquiera y la verá en Google, con su autor y su fecha."
   />
 
-  <HeroSectionAlt
-    title="Estamos Aquí Para Ayudarle, Contáctenos Ahora"
-    subTitle="Tenemos una gran variedad de elementos de seguridad. Descríbanos su necesidad y podremos asesorarle con respecto al producto ideal para su empresa."
+  {
+    /*
+      El cierre de la portada. El titular ya no es «Estamos aquí para
+      ayudarle»: esa frase se conserva —vale, y la clienta la quería— pero
+      pasada al epígrafe del bloque, que es donde una frase de cortesía cumple.
+      El titular dice lo que hay que hacer a continuación, que es lo que un
+      cierre de página tiene que decir.
+    */
+  }
+  <CierreSection
+    title="Cuéntenos qué necesita asegurar"
+    subTitle="Tenemos una gran variedad de elementos de seguridad. Descríbanos su necesidad y le asesoramos con el producto ideal para su empresa."
     url="/contacto"
+    btnTitle="Contáctenos ahora"
   />
 </MainLayout>
